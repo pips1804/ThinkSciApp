@@ -1,9 +1,10 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class MainSceneUI : MonoBehaviour
 {
-    public TMP_Text welcomeText; // Text object to show the name
+    public Text welcomeText; // Text object to show the name
     public DatabaseManager dbManager; // Reference to the DatabaseManager
 
     void Start()
@@ -12,6 +13,6 @@ public class MainSceneUI : MonoBehaviour
         var (firstName, middleName, lastName) = dbManager.GetUser();
 
         // Display the user's full name in the welcome text
-        welcomeText.text = $"Welcome, {firstName} {middleName} {lastName}";
+        welcomeText.text = $"{firstName}!";
     }
 }
