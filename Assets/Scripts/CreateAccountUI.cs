@@ -11,6 +11,8 @@ public class CreateAccountUI : MonoBehaviour
     public GameObject LoadingScreen;
     public Slider LoadingSlider;
     public DatabaseManager dbManager;
+    public GameObject WarningPanel; 
+
 
     private void Start()
     {
@@ -50,14 +52,30 @@ public class CreateAccountUI : MonoBehaviour
     {
         Debug.Log("Submit button clicked!");
 
-        string firstName = InputFName.text;
-        string middleName = InputMName.text;
-        string lastName = InputLName.text;
+        string firstName = InputFName.text.Trim();
+        string middleName = InputMName.text.Trim();
+        string lastName = InputLName.text.Trim();
+
+        // Validate fields
+        if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(middleName) || string.IsNullOrEmpty(lastName))
+        {
+            WarningPanel.SetActive(true); // Show warning
+            return;
+        }
+
+        // Hide warning if previously shown
+        WarningPanel.SetActive(false);
 
         dbManager.SaveUser(firstName, middleName, lastName);
 
         StartCoroutine(LoadSceneAsync("MainScene"));
     }
+
+    public void CloseWarning()
+    {
+        WarningPanel.SetActive(false);
+    }
+
 
     IEnumerator LoadSceneAsync(string sceneName)
     {

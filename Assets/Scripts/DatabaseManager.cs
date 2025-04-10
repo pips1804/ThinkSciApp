@@ -35,6 +35,13 @@ public class DatabaseManager : MonoBehaviour
 
     public void SaveUser(string firstName, string middleName, string lastName)
     {
+        // Defensive validation
+        if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(middleName) || string.IsNullOrWhiteSpace(lastName))
+        {
+            Debug.LogWarning("Attempted to save user with incomplete or invalid data. Operation cancelled.");
+            return; // Stop here if any value is null or empty or whitespace
+        }
+
         using (var connection = new SqliteConnection(dbPath))
         {
             connection.Open();
@@ -48,6 +55,8 @@ public class DatabaseManager : MonoBehaviour
                 command.ExecuteNonQuery();
             }
         }
+
+        Debug.Log("User data successfully saved.");
     }
 
     public bool HasUser()
