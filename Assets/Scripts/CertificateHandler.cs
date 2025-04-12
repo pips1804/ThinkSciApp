@@ -1,22 +1,24 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
-public class CategoryLocker : MonoBehaviour
+public class CertificateLocker : MonoBehaviour
 {
-    public Button categoryTwoButton;
-    public Button categoryThreeButton;
-    public Button categoryFourButton;
+    public Button categoryOneCertficate;
+    public Button categoryTwoCertficate;
+    public Button categoryThreeCertficate;
+    public Button categoryFourCertficate;
 
     void Start()
     {
-        // Initially lock categories
-        LockCategory(categoryTwoButton);
-        LockCategory(categoryThreeButton);
-        LockCategory(categoryFourButton);
+        // Initially lock certificate
+        LockCertificate(categoryOneCertficate);
+        LockCertificate(categoryTwoCertficate);
+        LockCertificate(categoryThreeCertficate);
+        LockCertificate(categoryFourCertficate);
     }
 
-    // Lock a category
-    public void LockCategory(Button button)
+    // Lock a certificate
+    public void LockCertificate(Button button)
     {
         button.interactable = false;
 
@@ -33,8 +35,8 @@ public class CategoryLocker : MonoBehaviour
             lockIcon.gameObject.SetActive(true);
     }
 
-    //  Unlock a category
-    public void UnlockCategory(Button button)
+    //  Unlock a certificate
+    public void UnlockCertificate(Button button)
     {
         button.interactable = true;
 
@@ -52,14 +54,14 @@ public class CategoryLocker : MonoBehaviour
             lockIcon.gameObject.SetActive(false);
     }
 
- /* 
- * Unlocking a Lesson or Category
- * public CategoryLocker categoryLocker;
+    /* 
+    * Unlocking a Lesson or Category
+    * public CategoryLocker categoryLocker;
 
-    void CheckPlayerProgress() {
-        if (playerLevel >= 5) {
-            categoryLocker.UnlockCategory(categoryLocker.categoryTwoButton);
-        }
-    }
- */
+       void CheckPlayerProgress() {
+           if (playerLevel >= 5) {
+               categoryLocker.UnlockCategory(categoryLocker.categoryTwoButton);
+           }
+       }
+    */
 }
