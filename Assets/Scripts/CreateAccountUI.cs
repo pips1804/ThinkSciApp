@@ -11,7 +11,8 @@ public class CreateAccountUI : MonoBehaviour
     public GameObject LoadingScreen;
     public Slider LoadingSlider;
     public DatabaseManager dbManager;
-    public GameObject WarningPanel; 
+    public GameObject WarningPanel;
+    public GameObject SuccessModal;
 
 
     private void Start()
@@ -57,23 +58,33 @@ public class CreateAccountUI : MonoBehaviour
         string lastName = InputLName.text.Trim();
 
         // Validate fields
-        if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(middleName) || string.IsNullOrEmpty(lastName))
+        if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(middleName) || string.IsNullOrWhiteSpace(lastName))
         {
-            WarningPanel.SetActive(true); // Show warning
+            WarningPanel.SetActive(true);
             return;
         }
 
-        // Hide warning if previously shown
         WarningPanel.SetActive(false);
 
         dbManager.SaveUser(firstName, middleName, lastName);
 
-        StartCoroutine(LoadSceneAsync("MainScene"));
+        ShowSuccessModal();
     }
 
     public void CloseWarning()
     {
         WarningPanel.SetActive(false);
+    }
+
+    public void ShowSuccessModal()
+    {
+        SuccessModal.SetActive(true);
+    }
+
+    public void CloseSuccessModal()
+    {
+        SuccessModal.SetActive(false);
+        StartCoroutine(LoadSceneAsync("MainScene")); // Only load after modal closes
     }
 
 
