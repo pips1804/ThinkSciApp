@@ -27,6 +27,10 @@ public class QuizHandler : MonoBehaviour
     private int currentQuestionIndex = 0;
     private bool hasAnswered = false;
 
+    public Text scoreText;
+    public Slider progressBar;
+    public Text questionNumberText;
+
     private List<int> selectedAnswers = new List<int>(); // -1 if unanswered
 
     void Start()
@@ -36,6 +40,9 @@ public class QuizHandler : MonoBehaviour
             selectedAnswers.Add(-1);
 
         LoadQuestion();
+
+        progressBar.minValue = 0;
+        progressBar.maxValue = questions.Count;
     }
 
     void LoadQuestion()
@@ -44,12 +51,12 @@ public class QuizHandler : MonoBehaviour
 
         Question q = questions[currentQuestionIndex];
         questionText.text = q.questionText;
+        questionNumberText.text = (currentQuestionIndex + 1).ToString();
 
         for (int i = 0; i < answerButtons.Length; i++)
         {
             answerTexts[i].text = q.answers[i];
             int index = i;
-
             answerButtons[i].onClick.RemoveAllListeners();
             answerButtons[i].onClick.AddListener(() => CheckAnswer(index));
         }
@@ -58,17 +65,19 @@ public class QuizHandler : MonoBehaviour
         hasAnswered = answeredIndex != -1;
 
         if (hasAnswered)
-        {
             ShowPreviousAnswer();
-        }
         else
-        {
             EnableButtons(true);
-        }
 
         backButton.interactable = currentQuestionIndex > 0;
         nextButton.interactable = hasAnswered && currentQuestionIndex < questions.Count - 1;
+
+        progressBar.value = currentQuestionIndex + 1;
+        UpdateScoreDisplay();
+        UpdateProgressBar();
     }
+
+
 
     void ShowPreviousAnswer()
     {
@@ -112,8 +121,10 @@ public class QuizHandler : MonoBehaviour
                 (i == correct) ? correctColor : wrongColor;
         }
 
+        UpdateScoreDisplay(); // Add this line
         nextButton.interactable = true;
     }
+
 
     void EnableButtons(bool state)
     {
@@ -146,5 +157,30 @@ public class QuizHandler : MonoBehaviour
             answerButtons[i].GetComponent<Image>().color = defaultColor;
         }
     }
+
+    void UpdateScoreDisplay()
+    {
+        int score = 0;
+        for (int i = 0; i < selectedAnswers.Count; i++)
+        {
+            if (selectedAnswers[i] == questions[i].correctAnswerIndex)
+                score++;
+        }
+
+        scoreText.text =  score.ToString();
+    }
+
+
+    void UpdateProgressBar()
+    {
+        int answered = 0;
+        for (int i = 0; i < selectedAnswers.Count; i++)
+        {
+            if (selectedAnswers[i] != -1)
+                answered++;
+        }
+        progressBar.value = answered;
+    }
+
 
 }
