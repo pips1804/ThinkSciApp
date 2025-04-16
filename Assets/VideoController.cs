@@ -23,6 +23,8 @@ public class VideoController : MonoBehaviour
 
     private bool isDragging = false;
 
+    public Button takeQuizButton;
+
     void Start()
     {
         playPauseButton.onClick.AddListener(TogglePlayPause);
@@ -45,6 +47,8 @@ public class VideoController : MonoBehaviour
         originalPosition = videoPanel.anchoredPosition;
         originalAnchorMin = videoPanel.anchorMin;
         originalAnchorMax = videoPanel.anchorMax;
+
+        takeQuizButton.interactable = false;
     }
 
     void Update()
@@ -106,6 +110,8 @@ public class VideoController : MonoBehaviour
     void OnVideoFinished(VideoPlayer vp)
     {
         centerPlayButton.gameObject.SetActive(true);
+
+        takeQuizButton.interactable = true;
     }
 
     void OnVideoPrepared(VideoPlayer vp) => UpdateTimeUI();
@@ -118,8 +124,11 @@ public class VideoController : MonoBehaviour
             // Expand to full canvas
             videoPanel.anchorMin = new Vector2(0, 0);
             videoPanel.anchorMax = new Vector2(1, 1);
+            videoPanel.pivot = new Vector2(0, 0);
+            videoPanel.anchoredPosition = Vector2.zero;
             videoPanel.offsetMin = Vector2.zero;
             videoPanel.offsetMax = Vector2.zero;
+
             isFullscreen = true;
 
             Screen.orientation = ScreenOrientation.LandscapeLeft; // Optional
@@ -129,6 +138,7 @@ public class VideoController : MonoBehaviour
             // Restore original layout
             videoPanel.anchorMin = originalAnchorMin;
             videoPanel.anchorMax = originalAnchorMax;
+            videoPanel.pivot = new Vector2(0.5f, 0.5f); // if originally centered
             videoPanel.sizeDelta = originalSize;
             videoPanel.anchoredPosition = originalPosition;
             isFullscreen = false;
