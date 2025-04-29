@@ -26,7 +26,11 @@ public class DatabaseManager : MonoBehaviour
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     first_name TEXT,
                     middle_name TEXT,
-                    last_name TEXT
+                    last_name TEXT,
+                    coins INTEGER DEFAULT 0,
+                    energy INTEGER DEFAULT 100,
+                    experience INTEGER DEFAULT 0,
+                    level INTEGER DEFAULT 1
                 );";
                 command.ExecuteNonQuery();
             }
@@ -100,6 +104,59 @@ public class DatabaseManager : MonoBehaviour
 
         return ("", "", "");
     }
+
+    public void SavePlayerStats(int coins, int energy, int experience, int level)
+    {
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"UPDATE users SET 
+                coins = @coins,
+                energy = @energy,
+                experience = @experience,
+                level = @level
+                WHERE id = 1;";
+                command.Parameters.AddWithValue("@coins", coins);
+                command.Parameters.AddWithValue("@energy", energy);
+                command.Parameters.AddWithValue("@experience", experience);
+                command.Parameters.AddWithValue("@level", level);
+                command.ExecuteNonQuery();
+            }
+        }
+    }
+
+    public (int coins, int energy, int experience, int level) LoadPlayerStats()
+    {
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT coins, energy, experience, level FROM users WHERE id = 1;";
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return (
+                            reader.GetInt32(0),
+                            reader.GetInt32(1),
+                            reader.GetInt32(2),
+                            reader.GetInt32(3)
+                        );
+                    }
+                }
+            }
+        }
+
+        return (0, 100, 0, 1); // Default stats if nothing is found
+    }
+
 }
+
+
 
 
