@@ -8,6 +8,7 @@ public class Question
     public string questionText;
     public string[] answers;
     public int correctAnswerIndex;
+    public string[] hints;
 }
 
 public class QuizHandler : MonoBehaviour
@@ -31,10 +32,17 @@ public class QuizHandler : MonoBehaviour
     public Slider progressBar;
     public Text questionNumberText;
 
+    public Text hintDisplayText;
+    public Button hintButton;
+    private int hintIndex = 0;
+
     private List<int> selectedAnswers = new List<int>(); // -1 if unanswered
 
     void Start()
     {
+        if (hintButton != null)
+            hintButton.onClick.AddListener(UseHint);
+
         // Initialize all answers as unanswered (-1)
         for (int i = 0; i < questions.Count; i++)
             selectedAnswers.Add(-1);
@@ -47,6 +55,9 @@ public class QuizHandler : MonoBehaviour
 
     void LoadQuestion()
     {
+        hintIndex = 0;
+        hintDisplayText.text = "";
+
         ResetButtonColors();
 
         Question q = questions[currentQuestionIndex];
@@ -182,5 +193,21 @@ public class QuizHandler : MonoBehaviour
         progressBar.value = answered;
     }
 
+    public void UseHint()
+    {
+        if (hasAnswered) return;
+
+        Question q = questions[currentQuestionIndex];
+
+        if (q.hints != null && hintIndex < q.hints.Length)
+        {
+            hintDisplayText.text = $"{hintIndex + 1}: {q.hints[hintIndex]}";
+            hintIndex++;
+        }
+        else
+        {
+            hintDisplayText.text = "No more hints!";
+        }
+    }
 
 }
