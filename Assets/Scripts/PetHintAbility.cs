@@ -7,7 +7,10 @@ public class PetHintAbility : MonoBehaviour
     private float cooldownTimer = 0f;
 
     public Button hintButton;
-    public Text cooldownText;
+    public Text cooldownText; // This will now appear *over* the pet
+    public Image petImage; // Assign your pet's Image component here
+    public Material grayscaleMaterial; // Assign a grayscale material
+    public Material normalMaterial; // Original material
 
     private bool isReady = true;
 
@@ -15,6 +18,10 @@ public class PetHintAbility : MonoBehaviour
     {
         if (hintButton != null)
             hintButton.onClick.AddListener(UseAbility);
+
+        // Start normal
+        petImage.material = normalMaterial;
+        cooldownText.gameObject.SetActive(false);
     }
 
     void Update()
@@ -22,12 +29,14 @@ public class PetHintAbility : MonoBehaviour
         if (!isReady)
         {
             cooldownTimer -= Time.deltaTime;
-            cooldownText.text = $"CD: {Mathf.Ceil(cooldownTimer)}s";
+            cooldownText.text = $"{Mathf.Ceil(cooldownTimer)}";
 
             if (cooldownTimer <= 0)
             {
                 isReady = true;
-                cooldownText.text = "Hint Ready!";
+                cooldownText.text = "";
+                cooldownText.gameObject.SetActive(false);
+                petImage.material = normalMaterial;
                 hintButton.interactable = true;
             }
         }
@@ -43,5 +52,9 @@ public class PetHintAbility : MonoBehaviour
         isReady = false;
         cooldownTimer = cooldownDuration;
         hintButton.interactable = false;
+
+        // Apply grayscale & show CD text
+        petImage.material = grayscaleMaterial;
+        cooldownText.gameObject.SetActive(true);
     }
 }
