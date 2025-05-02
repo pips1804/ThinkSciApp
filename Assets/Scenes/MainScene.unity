@@ -18920,7 +18920,6 @@ GameObject:
   - component: {fileID: 1473477798}
   - component: {fileID: 1473477799}
   - component: {fileID: 1473477800}
-  - component: {fileID: 1473477801}
   - component: {fileID: 1473477803}
   m_Layer: 5
   m_Name: GameManager
@@ -19172,10 +19171,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba01f20135bbead4a8fcf833e216d046, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinsText: {fileID: 1707502508}
-  experienceText: {fileID: 37400926}
-  levelText: {fileID: 774677834}
-  energyText: {fileID: 400650893}
+  coinsText: {fileID: 2146732713}
+  experienceText: {fileID: 794589892}
+  levelText: {fileID: 2005250304}
+  energyText: {fileID: 799052531}
+  experienceSlider: {fileID: 805666128}
+  petHealthSlider: {fileID: 1081632517}
 --- !u!114 &1473477800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19192,25 +19193,9 @@ MonoBehaviour:
   energy: 10000
   experience: 0
   level: 1
---- !u!114 &1473477801
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1473477789}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fb86a529f9b7aa438df6af295f948ed, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  coinsText: {fileID: 1707502508}
-  expText: {fileID: 37400926}
-  levelText: {fileID: 774677834}
-  energyText: {fileID: 400650893}
-  addCoinsButton: {fileID: 1440021486}
-  addExpButton: {fileID: 1934842443}
-  useEnergyButton: {fileID: 1494460217}
+  maxEnergy: 20
+  petHealth: 100
+  maxPetHealth: 100
 --- !u!114 &1473477803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27111,7 +27096,7 @@ GameObject:
   - component: {fileID: 2055411454}
   - component: {fileID: 2055411453}
   m_Layer: 5
-  m_Name: Experience
+  m_Name: Energy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

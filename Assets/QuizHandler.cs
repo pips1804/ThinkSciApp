@@ -216,6 +216,11 @@ public class QuizHandler : MonoBehaviour
                 (i == correct) ? correctColor : wrongColor;
         }
 
+        if (index != correct && PlayerStats.Instance != null)
+        {
+            PlayerStats.Instance.DamagePet(5); // Damage pet by 1
+        }
+
         UpdateScoreDisplay(); // Add this line
         nextButton.interactable = true;
     }
@@ -308,9 +313,9 @@ public class QuizHandler : MonoBehaviour
     {
         // If current question is in the 20s list - 20 sec, else 30 sec
         if (twentySecondQuestions.Contains(currentQuestionIndex))
-            currentTime = 5f;
+            currentTime = 20f;
         else
-            currentTime = 10f;
+            currentTime = 30f;
 
         isTimerRunning = true;
         UpdateTimerDisplay();

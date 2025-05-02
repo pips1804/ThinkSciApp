@@ -27,11 +27,14 @@ public class DatabaseManager : MonoBehaviour
                     first_name TEXT,
                     middle_name TEXT,
                     last_name TEXT,
-                    coins INTEGER DEFAULT 0,
-                    energy INTEGER DEFAULT 100,
+                    coins INTEGER DEFAULT 200,
+                    energy INTEGER DEFAULT 20,
+                    max_energy INTEGER DEFAULT 20,
                     experience INTEGER DEFAULT 0,
-                    level INTEGER DEFAULT 1
+                    level INTEGER DEFAULT 1,
+                    pet_health INTEGER DEFAULT 100
                 );";
+
                 command.ExecuteNonQuery();
             }
         }
@@ -105,30 +108,36 @@ public class DatabaseManager : MonoBehaviour
         return ("", "", "");
     }
 
-    public void SavePlayerStats(int coins, int energy, int experience, int level)
+    public void SavePlayerStats(int coins, int energy, int maxEnergy, int experience, int level, int petHealth)
     {
         using (var connection = new SqliteConnection(dbPath))
         {
             connection.Open();
-
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = @"UPDATE users SET 
                 coins = @coins,
                 energy = @energy,
+                max_energy = @max_energy,
                 experience = @experience,
-                level = @level
+                level = @level,
+                pet_health = @pet_health
                 WHERE id = 1;";
                 command.Parameters.AddWithValue("@coins", coins);
                 command.Parameters.AddWithValue("@energy", energy);
+                command.Parameters.AddWithValue("@max_energy", maxEnergy);
                 command.Parameters.AddWithValue("@experience", experience);
                 command.Parameters.AddWithValue("@level", level);
+                command.Parameters.AddWithValue("@pet_health", petHealth);
                 command.ExecuteNonQuery();
             }
         }
     }
 
-    public (int coins, int energy, int experience, int level) LoadPlayerStats()
+
+
+
+    public (int coins, int energy, int maxEnergy, int experience, int level, int petHealth) LoadPlayerStats()
     {
         using (var connection = new SqliteConnection(dbPath))
         {
@@ -136,7 +145,7 @@ public class DatabaseManager : MonoBehaviour
 
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT coins, energy, experience, level FROM users WHERE id = 1;";
+                command.CommandText = "SELECT coins, energy, max_energy, experience, level, pet_health FROM users WHERE id = 1;";
                 using (IDataReader reader = command.ExecuteReader())
                 {
                     if (reader.Read())
@@ -145,15 +154,20 @@ public class DatabaseManager : MonoBehaviour
                             reader.GetInt32(0),
                             reader.GetInt32(1),
                             reader.GetInt32(2),
-                            reader.GetInt32(3)
+                            reader.GetInt32(3),
+                            reader.GetInt32(4),
+                            reader.GetInt32(5)
                         );
                     }
                 }
             }
         }
 
-        return (0, 100, 0, 1); // Default stats if nothing is found
+        return (200, 20, 20, 0, 1, 100); // Default values
     }
+
+
+
 
 }
 
