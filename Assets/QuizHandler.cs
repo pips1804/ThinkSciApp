@@ -49,6 +49,7 @@ public class QuizHandler : MonoBehaviour
     private List<int> twentySecondQuestions = new List<int>();
     private List<bool> questionExpired;
 
+    int consecutiveWrongAnswers = 0; // Track consecutive wrongs
 
     private Coroutine hideBubbleCoroutine;
 
@@ -216,12 +217,36 @@ public class QuizHandler : MonoBehaviour
                 (i == correct) ? correctColor : wrongColor;
         }
 
-        if (index != correct && PlayerStats.Instance != null)
+        if (index == correct)
         {
-            PlayerStats.Instance.DamagePet(5); // Damage pet by 1
+            consecutiveWrongAnswers = 0; // Reset on correct answer
+        }
+        else
+        {
+            consecutiveWrongAnswers++; // Increase consecutive count
+
+            if (PlayerStats.Instance != null)
+            {
+                float totalHealth = 100;
+                int damage = Mathf.RoundToInt(totalHealth * (0.05f * consecutiveWrongAnswers));
+
+                bool isDead = PlayerStats.Instance.DamagePet(damage);
+
+                if (isDead)
+                {
+                    // Set dead state true in Animator
+                    PlayerStats.Instance.ShowDamageText(damage);
+                    PetAnimationController.Instance.HurtPet(true);
+                }
+                else
+                {
+                    PlayerStats.Instance.ShowDamageText(damage);
+                    PetAnimationController.Instance.HurtPet();
+                }
+            }
         }
 
-        UpdateScoreDisplay(); // Add this line
+        UpdateScoreDisplay();
         nextButton.interactable = true;
     }
 

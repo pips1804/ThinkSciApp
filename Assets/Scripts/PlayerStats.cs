@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -13,6 +14,9 @@ public class PlayerStats : MonoBehaviour
     public int maxPetHealth = 100;
 
     private DatabaseManager db;
+
+    public GameObject damageTextPrefab; // Assign your prefab in the Inspector
+    public Transform damageTextSpawnPoint; // Assign a position near pet (like above head)
 
     void Awake()
     {
@@ -75,13 +79,16 @@ public class PlayerStats : MonoBehaviour
         petHealth += amount;
         if (petHealth > 100) petHealth = 100; // max pet health
         SaveStats();
+
     }
 
-    public void DamagePet(int amount)
+    public bool DamagePet(int amount)
     {
         petHealth -= amount;
         if (petHealth < 0) petHealth = 0;
         SaveStats();
+
+        return petHealth == 0; // Returns true if health is zero
     }
 
     public void LoadStats()
@@ -106,5 +113,14 @@ public class PlayerStats : MonoBehaviour
     public void SaveStats()
     {
         db.SavePlayerStats(coins, energy, maxEnergy, experience, level, petHealth);
+    }
+
+    public void ShowDamageText(int damageAmount)
+    {
+        if (damageTextPrefab != null && damageTextSpawnPoint != null)
+        {
+            GameObject dmgText = Instantiate(damageTextPrefab, damageTextSpawnPoint.position, Quaternion.identity, damageTextSpawnPoint);
+            dmgText.GetComponent<Text>().text = "-" + damageAmount;
+        }
     }
 }

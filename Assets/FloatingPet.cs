@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class FloatingPet : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
+    public static FloatingPet Instance;
     private RectTransform rectTransform;
     private Canvas canvas; // Reference to your Canvas
 
@@ -71,5 +72,7 @@ public class FloatingPet : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
             bubbleImage.sprite = bubbleLeftSprite; // use left-tail bubble
         }
     }
+
+
 
 }
