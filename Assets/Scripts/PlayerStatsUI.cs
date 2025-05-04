@@ -7,7 +7,16 @@ public class PlayerStatsUI : MonoBehaviour
     public Text experienceText;
     public Text levelText;
     public Text energyText;
+
+    public Text coinsText2;
+    public Text experienceText2;
+    public Text levelText2;
+    public Text energyText2;
+
     public Slider experienceSlider;
+
+    public Slider experienceSlider2;
+
     public Slider petHealthSlider;
 
 
@@ -22,6 +31,14 @@ public class PlayerStatsUI : MonoBehaviour
 
             experienceSlider.maxValue = 100;
             experienceSlider.value = PlayerStats.Instance.experience;
+
+            coinsText2.text = "" + PlayerStats.Instance.coins;
+            experienceText2.text = PlayerStats.Instance.experience + "/100";
+            levelText2.text = "" + PlayerStats.Instance.level;
+            energyText2.text = PlayerStats.Instance.energy + "/" + PlayerStats.Instance.maxEnergy;
+
+            experienceSlider2.maxValue = 100;
+            experienceSlider2.value = PlayerStats.Instance.experience;
 
             if (petHealthSlider != null)
             {
