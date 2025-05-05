@@ -22,6 +22,7 @@ public class LessonLocker : MonoBehaviour
     public Button catFourLessonTwoButton;
     public Button catFourLessonThreeButton;
     public Button catFourLessonFourButton;
+    public Button catFourLessonFiveButton;
 
     void Start()
     {
@@ -45,6 +46,7 @@ public class LessonLocker : MonoBehaviour
         LockLesson(catFourLessonTwoButton);
         LockLesson(catFourLessonThreeButton);
         LockLesson(catFourLessonFourButton);
+        LockLesson(catFourLessonFiveButton);
     }
 
     // Lock a category

@@ -53,6 +53,11 @@ public class QuizHandler : MonoBehaviour
 
     private Coroutine hideBubbleCoroutine;
 
+    public GameObject resultModal; // The modal panel
+    public Text resultHeaderText;  // The "Congratulations" header text
+    public Text resultScoreText;   // The "Your score is X/Y" text
+
+
     void Start()
     {
         if (hintButton != null)
@@ -264,6 +269,10 @@ public class QuizHandler : MonoBehaviour
             currentQuestionIndex++;
             LoadQuestion();
         }
+        else
+        {
+            ShowResultModal(); // Show modal when quiz is done
+        }
     }
 
     public void PreviousQuestion()
@@ -400,4 +409,43 @@ public class QuizHandler : MonoBehaviour
             twentySecondQuestions.Add(indexes[i]);
         }
     }
+
+    void ShowResultModal()
+    {
+        int totalQuestions = questions.Count;
+        int correctAnswers = 0;
+
+        for (int i = 0; i < selectedAnswers.Count; i++)
+        {
+            if (selectedAnswers[i] == questions[i].correctAnswerIndex)
+                correctAnswers++;
+        }
+
+        // Set the header based on performance
+        float percentage = (float)correctAnswers / totalQuestions;
+
+        if (percentage == 1f)
+        {
+            resultHeaderText.text = "Perfect Score! ";
+        }
+        else if (percentage >= 0.7f)
+        {
+            resultHeaderText.text = "Congratulations! ";
+        }
+        else if (percentage >= 0.4f)
+        {
+            resultHeaderText.text = "Good Try! Keep Practicing!";
+        }
+        else
+        {
+            resultHeaderText.text = "Don't Give Up! Try Again!";
+        }
+
+        // Display score text
+        resultScoreText.text = "Your Score: " + "\n" + correctAnswers + " / " + totalQuestions;
+
+        // Show the modal
+        resultModal.SetActive(true);
+    }
+
 }

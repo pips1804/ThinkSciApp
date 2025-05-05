@@ -9,12 +9,14 @@ EditorBuildSettings:
     path: Assets/Scenes/SplashScreen.unity
     guid: c8e5832d458e5804baa63559a2afebf5
   - enabled: 1
-    path: Assets/Scenes/MainScene.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
-  - enabled: 1
     path: Assets/Scenes/CreateAccount.unity
     guid: ecd2a03533f17f04da0d1e298eda9e41
+  - enabled: 1
+    path: Assets/Scenes/MainScene.unity
+    guid: 8c9cfa26abfee488c85f1582747f6a02
   m_configObjects:
+    com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: fe3ddd4286bd05a488303e1d73ce7a57, type: 2}
+    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: c766c93827c566e4e8842db9b2d0c2a2, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: d7f789e5de8571a4a8fcc32fe079a6cc, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

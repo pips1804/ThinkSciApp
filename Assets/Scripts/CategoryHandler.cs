@@ -10,9 +10,9 @@ public class CategoryLocker : MonoBehaviour
     void Start()
     {
         // Initially lock categories
-        LockCategory(categoryTwoButton);
-        LockCategory(categoryThreeButton);
-        LockCategory(categoryFourButton);
+        UnlockCategory(categoryTwoButton);
+        UnlockCategory(categoryThreeButton);
+        UnlockCategory(categoryFourButton);
     }
 
     // Lock a category
