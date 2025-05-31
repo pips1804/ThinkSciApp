@@ -57,9 +57,22 @@ public class QuizHandler : MonoBehaviour
     public Text resultHeaderText;  // The "Congratulations" header text
     public Text resultScoreText;   // The "Your score is X/Y" text
 
+    public Slider playerHealthSlider;
+    public Slider enemyHealthSlider;
+
+    public int playerHealth = 100;
+    public int enemyHealth = 100;
+
 
     void Start()
     {
+
+        playerHealthSlider.maxValue = playerHealth;
+        playerHealthSlider.value = playerHealth;
+
+        enemyHealthSlider.maxValue = enemyHealth;
+        enemyHealthSlider.value = enemyHealth;
+
         if (hintButton != null)
             hintButton.onClick.AddListener(UseHint);
 
@@ -75,6 +88,8 @@ public class QuizHandler : MonoBehaviour
         progressBar.maxValue = questions.Count;
 
         PickRandomTwentySecondQuestions();
+
+
     }
 
     void Update()
@@ -224,6 +239,18 @@ public class QuizHandler : MonoBehaviour
 
         if (index == correct)
         {
+            // Correct answer: damage the enemy
+            int damage = 10;
+            enemyHealth -= damage;
+            enemyHealth = Mathf.Clamp(enemyHealth, 0, 100);
+            enemyHealthSlider.value = enemyHealth;
+            Debug.Log($"Correct! Enemy took {damage} damage. Remaining: {enemyHealth}");
+
+            if (enemyHealth <= 0)
+            {
+                Debug.Log("Enemy defeated!");
+            }
+
             consecutiveWrongAnswers = 0; // Reset on correct answer
         }
         else
@@ -234,6 +261,17 @@ public class QuizHandler : MonoBehaviour
             {
                 float totalHealth = 100;
                 int damage = Mathf.RoundToInt(totalHealth * (0.05f * consecutiveWrongAnswers));
+
+                playerHealth -= damage;
+                playerHealth = Mathf.Clamp(playerHealth, 0, 100);
+                playerHealthSlider.value = playerHealth;
+
+                Debug.Log($"Wrong! Player took {damage} damage. Remaining: {playerHealth}");
+
+                if (playerHealth <= 0)
+                {
+                    Debug.Log("Player died!");
+                }
 
                 bool isDead = PlayerStats.Instance.DamagePet(damage);
 
