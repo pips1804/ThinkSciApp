@@ -157,7 +157,7 @@ public class DatabaseManager : MonoBehaviour
                             reader.GetInt32(3),
                             reader.GetInt32(4),
                             reader.GetInt32(5)
-                        );
+                        );  
                     }
                 }
             }

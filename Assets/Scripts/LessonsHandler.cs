@@ -28,7 +28,7 @@ public class LessonLocker : MonoBehaviour
     {
         // Initially lock lessons
         // For Category One
-        LockLesson(catOneLessonTwoButton);
+        UnlockLesson(catOneLessonTwoButton);
         LockLesson(catOneLessonThreeButton);
         LockLesson(catOneLessonFourButton);
 
