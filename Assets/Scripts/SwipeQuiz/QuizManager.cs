@@ -10,6 +10,7 @@ public class QuizManager : MonoBehaviour
     {
         public Sprite questionImage;
         public string correctAnswer; // "Left" or "Right"
+        public string explanationText;       // Short feedback text
     }
 
     public List<SwipeQuestion> questions;
@@ -47,6 +48,10 @@ public class QuizManager : MonoBehaviour
 
     public Text missText;
     public Text damageText;
+
+    public GameObject feedbackPanel;
+    public Text feedbackText;
+    private bool canAnswer = true;
 
 
 
@@ -88,12 +93,16 @@ public class QuizManager : MonoBehaviour
         var question = questions[currentQuestionIndex];
         bool isCorrect = swipeDirection == question.correctAnswer;
 
+        if (!canAnswer) return; // Don't allow answering if disabled
+        canAnswer = false;
+
         if (isCorrect)
         {
             bool isHit = Random.value <= (hitChancePercent * 0.01); // 80% hit chance
 
             if (isHit)
             {
+                ShowFeedback("Correct!", questions[currentQuestionIndex].explanationText);
                 int damage = Random.Range(10, 16); // 10 to 15
                 battleManager.EnemyTakeDamage(damage);
                 StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0)));
@@ -104,6 +113,7 @@ public class QuizManager : MonoBehaviour
             }
             else
             {
+                ShowFeedback("Correct!", questions[currentQuestionIndex].explanationText);
                 StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0)));
                 StartCoroutine(DodgeAnimation(enemyIcon));
                 Color missColor;
@@ -118,6 +128,7 @@ public class QuizManager : MonoBehaviour
 
             if (isHit)
             {
+                ShowFeedback("Wrong!", questions[currentQuestionIndex].explanationText);
                 int damage = Random.Range(10, 16);
                 battleManager.PlayerTakeDamage(damage);
                 StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0)));
@@ -128,6 +139,7 @@ public class QuizManager : MonoBehaviour
             }
             else
             {
+                ShowFeedback("Wrong!", questions[currentQuestionIndex].explanationText);
                 StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0)));
                 StartCoroutine(DodgeAnimation(playerIcon));
                 Color missColor;
@@ -140,8 +152,6 @@ public class QuizManager : MonoBehaviour
         if (isCorrect)
             score++;
         UpdateScoreText();
-
-        MoveToNextQuestion();
     }
 
     void UpdateScoreText()
@@ -393,10 +403,101 @@ public class QuizManager : MonoBehaviour
             progressHandle.localScale = originalScale;
     }
 
+    void ShowFeedback(string resultText, string explanation)
+    {
+        feedbackPanel.SetActive(true);
+        StartCoroutine(TypeFeedback(resultText, explanation));
+        StartCoroutine(FadeOutImage());
+        StartCoroutine(WaitThenNextQuestion());
+    }
+
+    IEnumerator WaitThenNextQuestion()
+    {
+        yield return new WaitForSeconds(5f);
+        feedbackPanel.SetActive(false);
+        canAnswer = true;
+        MoveToNextQuestion();
+    }
+
+    IEnumerator TypeFeedback(string result, string explanation, float typeSpeed = 0.02f)
+    {
+        feedbackText.text = "";
+        string fullText = $"{result}\n{explanation}";
+
+        foreach (char c in fullText)
+        {
+            feedbackText.text += c;
+            yield return new WaitForSeconds(typeSpeed);
+        }
+    }
+
+    IEnumerator FadeOutImage(float duration = 0.3f)
+    {
+        Image img = questionImage;
+        Color originalColor = img.color;
+        Color targetColor = new Color(originalColor.r, originalColor.g, originalColor.b, 0.5f); // Dimmed
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            img.color = Color.Lerp(originalColor, targetColor, t);
+            yield return null;
+        }
+        img.color = targetColor;
+    }
+
+    IEnumerator FadeInImage(float duration = 0.3f)
+    {
+        Image img = questionImage;
+        Color startColor = img.color;
+        Color targetColor = new Color(startColor.r, startColor.g, startColor.b, 1f); // Fully visible
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            img.color = Color.Lerp(startColor, targetColor, t);
+            yield return null;
+        }
+
+        img.color = targetColor;
+
+        // Add pop animation
+        RectTransform rect = img.rectTransform;
+        Vector3 originalScale = Vector3.one;
+        Vector3 popScale = originalScale * 1.2f;
+
+        float popDuration = 0.15f;
+        elapsed = 0f;
+
+        while (elapsed < popDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / popDuration;
+            rect.localScale = Vector3.Lerp(originalScale, popScale, t);
+            yield return null;
+        }
+
+        elapsed = 0f;
+        while (elapsed < popDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / popDuration;
+            rect.localScale = Vector3.Lerp(popScale, originalScale, t);
+            yield return null;
+        }
+
+        rect.localScale = originalScale;
+    }
+
 
 
     void DisplayQuestion()
     {
+        StartCoroutine(FadeInImage());
         var question = questions[currentQuestionIndex];
         questionImage.sprite = question.questionImage;
         timer = 10f;
