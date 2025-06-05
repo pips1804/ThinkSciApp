@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 95a73f5075fe8114c87858cece4102eb
+guid: ca8a4152e81f523478da3ae9fe3d02ae
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5797230472842967445
-    second: sample-pet_0
+      213: -1928864336017200676
+    second: settings-btn_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,30 +109,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: sample-pet_0
+      name: settings-btn_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1280
-        height: 1280
+        width: 500
+        height: 500
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 599ffd66666e37050800000000000000
-      internalID: 5797230472842967445
+      spriteID: cd966cf1b1c4b35e0800000000000000
+      internalID: -1928864336017200676
       vertices: []
       indices: 
       edges: []
@@ -161,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      sample-pet_0: 5797230472842967445
+      settings-btn_0: -1928864336017200676
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

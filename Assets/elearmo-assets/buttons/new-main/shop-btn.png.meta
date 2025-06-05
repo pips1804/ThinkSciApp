@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 95a73f5075fe8114c87858cece4102eb
+guid: 7d8b4b2e276038948a103623cb851eb0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5797230472842967445
-    second: sample-pet_0
+      213: 5926488750371984649
+    second: shop-btn_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,30 +109,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: sample-pet_0
+      name: shop-btn_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1280
-        height: 1280
+        width: 500
+        height: 500
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 599ffd66666e37050800000000000000
-      internalID: 5797230472842967445
+      spriteID: 905554b5e1e1f3250800000000000000
+      internalID: 5926488750371984649
       vertices: []
       indices: 
       edges: []
@@ -161,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      sample-pet_0: 5797230472842967445
+      shop-btn_0: 5926488750371984649
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
