@@ -9,7 +9,8 @@ public class UIDraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private CanvasGroup canvasGroup;
     private Vector3 originalPosition;
 
-    public string targetSlotName = "HatSlot";
+    public string hatSlotName = "HatSlot";
+    public string shadesSlotName = "ShadesSlot";
     public bool isHat = true;
 
     void Awake()
@@ -24,6 +25,7 @@ public class UIDraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     {
         originalPosition = rectTransform.anchoredPosition;
         canvasGroup.blocksRaycasts = false;
+        Debug.Log("Begin Drag");
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -38,20 +40,29 @@ public class UIDraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null)
         {
-            Debug.LogError(" Player not found!");
+            Debug.LogError("Player not found!");
             return;
         }
 
-        Transform targetSlot = player.transform.Find(targetSlotName);
+        string selectedSlotName = isHat ? hatSlotName : shadesSlotName;
+        Transform targetSlot = player.transform.Find(selectedSlotName);
         if (targetSlot == null)
         {
-            Debug.LogError(" Target slot not found: " + targetSlotName);
+            Debug.LogError("Target slot not found: " + selectedSlotName);
             return;
         }
 
-        Vector2 slotScreenPos = RectTransformUtility.WorldToScreenPoint(Camera.main, targetSlot.position);
+        RectTransform slotRect = targetSlot.GetComponent<RectTransform>();
+        if (slotRect == null)
+        {
+            Debug.LogError("Target slot does not have a RectTransform!");
+            return;
+        }
+
+        Vector2 slotScreenPos = slotRect.position;
+
         float dist = Vector2.Distance(eventData.position, slotScreenPos);
-        Debug.Log($" Drop Pos: {eventData.position} | Slot: {slotScreenPos} | Dist: {dist}");
+        Debug.Log($"Drop Pos: {eventData.position} | Slot: {slotScreenPos} | Dist: {dist}");
 
         if (dist < 100f)
         {
@@ -60,21 +71,22 @@ public class UIDraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             GetComponent<RectTransform>().localPosition = Vector3.zero;
 
             if (isHat)
+            {
                 PlayerEquipData.Instance.isHatEquipped = true;
+                PlayerEquipData.Instance.equippedHatPrefab = gameObject;
+            }
             else
+            {
                 PlayerEquipData.Instance.isGlassesEquipped = true;
+                PlayerEquipData.Instance.equippedShadesPrefab = gameObject;
+            }
 
-            Debug.Log(" Equipped: " + gameObject.name);
         }
         else
         {
             // Return to original
             rectTransform.anchoredPosition = originalPosition;
-            Debug.Log(" Too far from slot. Returning.");
+            Debug.Log("Too far from slot. Returning.");
         }
     }
-
-
-
-
 }

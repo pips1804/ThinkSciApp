@@ -7,6 +7,9 @@ public class PlayerEquipData : MonoBehaviour
     public bool isHatEquipped = false;
     public bool isGlassesEquipped = false;
 
+    public GameObject equippedHatPrefab;
+    public GameObject equippedShadesPrefab;
+
     private void Awake()
     {
         if (Instance == null)
