@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a947bbc463056c489e61f7a3142a80e, type: 3}
+  m_Name: PetEquipmentData
+  m_EditorClassIdentifier: 
+  equippedItems:
+  - {fileID: 11400000, guid: 8567dd4a8f027734eb28c39e3232db60, type: 2}
+  - {fileID: 11400000, guid: 341c1f878c5e5f84a8ac97bef09ead6f, type: 2}
