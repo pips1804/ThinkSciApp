@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class QuizManager : MonoBehaviour
+public class SwipeManager : MonoBehaviour
 {
     [System.Serializable]
     public class SwipeQuestion
@@ -13,47 +13,39 @@ public class QuizManager : MonoBehaviour
         public string explanationText;       // Short feedback text
     }
 
+
+    [Header("Question Image and Answers")]
     public List<SwipeQuestion> questions;
-
     public Image questionImage;
-    public Text timerText;
 
-    public GameObject resultPanel;
-    public Button mainMenuButton;
-
+    [Header("Player and Enemy")]
     public RectTransform playerIcon;
     public RectTransform enemyIcon;
-
     private Vector3 playerStartPos;
     private Vector3 enemyStartPos;
-
     public BattleManager battleManager;
 
-    private int currentQuestionIndex = 0;
-    private float timer = 10f;
-    private bool isTimerRunning = false;
-
-    public Slider progressBar;
-    private float targetProgress = 0f;
-    public RectTransform progressHandle;
-
-
+    [Header("UI")]
     public Text scoreText; // Drag your UI text here in the inspector
     private int score = 0;
-
     public Text finalScoreText;
     public Text scoreMessageText;
-
     public float hitChancePercent = 50f; // you can adjust in Inspector
-
     public Text missText;
     public Text damageText;
-
     public GameObject feedbackPanel;
     public Text feedbackText;
     private bool canAnswer = true;
-
-
+    public GameObject impactImage;
+    private bool isMiss = false;
+    public Text timerText;
+    public GameObject resultPanel;
+    private int currentQuestionIndex = 0;
+    private float timer = 10f;
+    private bool isTimerRunning = false;
+    public Slider progressBar;
+    private float targetProgress = 0f;
+    public RectTransform progressHandle;
 
     void Start()
     {
@@ -105,7 +97,8 @@ public class QuizManager : MonoBehaviour
                 ShowFeedback("Correct!", questions[currentQuestionIndex].explanationText);
                 int damage = Random.Range(10, 16); // 10 to 15
                 battleManager.EnemyTakeDamage(damage);
-                StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0)));
+                isMiss = false;
+                StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, false));
                 StartCoroutine(HitShake(enemyIcon));
                 Color damageColor = new Color(1f, 0f, 0f); // Red
                 StartCoroutine(ShowFloatingText(damageText, "-" + damage, enemyIcon.position, damageColor));
@@ -114,7 +107,8 @@ public class QuizManager : MonoBehaviour
             else
             {
                 ShowFeedback("Correct!", questions[currentQuestionIndex].explanationText);
-                StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0)));
+                isMiss = true;
+                StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true));
                 StartCoroutine(DodgeAnimation(enemyIcon));
                 Color missColor;
                 ColorUtility.TryParseHtmlString("#5f9103", out missColor);
@@ -131,7 +125,8 @@ public class QuizManager : MonoBehaviour
                 ShowFeedback("Wrong!", questions[currentQuestionIndex].explanationText);
                 int damage = Random.Range(10, 16);
                 battleManager.PlayerTakeDamage(damage);
-                StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0)));
+                isMiss = false;
+                StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false));
                 StartCoroutine(HitShake(playerIcon));
                 Color damageColor = new Color(1f, 0f, 0f); // Red
                 StartCoroutine(ShowFloatingText(damageText, "-" + damage, playerIcon.position, damageColor));
@@ -140,7 +135,8 @@ public class QuizManager : MonoBehaviour
             else
             {
                 ShowFeedback("Wrong!", questions[currentQuestionIndex].explanationText);
-                StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0)));
+                isMiss = true;
+                StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, true));
                 StartCoroutine(DodgeAnimation(playerIcon));
                 Color missColor;
                 ColorUtility.TryParseHtmlString("#5f9103", out missColor);
@@ -185,63 +181,7 @@ public class QuizManager : MonoBehaviour
         defender.anchoredPosition = originalPos;
     }
 
-
-
-
-    /*
-        IEnumerator AttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset)
-        {
-            Vector3 targetPos = originalPos + attackOffset;
-            float duration = 0.5f; // total time forward or backward
-            float elapsed = 0f;
-
-            // Store initial rotation
-            Quaternion startRotation = attacker.rotation;
-
-            // --- Move forward with flip ---
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                float t = elapsed / duration;
-
-                // Movement
-                attacker.anchoredPosition = Vector3.Lerp(originalPos, targetPos, t);
-
-                // Backflip effect — rotate on Z or Y (360 degrees)
-                attacker.localRotation = Quaternion.Euler(0, 0, Mathf.Lerp(0, 360, t)); // Z axis flip
-
-                // Optional: scale squash/stretch for flair
-                float scaleFactor = 1 + 0.2f * Mathf.Sin(t * Mathf.PI);
-                attacker.localScale = new Vector3(scaleFactor, scaleFactor, 1);
-
-                yield return null;
-            }
-
-            // Reset for backward motion
-            elapsed = 0f;
-
-            // --- Move back with reverse flip ---
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                float t = elapsed / duration;
-
-                attacker.anchoredPosition = Vector3.Lerp(targetPos, originalPos, t);
-                attacker.localRotation = Quaternion.Euler(0, 0, Mathf.Lerp(360, 720, t));
-                float scaleFactor = 1 + 0.2f * Mathf.Sin(t * Mathf.PI);
-                attacker.localScale = new Vector3(scaleFactor, scaleFactor, 1);
-
-                yield return null;
-            }
-
-            // Reset transform
-            attacker.rotation = startRotation;
-            attacker.localScale = Vector3.one;
-        }
-
-        */
-
-    IEnumerator AttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset)
+    IEnumerator AttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset, Vector3 worldPos, bool isEnemy)
     {
         Vector3 targetPos = originalPos + attackOffset;
         float duration = 0.35f; // slightly slower now
@@ -254,6 +194,11 @@ public class QuizManager : MonoBehaviour
 
         Vector3 originalScale = attacker.localScale;
         Vector3 enlargedScale = originalScale * 1.2f; // slightly bigger during impact
+
+        if (!isMiss)
+        {
+            StartCoroutine(ShowImpactImage(worldPos, isEnemy));
+        }
 
         // --- Move forward with tilt and grow ---
         while (elapsed < duration)
@@ -330,12 +275,15 @@ public class QuizManager : MonoBehaviour
         textElement.gameObject.SetActive(false);
     }
 
-
-
     void PlayerMissedAnswer()
     {
-        battleManager.PlayerTakeDamage(10);
-        MoveToNextQuestion();
+        ShowFeedback("Time's Up!", "You didn't answer in time.");
+        int damage = Random.Range(10, 16);
+        battleManager.PlayerTakeDamage(damage);
+        StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false));
+        StartCoroutine(HitShake(playerIcon));
+        Color damageColor = new Color(1f, 0f, 0f); // Red
+        StartCoroutine(ShowFloatingText(damageText, "-" + damage, playerIcon.position, damageColor));
     }
 
     void MoveToNextQuestion()
@@ -357,6 +305,92 @@ public class QuizManager : MonoBehaviour
             EndQuiz();
         }
     }
+
+    void ShowFeedback(string resultText, string explanation)
+    {
+        feedbackPanel.SetActive(true);
+        StartCoroutine(TypeFeedback(resultText, explanation));
+        StartCoroutine(FadeOutImage());
+        StartCoroutine(WaitThenNextQuestion());
+    }
+
+
+    void DisplayQuestion()
+    {
+        StartCoroutine(FadeInImage());
+        var question = questions[currentQuestionIndex];
+        questionImage.sprite = question.questionImage;
+        timer = 10f;
+        isTimerRunning = true;
+    }
+
+    string GetScoreMessage(int score)
+    {
+        if (score >= 8)
+            return "Excellent! You're a quiz master!";
+        else if (score >= 5)
+            return "Good job! Keep practicing!";
+        else
+            return "Don't worry, try again and improve!";
+    }
+
+    void EndQuiz()
+    {
+        isTimerRunning = false;
+        timerText.text = "0";
+
+        if (questionImage != null)
+            questionImage.enabled = false;
+
+        resultPanel.SetActive(true);
+
+        if (finalScoreText != null)
+            finalScoreText.text = "Your Score: " + score.ToString() + "/10";
+
+        if (scoreMessageText != null)
+            scoreMessageText.text = GetScoreMessage(score);
+    }
+
+
+    IEnumerator ShowImpactImage(Vector3 worldPos, bool isEnemy)
+    {
+
+        Vector3 offset = isEnemy ? new Vector3(60f, 0f, 0f) : new Vector3(-60f, 0f, 0f); // adjust 30f as needed
+
+        // Animate pop
+        impactImage.SetActive(true);
+        impactImage.transform.position = worldPos + offset;
+        impactImage.transform.localScale = Vector3.zero;
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime * 5f;
+            impactImage.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, Mathf.SmoothStep(0, 1, t));
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.3f);
+
+        t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime * 7f;
+            impactImage.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, Mathf.SmoothStep(0, 1, t));
+            yield return null;
+        }
+
+        impactImage.SetActive(false);
+    }
+
+    IEnumerator WaitThenNextQuestion()
+    {
+        yield return new WaitForSeconds(5f);
+        feedbackPanel.SetActive(false);
+        canAnswer = true;
+        MoveToNextQuestion();
+    }
+
 
     IEnumerator AnimateProgressBar()
     {
@@ -401,22 +435,6 @@ public class QuizManager : MonoBehaviour
         // Ensure final scale is exact
         if (progressHandle != null)
             progressHandle.localScale = originalScale;
-    }
-
-    void ShowFeedback(string resultText, string explanation)
-    {
-        feedbackPanel.SetActive(true);
-        StartCoroutine(TypeFeedback(resultText, explanation));
-        StartCoroutine(FadeOutImage());
-        StartCoroutine(WaitThenNextQuestion());
-    }
-
-    IEnumerator WaitThenNextQuestion()
-    {
-        yield return new WaitForSeconds(5f);
-        feedbackPanel.SetActive(false);
-        canAnswer = true;
-        MoveToNextQuestion();
     }
 
     IEnumerator TypeFeedback(string result, string explanation, float typeSpeed = 0.02f)
@@ -492,44 +510,4 @@ public class QuizManager : MonoBehaviour
 
         rect.localScale = originalScale;
     }
-
-
-
-    void DisplayQuestion()
-    {
-        StartCoroutine(FadeInImage());
-        var question = questions[currentQuestionIndex];
-        questionImage.sprite = question.questionImage;
-        timer = 10f;
-        isTimerRunning = true;
-    }
-
-    string GetScoreMessage(int score)
-    {
-        if (score >= 8)
-            return "Excellent! You're a quiz master!";
-        else if (score >= 5)
-            return "Good job! Keep practicing!";
-        else
-            return "Don't worry, try again and improve!";
-    }
-
-
-    void EndQuiz()
-    {
-        isTimerRunning = false;
-        timerText.text = "0";
-
-        if (questionImage != null)
-            questionImage.enabled = false;
-
-        resultPanel.SetActive(true);
-
-        if (finalScoreText != null)
-            finalScoreText.text = "Your Score: " + score.ToString() + "/10";
-
-        if (scoreMessageText != null)
-            scoreMessageText.text = GetScoreMessage(score);
-    }
-
 }

@@ -5,7 +5,7 @@ using System.Collections;
 public class SwipeCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public float swipeThreshold = 100f;
-    public QuizManager quizManager;
+    public SwipeManager quizManager;
     public float swipeSpeed = 1000f;
     private Vector3 startPos;
     private bool isSwiping = false;

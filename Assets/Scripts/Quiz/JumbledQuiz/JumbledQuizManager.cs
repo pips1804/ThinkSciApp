@@ -14,17 +14,10 @@ public class JumbledQuizManager : MonoBehaviour
         public string explanationText;  // Add this for feedback, or you can modify accordingly
     }
 
+    [Header("Questions and Answers")]
     public List<JumbledQuestion> questions;
 
-    // UI references for jumbled quiz
-    public Text questionText;
-    public GameObject letterButtonPrefab;
-    public Transform letterContainer;
-    public Text timerText;
-
-    public GameObject resultPanel;
-    public Button mainMenuButton;
-
+    [Header("Player and Enemy")]
     public RectTransform playerIcon;
     public RectTransform enemyIcon;
 
@@ -32,6 +25,12 @@ public class JumbledQuizManager : MonoBehaviour
     private Vector3 enemyStartPos;
 
     public BattleManager battleManager;
+
+    [Header("UI and Elements")]
+    public Text questionText;
+    public GameObject letterButtonPrefab;
+    public Transform letterContainer;
+    public Text timerText;
 
     private int currentQuestionIndex = 0;
     private float timer = 20f;  // Jumbled quiz timer
@@ -72,8 +71,9 @@ public class JumbledQuizManager : MonoBehaviour
     public Image skillCooldownFill;
 
     public GameObject impactImage;
+    private bool isMiss = false;
 
-
+    public GameObject resultPanel;
 
 
     private void Awake()
@@ -182,53 +182,6 @@ public class JumbledQuizManager : MonoBehaviour
         }
     }
 
-    IEnumerator AnimateSwap(int firstIndex, int secondIndex)
-    {
-        Button firstButton = letterButtons[firstIndex];
-        Button secondButton = letterButtons[secondIndex];
-
-        RectTransform firstRect = firstButton.GetComponent<RectTransform>();
-        RectTransform secondRect = secondButton.GetComponent<RectTransform>();
-
-        Vector3 firstStartPos = firstRect.localPosition;
-        Vector3 secondStartPos = secondRect.localPosition;
-
-        float duration = 0.3f;
-        float elapsed = 0f;
-
-        // Highlight
-        firstButton.GetComponentInChildren<Text>().color = selectedColor;
-        secondButton.GetComponentInChildren<Text>().color = selectedColor;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / duration);
-
-            firstRect.localPosition = Vector3.Lerp(firstStartPos, secondStartPos, t);
-            secondRect.localPosition = Vector3.Lerp(secondStartPos, firstStartPos, t);
-
-            yield return null;
-        }
-
-        // Swap the text content
-        string temp = firstButton.GetComponentInChildren<Text>().text;
-        firstButton.GetComponentInChildren<Text>().text = secondButton.GetComponentInChildren<Text>().text;
-        secondButton.GetComponentInChildren<Text>().text = temp;
-
-        // Return buttons to original position
-        firstRect.localPosition = firstStartPos;
-        secondRect.localPosition = secondStartPos;
-
-        // Reset colors
-        firstButton.GetComponentInChildren<Text>().color = defaultColor;
-        secondButton.GetComponentInChildren<Text>().color = defaultColor;
-
-        selectedIndex = -1;
-    }
-
-
-
     public void OnSubmitButton()
     {
         if (!canAnswer) return;
@@ -263,12 +216,12 @@ public class JumbledQuizManager : MonoBehaviour
                 battleManager.EnemyTakeDamage(damage);
                 if (isSkillActive)
                 {
-                    StartCoroutine(IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0)));
+                    StartCoroutine(IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true));
                     StartCoroutine(ShowImpactImage(enemyIcon.position, true)); // For enemy being hit
                 }
                 else
                 {
-                    StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0)));
+                    StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true));
                     StartCoroutine(ShowImpactImage(enemyIcon.position, true)); // For enemy being hit
                 }
                 StartCoroutine(HitShake(enemyIcon));
@@ -278,13 +231,14 @@ public class JumbledQuizManager : MonoBehaviour
             else
             {
                 ShowFeedback("Correct!", currentQ.explanationText);
+                isMiss = true;
                 if (isSkillActive)
                 {
-                    StartCoroutine(IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0)));
+                    StartCoroutine(IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true));
                 }
                 else
                 {
-                    StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0)));
+                    StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true));
                 }
                 StartCoroutine(DodgeAnimation(enemyIcon));
                 Color missColor;
@@ -307,8 +261,7 @@ public class JumbledQuizManager : MonoBehaviour
                 ShowFeedback("Wrong!", currentQ.explanationText);
                 int damage = Random.Range(10, 16);
                 battleManager.PlayerTakeDamage(damage);
-                StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0)));
-                StartCoroutine(ShowImpactImage(playerIcon.position, false)); // For enemy being hit
+                StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false));
                 StartCoroutine(HitShake(playerIcon));
                 Color damageColor = new Color(1f, 0f, 0f); // Red
                 StartCoroutine(ShowFloatingText(damageText, "-" + damage, playerIcon.position, damageColor));
@@ -316,8 +269,9 @@ public class JumbledQuizManager : MonoBehaviour
             }
             else
             {
+                isMiss = true;
                 ShowFeedback("Wrong!", currentQ.explanationText);
-                StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0)));
+                StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false));
                 StartCoroutine(DodgeAnimation(playerIcon));
                 Color missColor;
                 ColorUtility.TryParseHtmlString("#5f9103", out missColor);
@@ -333,7 +287,7 @@ public class JumbledQuizManager : MonoBehaviour
         canAnswer = false;
         int damage = Random.Range(10, 16);
         battleManager.PlayerTakeDamage(damage);
-        StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0)));
+        StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false));
         StartCoroutine(HitShake(playerIcon));
         Color damageColor = new Color(1f, 0f, 0f); // Red
         StartCoroutine(ShowFloatingText(damageText, "-" + damage, playerIcon.position, damageColor));
@@ -349,258 +303,11 @@ public class JumbledQuizManager : MonoBehaviour
         }
     }
 
-    IEnumerator AnimateProgressBar()
-    {
-        float startValue = progressBar.value;
-        float duration = 0.3f;
-        float elapsed = 0f;
-
-        // Scale effect variables
-        Vector3 originalScale = progressHandle.localScale;
-        Vector3 zoomedScale = originalScale * 1.3f; // adjust zoom level
-
-        // Zoom in
-        if (progressHandle != null)
-            progressHandle.localScale = zoomedScale;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            progressBar.value = Mathf.Lerp(startValue, targetProgress, t);
-            yield return null;
-        }
-
-        progressBar.value = targetProgress;
-
-        // Optional delay before zoom out
-        yield return new WaitForSeconds(0.05f);
-
-        // Zoom out smoothly
-        float shrinkTime = 0.2f;
-        float shrinkElapsed = 0f;
-
-        while (shrinkElapsed < shrinkTime)
-        {
-            shrinkElapsed += Time.deltaTime;
-            float t = shrinkElapsed / shrinkTime;
-            if (progressHandle != null)
-                progressHandle.localScale = Vector3.Lerp(zoomedScale, originalScale, t);
-            yield return null;
-        }
-
-        // Ensure final scale is exact
-        if (progressHandle != null)
-            progressHandle.localScale = originalScale;
-    }
-
-    IEnumerator DodgeAnimation(RectTransform defender)
-    {
-        Vector3 originalPos = defender.anchoredPosition;
-        Vector3 dodgeOffset = new Vector3(80f, 0f, 0f);
-        float dodgeTime = 0.35f;
-        float elapsed = 0f;
-
-        while (elapsed < dodgeTime)
-        {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Sin((elapsed / dodgeTime) * Mathf.PI);
-            defender.anchoredPosition = originalPos + dodgeOffset * t;
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(0.05f);
-        defender.anchoredPosition = originalPos;
-    }
-
-    IEnumerator AttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset)
-    {
-        Vector3 targetPos = originalPos + attackOffset;
-        float duration = 0.35f;
-        float elapsed = 0f;
-
-        float tiltAngle = 25f;
-        Quaternion startRotation = attacker.rotation;
-        Quaternion tiltRotation = Quaternion.Euler(0, 0, attacker == playerIcon ? -tiltAngle : tiltAngle);
-
-        Vector3 originalScale = attacker.localScale;
-        Vector3 enlargedScale = originalScale * 1.2f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-
-            attacker.anchoredPosition = Vector3.Lerp(originalPos, targetPos, t);
-            attacker.rotation = Quaternion.Slerp(startRotation, tiltRotation, t);
-            attacker.localScale = Vector3.Lerp(originalScale, enlargedScale, t);
-
-            yield return null;
-        }
-
-        elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-
-            attacker.anchoredPosition = Vector3.Lerp(targetPos, originalPos, t);
-            attacker.rotation = Quaternion.Slerp(tiltRotation, startRotation, t);
-            attacker.localScale = Vector3.Lerp(enlargedScale, originalScale, t);
-
-            yield return null;
-        }
-
-        attacker.anchoredPosition = originalPos;
-        attacker.rotation = startRotation;
-        attacker.localScale = originalScale;
-
-        yield return new WaitForSeconds(0.1f);
-    }
-
-    IEnumerator IntenseAttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset)
-    {
-        Vector3 targetPos = originalPos + attackOffset;
-        float duration = 0.25f;
-        float elapsed = 0f;
-
-        float tiltAngle = 35f;
-        Quaternion startRotation = attacker.rotation;
-        Quaternion tiltRotation = Quaternion.Euler(0, 0, attacker == playerIcon ? -tiltAngle : tiltAngle);
-
-        Vector3 originalScale = attacker.localScale;
-        Vector3 enlargedScale = originalScale * 1.4f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            attacker.anchoredPosition = Vector3.Lerp(originalPos, targetPos, t);
-            attacker.rotation = Quaternion.Slerp(startRotation, tiltRotation, t);
-            attacker.localScale = Vector3.Lerp(originalScale, enlargedScale, t);
-            yield return null;
-        }
-
-        elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            attacker.anchoredPosition = Vector3.Lerp(targetPos, originalPos, t);
-            attacker.rotation = Quaternion.Slerp(tiltRotation, startRotation, t);
-            attacker.localScale = Vector3.Lerp(enlargedScale, originalScale, t);
-            yield return null;
-        }
-
-        attacker.anchoredPosition = originalPos;
-        attacker.rotation = startRotation;
-        attacker.localScale = originalScale;
-
-        yield return new WaitForSeconds(0.1f);
-    }
-
-    IEnumerator ShowImpactImage(Vector3 worldPos, bool isEnemy)
-    {
-
-        Vector3 offset = isEnemy ? new Vector3(-60f, 0f, 0f) : new Vector3(60f, 0f, 0f); // adjust 30f as needed
-
-        // Animate pop
-        impactImage.SetActive(true);
-        impactImage.transform.position = worldPos + offset;
-        impactImage.transform.localScale = Vector3.zero;
-
-        float t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime * 5f;
-            impactImage.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, Mathf.SmoothStep(0, 1, t));
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(0.3f);
-
-        t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime * 7f;
-            impactImage.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, Mathf.SmoothStep(0, 1, t));
-            yield return null;
-        }
-
-        impactImage.SetActive(false);
-    }
-
-
-
-
-    IEnumerator HitShake(RectTransform rectTransform)
-    {
-        Vector3 originalPos = rectTransform.anchoredPosition;
-        float elapsed = 0f;
-        float duration = 0.20f;
-        float magnitude = 20f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float x = Random.Range(-1f, 1f) * magnitude;
-            rectTransform.anchoredPosition = originalPos + new Vector3(x, 0, 0);
-            yield return null;
-        }
-
-        rectTransform.anchoredPosition = originalPos;
-    }
-
-    IEnumerator ShowFloatingText(Text textObj, string message, Vector3 worldPos, Color color)
-    {
-        textObj.text = message;
-        textObj.color = color;
-        textObj.transform.position = worldPos;
-        textObj.gameObject.SetActive(true);
-
-        Vector3 originalPos = textObj.transform.position;
-        Vector3 targetPos = originalPos + new Vector3(0, 70, 0);
-        float duration = 0.75f;
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            textObj.transform.position = Vector3.Lerp(originalPos, targetPos, elapsed / duration);
-            yield return null;
-        }
-
-        textObj.gameObject.SetActive(false);
-    }
-
-
     void ShowFeedback(string resultText, string explanation)
     {
         feedbackPanel.SetActive(true);
         StartCoroutine(TypeFeedback(resultText, explanation));
         StartCoroutine(WaitThenNextQuestion());
-    }
-
-    IEnumerator WaitThenNextQuestion()
-    {
-        yield return new WaitForSeconds(5f);
-        feedbackPanel.SetActive(false);
-        canAnswer = true;
-        NextQuestionOrEnd();
-    }
-
-    IEnumerator TypeFeedback(string result, string explanation, float typeSpeed = 0.02f)
-    {
-        feedbackText.text = "";
-        string fullText = $"{result}\n{explanation}";
-
-        foreach (char c in fullText)
-        {
-            feedbackText.text += c;
-            yield return new WaitForSeconds(typeSpeed);
-        }
     }
 
     public void ActivateSkill()
@@ -621,35 +328,6 @@ public class JumbledQuizManager : MonoBehaviour
 
         StartCoroutine(DeactivateSkillAfterDelay());
     }
-
-
-    private IEnumerator DeactivateSkillAfterDelay()
-    {
-        yield return new WaitForSeconds(3f);
-        isSkillActive = false;
-
-        // Fade out icon
-        Image iconImage = doubleSwordIcon.GetComponent<Image>();
-        if (iconImage != null)
-        {
-            float fadeDuration = 0.5f;
-            float elapsed = 0f;
-            Color originalColor = iconImage.color;
-
-            while (elapsed < fadeDuration)
-            {
-                elapsed += Time.deltaTime;
-                float alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
-                iconImage.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
-                yield return null;
-            }
-
-            iconImage.color = originalColor; // Reset for next use
-        }
-
-        doubleSwordIcon.SetActive(false);
-    }
-
 
     void NextQuestionOrEnd()
     {
@@ -711,9 +389,332 @@ public class JumbledQuizManager : MonoBehaviour
         letterButtons.Clear();
     }
 
-    public void OnMainMenuButton()
+    IEnumerator AnimateProgressBar()
     {
-        // Load main menu or reset game
-        // Example: UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+        float startValue = progressBar.value;
+        float duration = 0.3f;
+        float elapsed = 0f;
+
+        // Scale effect variables
+        Vector3 originalScale = progressHandle.localScale;
+        Vector3 zoomedScale = originalScale * 1.3f; // adjust zoom level
+
+        // Zoom in
+        if (progressHandle != null)
+            progressHandle.localScale = zoomedScale;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            progressBar.value = Mathf.Lerp(startValue, targetProgress, t);
+            yield return null;
+        }
+
+        progressBar.value = targetProgress;
+
+        // Optional delay before zoom out
+        yield return new WaitForSeconds(0.05f);
+
+        // Zoom out smoothly
+        float shrinkTime = 0.2f;
+        float shrinkElapsed = 0f;
+
+        while (shrinkElapsed < shrinkTime)
+        {
+            shrinkElapsed += Time.deltaTime;
+            float t = shrinkElapsed / shrinkTime;
+            if (progressHandle != null)
+                progressHandle.localScale = Vector3.Lerp(zoomedScale, originalScale, t);
+            yield return null;
+        }
+
+        // Ensure final scale is exact
+        if (progressHandle != null)
+            progressHandle.localScale = originalScale;
     }
+
+
+    IEnumerator AnimateSwap(int firstIndex, int secondIndex)
+    {
+        Button firstButton = letterButtons[firstIndex];
+        Button secondButton = letterButtons[secondIndex];
+
+        RectTransform firstRect = firstButton.GetComponent<RectTransform>();
+        RectTransform secondRect = secondButton.GetComponent<RectTransform>();
+
+        Vector3 firstStartPos = firstRect.localPosition;
+        Vector3 secondStartPos = secondRect.localPosition;
+
+        float duration = 0.3f;
+        float elapsed = 0f;
+
+        // Highlight
+        firstButton.GetComponentInChildren<Text>().color = selectedColor;
+        secondButton.GetComponentInChildren<Text>().color = selectedColor;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+
+            firstRect.localPosition = Vector3.Lerp(firstStartPos, secondStartPos, t);
+            secondRect.localPosition = Vector3.Lerp(secondStartPos, firstStartPos, t);
+
+            yield return null;
+        }
+
+        // Swap the text content
+        string temp = firstButton.GetComponentInChildren<Text>().text;
+        firstButton.GetComponentInChildren<Text>().text = secondButton.GetComponentInChildren<Text>().text;
+        secondButton.GetComponentInChildren<Text>().text = temp;
+
+        // Return buttons to original position
+        firstRect.localPosition = firstStartPos;
+        secondRect.localPosition = secondStartPos;
+
+        // Reset colors
+        firstButton.GetComponentInChildren<Text>().color = defaultColor;
+        secondButton.GetComponentInChildren<Text>().color = defaultColor;
+
+        selectedIndex = -1;
+    }
+
+    IEnumerator DodgeAnimation(RectTransform defender)
+    {
+        Vector3 originalPos = defender.anchoredPosition;
+        Vector3 dodgeOffset = new Vector3(80f, 0f, 0f);
+        float dodgeTime = 0.35f;
+        float elapsed = 0f;
+
+        while (elapsed < dodgeTime)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Sin((elapsed / dodgeTime) * Mathf.PI);
+            defender.anchoredPosition = originalPos + dodgeOffset * t;
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.05f);
+        defender.anchoredPosition = originalPos;
+    }
+
+    IEnumerator AttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset, Vector3 worldPos, bool isEnemy)
+    {
+        Vector3 targetPos = originalPos + attackOffset;
+        float duration = 0.35f;
+        float elapsed = 0f;
+
+        float tiltAngle = 25f;
+        Quaternion startRotation = attacker.rotation;
+        Quaternion tiltRotation = Quaternion.Euler(0, 0, attacker == playerIcon ? -tiltAngle : tiltAngle);
+
+        Vector3 originalScale = attacker.localScale;
+        Vector3 enlargedScale = originalScale * 1.2f;
+
+        if (!isMiss)
+        {
+            StartCoroutine(ShowImpactImage(worldPos, isEnemy));
+        }
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            attacker.anchoredPosition = Vector3.Lerp(originalPos, targetPos, t);
+            attacker.rotation = Quaternion.Slerp(startRotation, tiltRotation, t);
+            attacker.localScale = Vector3.Lerp(originalScale, enlargedScale, t);
+
+            yield return null;
+        }
+
+        elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+
+            attacker.anchoredPosition = Vector3.Lerp(targetPos, originalPos, t);
+            attacker.rotation = Quaternion.Slerp(tiltRotation, startRotation, t);
+            attacker.localScale = Vector3.Lerp(enlargedScale, originalScale, t);
+
+            yield return null;
+        }
+
+        attacker.anchoredPosition = originalPos;
+        attacker.rotation = startRotation;
+        attacker.localScale = originalScale;
+
+        yield return new WaitForSeconds(0.1f);
+    }
+
+    IEnumerator IntenseAttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset, Vector3 worldPos, bool isEnemy)
+    {
+        Vector3 targetPos = originalPos + attackOffset;
+        float duration = 0.25f;
+        float elapsed = 0f;
+
+        float tiltAngle = 35f;
+        Quaternion startRotation = attacker.rotation;
+        Quaternion tiltRotation = Quaternion.Euler(0, 0, attacker == playerIcon ? -tiltAngle : tiltAngle);
+
+        Vector3 originalScale = attacker.localScale;
+        Vector3 enlargedScale = originalScale * 1.4f;
+
+        if (!isMiss)
+        {
+            StartCoroutine(ShowImpactImage(worldPos, isEnemy));
+        }
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+
+            attacker.anchoredPosition = Vector3.Lerp(originalPos, targetPos, t);
+            attacker.rotation = Quaternion.Slerp(startRotation, tiltRotation, t);
+            attacker.localScale = Vector3.Lerp(originalScale, enlargedScale, t);
+            yield return null;
+        }
+
+        elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            attacker.anchoredPosition = Vector3.Lerp(targetPos, originalPos, t);
+            attacker.rotation = Quaternion.Slerp(tiltRotation, startRotation, t);
+            attacker.localScale = Vector3.Lerp(enlargedScale, originalScale, t);
+            yield return null;
+        }
+
+        attacker.anchoredPosition = originalPos;
+        attacker.rotation = startRotation;
+        attacker.localScale = originalScale;
+
+        yield return new WaitForSeconds(0.1f);
+    }
+
+    IEnumerator ShowImpactImage(Vector3 worldPos, bool isEnemy)
+    {
+
+        Vector3 offset = isEnemy ? new Vector3(-60f, 0f, 0f) : new Vector3(60f, 0f, 0f); // adjust 30f as needed
+
+        // Animate pop
+        impactImage.SetActive(true);
+        impactImage.transform.position = worldPos + offset;
+        impactImage.transform.localScale = Vector3.zero;
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime * 5f;
+            impactImage.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, Mathf.SmoothStep(0, 1, t));
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.3f);
+
+        t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime * 7f;
+            impactImage.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, Mathf.SmoothStep(0, 1, t));
+            yield return null;
+        }
+
+        impactImage.SetActive(false);
+    }
+
+    IEnumerator HitShake(RectTransform rectTransform)
+    {
+        Vector3 originalPos = rectTransform.anchoredPosition;
+        float elapsed = 0f;
+        float duration = 0.20f;
+        float magnitude = 20f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float x = Random.Range(-1f, 1f) * magnitude;
+            rectTransform.anchoredPosition = originalPos + new Vector3(x, 0, 0);
+            yield return null;
+        }
+
+        rectTransform.anchoredPosition = originalPos;
+    }
+
+    IEnumerator ShowFloatingText(Text textObj, string message, Vector3 worldPos, Color color)
+    {
+        textObj.text = message;
+        textObj.color = color;
+        textObj.transform.position = worldPos;
+        textObj.gameObject.SetActive(true);
+
+        Vector3 originalPos = textObj.transform.position;
+        Vector3 targetPos = originalPos + new Vector3(0, 70, 0);
+        float duration = 0.75f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            textObj.transform.position = Vector3.Lerp(originalPos, targetPos, elapsed / duration);
+            yield return null;
+        }
+
+        textObj.gameObject.SetActive(false);
+    }
+
+
+    IEnumerator WaitThenNextQuestion()
+    {
+        yield return new WaitForSeconds(5f);
+        feedbackPanel.SetActive(false);
+        canAnswer = true;
+        NextQuestionOrEnd();
+    }
+
+    IEnumerator TypeFeedback(string result, string explanation, float typeSpeed = 0.02f)
+    {
+        feedbackText.text = "";
+        string fullText = $"{result}\n{explanation}";
+
+        foreach (char c in fullText)
+        {
+            feedbackText.text += c;
+            yield return new WaitForSeconds(typeSpeed);
+        }
+    }
+
+    private IEnumerator DeactivateSkillAfterDelay()
+    {
+        yield return new WaitForSeconds(3f);
+        isSkillActive = false;
+
+        // Fade out icon
+        Image iconImage = doubleSwordIcon.GetComponent<Image>();
+        if (iconImage != null)
+        {
+            float fadeDuration = 0.5f;
+            float elapsed = 0f;
+            Color originalColor = iconImage.color;
+
+            while (elapsed < fadeDuration)
+            {
+                elapsed += Time.deltaTime;
+                float alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
+                iconImage.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+                yield return null;
+            }
+
+            iconImage.color = originalColor; // Reset for next use
+        }
+
+        doubleSwordIcon.SetActive(false);
+    }
+
+
 }
