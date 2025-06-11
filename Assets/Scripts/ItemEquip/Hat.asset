@@ -16,3 +16,4 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: b6ec9cad67366ff469ba774784e331ea, type: 3}
   type: 0
   itemPrefab: {fileID: 3629131947956938533, guid: 5b34befcb5d7e9243b2b2b647e1e0c76, type: 3}
+  battleItemPrefab: {fileID: 1325954581181786852, guid: 4b213edc4e26c324597c11bc94ea24a2, type: 3}

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Shades
   m_EditorClassIdentifier: 
   itemName: Shades
-  icon: {fileID: 21300000, guid: c47d4696baa4a5a4d819e538b4fa1543, type: 3}
+  icon: {fileID: 21300000, guid: f60a80c0de100554b8cf302e6f486d76, type: 3}
   type: 1
   itemPrefab: {fileID: 3629131947956938533, guid: 3e0e3cc40eb90bf459c56be42fa069e7, type: 3}
+  battleItemPrefab: {fileID: 7184792677272214535, guid: 9fd10f5578847b943a80fc7edc10ad1c, type: 3}
