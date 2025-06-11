@@ -46,6 +46,8 @@ public class SwipeManager : MonoBehaviour
     public Slider progressBar;
     private float targetProgress = 0f;
     public RectTransform progressHandle;
+    public GameObject playerShadow;
+    public GameObject enemyShadow;
 
     void Start()
     {
@@ -183,7 +185,7 @@ public class SwipeManager : MonoBehaviour
 
     IEnumerator AttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset, Vector3 worldPos, bool isEnemy)
     {
-        Vector3 targetPos = originalPos + attackOffset;
+        Vector3 targetPos = originalPos + attackOffset * 1.5f;
         float duration = 0.35f; // slightly slower now
         float elapsed = 0f;
 
@@ -194,6 +196,15 @@ public class SwipeManager : MonoBehaviour
 
         Vector3 originalScale = attacker.localScale;
         Vector3 enlargedScale = originalScale * 1.2f; // slightly bigger during impact
+
+        if (isEnemy)
+        {
+            playerShadow.SetActive(false);
+        }
+        else
+        {
+            enemyShadow.SetActive(false);
+        }
 
         if (!isMiss)
         {
@@ -230,6 +241,15 @@ public class SwipeManager : MonoBehaviour
 
         attacker.rotation = startRotation;
         attacker.localScale = originalScale;
+
+        if (isEnemy)
+        {
+            playerShadow.SetActive(true);
+        }
+        else
+        {
+            enemyShadow.SetActive(true);
+        }
     }
 
     IEnumerator HitShake(RectTransform target, float duration = 0.2f, float magnitude = 10f)

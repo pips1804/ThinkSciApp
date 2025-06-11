@@ -23,6 +23,7 @@ public class JumbledQuizManager : MonoBehaviour
 
     private Vector3 playerStartPos;
     private Vector3 enemyStartPos;
+    public int suddenDeathDamage = 10;
 
     public BattleManager battleManager;
 
@@ -50,6 +51,8 @@ public class JumbledQuizManager : MonoBehaviour
 
     public Text missText;
     public Text damageText;
+    public Text enemySuddenText;
+    public Text playerSuddenText;
 
     public GameObject feedbackPanel;
     public Text feedbackText;
@@ -74,6 +77,10 @@ public class JumbledQuizManager : MonoBehaviour
     private bool isMiss = false;
 
     public GameObject resultPanel;
+
+    public GameObject playerShadow;
+    public GameObject enemyShadow;
+    public Image battleBackground;
 
 
     private void Awake()
@@ -214,15 +221,14 @@ public class JumbledQuizManager : MonoBehaviour
                 int baseDamage = Random.Range(10, 16);
                 int damage = isSkillActive ? baseDamage * 2 : baseDamage;
                 battleManager.EnemyTakeDamage(damage);
+                isMiss = false;
                 if (isSkillActive)
                 {
                     StartCoroutine(IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true));
-                    StartCoroutine(ShowImpactImage(enemyIcon.position, true)); // For enemy being hit
                 }
                 else
                 {
                     StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true));
-                    StartCoroutine(ShowImpactImage(enemyIcon.position, true)); // For enemy being hit
                 }
                 StartCoroutine(HitShake(enemyIcon));
                 Color damageColor = new Color(1f, 0f, 0f); // Red
@@ -258,6 +264,7 @@ public class JumbledQuizManager : MonoBehaviour
 
             if (isHit)
             {
+                isMiss = false;
                 ShowFeedback("Wrong!", currentQ.explanationText);
                 int damage = Random.Range(10, 16);
                 battleManager.PlayerTakeDamage(damage);
@@ -334,6 +341,22 @@ public class JumbledQuizManager : MonoBehaviour
         if (feedbackPanel != null)
         {
             feedbackPanel.SetActive(false);
+        }
+
+        // Sudden death mechanic for last 3 questions
+        if (currentQuestionIndex >= questions.Count - 3)
+        {
+            StartCoroutine(GraduallyTurnRed(3f)); // 3 seconds transition
+            battleManager.PlayerTakeDamage(suddenDeathDamage);
+            battleManager.EnemyTakeDamage(suddenDeathDamage);
+
+            // Optional: Show visual effects for damage taken
+            Color suddenColor = new Color(1f, 0.5f, 0f); // Orange
+            StartCoroutine(ShowFloatingText(playerSuddenText, "-" + suddenDeathDamage, playerIcon.position, suddenColor));
+            StartCoroutine(ShowFloatingText(enemySuddenText, "-" + suddenDeathDamage, enemyIcon.position, suddenColor));
+
+            StartCoroutine(HitShake(playerIcon));
+            StartCoroutine(HitShake(enemyIcon));
         }
 
         currentQuestionIndex++;
@@ -501,7 +524,7 @@ public class JumbledQuizManager : MonoBehaviour
 
     IEnumerator AttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset, Vector3 worldPos, bool isEnemy)
     {
-        Vector3 targetPos = originalPos + attackOffset;
+        Vector3 targetPos = originalPos + attackOffset * 1.5f;
         float duration = 0.35f;
         float elapsed = 0f;
 
@@ -512,10 +535,20 @@ public class JumbledQuizManager : MonoBehaviour
         Vector3 originalScale = attacker.localScale;
         Vector3 enlargedScale = originalScale * 1.2f;
 
+        if (isEnemy)
+        {
+            playerShadow.SetActive(false);
+        }
+        else
+        {
+            enemyShadow.SetActive(false);
+        }
+
         if (!isMiss)
         {
             StartCoroutine(ShowImpactImage(worldPos, isEnemy));
         }
+
 
         while (elapsed < duration)
         {
@@ -546,12 +579,21 @@ public class JumbledQuizManager : MonoBehaviour
         attacker.rotation = startRotation;
         attacker.localScale = originalScale;
 
+        if (isEnemy)
+        {
+            playerShadow.SetActive(true);
+        }
+        else
+        {
+            enemyShadow.SetActive(true);
+        }
+
         yield return new WaitForSeconds(0.1f);
     }
 
     IEnumerator IntenseAttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset, Vector3 worldPos, bool isEnemy)
     {
-        Vector3 targetPos = originalPos + attackOffset;
+        Vector3 targetPos = originalPos + attackOffset * 1.5f;
         float duration = 0.25f;
         float elapsed = 0f;
 
@@ -562,6 +604,15 @@ public class JumbledQuizManager : MonoBehaviour
         Vector3 originalScale = attacker.localScale;
         Vector3 enlargedScale = originalScale * 1.4f;
 
+        if (isEnemy)
+        {
+            playerShadow.SetActive(false);
+        }
+        else
+        {
+            enemyShadow.SetActive(false);
+        }
+
         if (!isMiss)
         {
             StartCoroutine(ShowImpactImage(worldPos, isEnemy));
@@ -593,6 +644,15 @@ public class JumbledQuizManager : MonoBehaviour
         attacker.anchoredPosition = originalPos;
         attacker.rotation = startRotation;
         attacker.localScale = originalScale;
+
+        if (isEnemy)
+        {
+            playerShadow.SetActive(true);
+        }
+        else
+        {
+            enemyShadow.SetActive(true);
+        }
 
         yield return new WaitForSeconds(0.1f);
     }
@@ -716,5 +776,20 @@ public class JumbledQuizManager : MonoBehaviour
         doubleSwordIcon.SetActive(false);
     }
 
+    IEnumerator GraduallyTurnRed(float duration)
+    {
+        Color startColor = battleBackground.color;
+        Color targetColor = new Color(3f, .5f, .5f); // Dark red (adjust as needed)
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            battleBackground.color = Color.Lerp(startColor, targetColor, elapsed / duration);
+            yield return null;
+        }
+
+        battleBackground.color = targetColor; // Ensure exact final color
+    }
 
 }
