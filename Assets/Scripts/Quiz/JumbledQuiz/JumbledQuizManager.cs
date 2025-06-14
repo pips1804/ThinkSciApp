@@ -37,6 +37,9 @@ public class JumbledQuizManager : MonoBehaviour
     private float timer = 20f;  // Jumbled quiz timer
     private bool isTimerRunning = false;
 
+    private bool isBlinking = false;
+    private Vector3 originalScale;
+
     public Slider progressBar;
     private float targetProgress = 0f;
     public RectTransform progressHandle;
@@ -75,12 +78,21 @@ public class JumbledQuizManager : MonoBehaviour
 
     public GameObject impactImage;
     private bool isMiss = false;
+    private bool isPlayer = true;
 
     public GameObject resultPanel;
 
     public GameObject playerShadow;
     public GameObject enemyShadow;
     public Image battleBackground;
+
+    public GameObject timerContainer;
+    public GameObject scoreContainer;
+
+    public IdleAnimation playerIdleAnim;
+    public IdleAnimation enemyIdleAnim;
+
+    public BattleAnimationManager battleAnim;
 
 
     private void Awake()
@@ -94,6 +106,7 @@ public class JumbledQuizManager : MonoBehaviour
     {
         playerStartPos = playerIcon.anchoredPosition;
         enemyStartPos = enemyIcon.anchoredPosition;
+        originalScale = timerText.transform.localScale;
 
         if (progressBar != null)
         {
@@ -111,12 +124,28 @@ public class JumbledQuizManager : MonoBehaviour
         if (isTimerRunning)
         {
             timer -= Time.deltaTime;
-            timerText.text = Mathf.CeilToInt(timer).ToString();
+            int displayTime = Mathf.CeilToInt(timer);
+            timerText.text = displayTime.ToString();
+
+
+            // Heartbeat effect when timer is 10 or below
+            if (displayTime <= 10)
+            {
+                timerText.color = Color.red;
+
+                if (!isBlinking)
+                {
+                    isBlinking = true;
+                    battleAnim.StartCoroutine(battleAnim.HeartbeatEffect(isTimerRunning, originalScale, timer));
+                }
+            }
 
             if (timer <= 0)
             {
                 isTimerRunning = false;
                 timerText.text = "0";
+                timerText.transform.localScale = originalScale;
+                StopAllCoroutines();
                 PlayerMissedAnswer();
             }
         }
@@ -136,7 +165,6 @@ public class JumbledQuizManager : MonoBehaviour
         {
             skillCooldownFill.fillAmount = skillTimer > 0 ? skillTimer / skillCooldown : 0;
         }
-
     }
 
     void DisplayQuestion()
@@ -164,6 +192,7 @@ public class JumbledQuizManager : MonoBehaviour
         isTimerRunning = true;
         canAnswer = true;
         selectedIndex = -1;
+        battleAnim.StartCoroutine(battleAnim.FadeTextLoop());
     }
 
     void OnLetterClick(int index)
@@ -210,6 +239,7 @@ public class JumbledQuizManager : MonoBehaviour
 
         if (isCorrect)
         {
+            isPlayer = true;
             bool isHit = Random.value <= (hitChancePercent * 0.01f);
 
             Debug.Log($"User Answer: {userAnswer}");
@@ -222,34 +252,42 @@ public class JumbledQuizManager : MonoBehaviour
                 int damage = isSkillActive ? baseDamage * 2 : baseDamage;
                 battleManager.EnemyTakeDamage(damage);
                 isMiss = false;
+                timerContainer.SetActive(false);
+                scoreContainer.SetActive(false);
                 if (isSkillActive)
                 {
-                    StartCoroutine(IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true));
+                    battleAnim.StartCoroutine(battleAnim.IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
                 }
                 else
                 {
-                    StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true));
+                    battleAnim.StartCoroutine(battleAnim.AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
                 }
-                StartCoroutine(HitShake(enemyIcon));
+                battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
                 Color damageColor = new Color(1f, 0f, 0f); // Red
                 StartCoroutine(ShowFloatingText(damageText, "-" + damage, enemyIcon.position, damageColor));
+                timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
+
             }
             else
             {
+                timerContainer.SetActive(false);
+                scoreContainer.SetActive(false);
                 ShowFeedback("Correct!", currentQ.explanationText);
                 isMiss = true;
                 if (isSkillActive)
                 {
-                    StartCoroutine(IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true));
+                    battleAnim.StartCoroutine(battleAnim.IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
                 }
                 else
                 {
-                    StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true));
+                    battleAnim.StartCoroutine(battleAnim.AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
                 }
-                StartCoroutine(DodgeAnimation(enemyIcon));
+                battleAnim.StartCoroutine(battleAnim.DodgeAnimation(enemyIcon));
                 Color missColor;
                 ColorUtility.TryParseHtmlString("#5f9103", out missColor);
                 StartCoroutine(ShowFloatingText(missText, "Miss!", enemyIcon.position, missColor));
+                timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
+
 
             }
 
@@ -261,45 +299,56 @@ public class JumbledQuizManager : MonoBehaviour
 
             Debug.Log($"User Answer: {userAnswer}");
             Debug.Log($"Correct Answer: {correctAnswer}");
+            isPlayer = false;
 
             if (isHit)
             {
+                timerContainer.SetActive(false);
+                scoreContainer.SetActive(false);
                 isMiss = false;
                 ShowFeedback("Wrong!", currentQ.explanationText);
                 int damage = Random.Range(10, 16);
                 battleManager.PlayerTakeDamage(damage);
-                StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false));
-                StartCoroutine(HitShake(playerIcon));
+                battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
+                battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
                 Color damageColor = new Color(1f, 0f, 0f); // Red
                 StartCoroutine(ShowFloatingText(damageText, "-" + damage, playerIcon.position, damageColor));
-
+                timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
             }
             else
             {
+                timerContainer.SetActive(false);
+                scoreContainer.SetActive(false);
                 isMiss = true;
                 ShowFeedback("Wrong!", currentQ.explanationText);
-                StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false));
-                StartCoroutine(DodgeAnimation(playerIcon));
+                battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
+                battleAnim.StartCoroutine(battleAnim.DodgeAnimation(playerIcon));
                 Color missColor;
                 ColorUtility.TryParseHtmlString("#5f9103", out missColor);
                 StartCoroutine(ShowFloatingText(missText, "Miss!", playerIcon.position, missColor));
+                timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
+
             }
         }
-
         UpdateScoreText();
     }
 
     void PlayerMissedAnswer()
     {
+        timerContainer.SetActive(false);
+        scoreContainer.SetActive(false);
         canAnswer = false;
         int damage = Random.Range(10, 16);
         battleManager.PlayerTakeDamage(damage);
-        StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false));
-        StartCoroutine(HitShake(playerIcon));
+        isMiss = false;
+        isPlayer = false;
+        battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
+        battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
         Color damageColor = new Color(1f, 0f, 0f); // Red
         StartCoroutine(ShowFloatingText(damageText, "-" + damage, playerIcon.position, damageColor));
         ShowFeedback("Time's Up!", "You didn't answer in time.");
         StartCoroutine(WaitThenNextQuestion());
+        timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
     }
 
     void UpdateScoreText()
@@ -346,7 +395,7 @@ public class JumbledQuizManager : MonoBehaviour
         // Sudden death mechanic for last 3 questions
         if (currentQuestionIndex >= questions.Count - 3)
         {
-            StartCoroutine(GraduallyTurnRed(3f)); // 3 seconds transition
+            battleAnim.StartCoroutine(battleAnim.GraduallyTurnRed(3f)); // 3 seconds transition
             battleManager.PlayerTakeDamage(suddenDeathDamage);
             battleManager.EnemyTakeDamage(suddenDeathDamage);
 
@@ -355,8 +404,8 @@ public class JumbledQuizManager : MonoBehaviour
             StartCoroutine(ShowFloatingText(playerSuddenText, "-" + suddenDeathDamage, playerIcon.position, suddenColor));
             StartCoroutine(ShowFloatingText(enemySuddenText, "-" + suddenDeathDamage, enemyIcon.position, suddenColor));
 
-            StartCoroutine(HitShake(playerIcon));
-            StartCoroutine(HitShake(enemyIcon));
+            battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
+            battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
         }
 
         currentQuestionIndex++;
@@ -503,209 +552,6 @@ public class JumbledQuizManager : MonoBehaviour
         selectedIndex = -1;
     }
 
-    IEnumerator DodgeAnimation(RectTransform defender)
-    {
-        Vector3 originalPos = defender.anchoredPosition;
-        Vector3 dodgeOffset = new Vector3(80f, 0f, 0f);
-        float dodgeTime = 0.35f;
-        float elapsed = 0f;
-
-        while (elapsed < dodgeTime)
-        {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Sin((elapsed / dodgeTime) * Mathf.PI);
-            defender.anchoredPosition = originalPos + dodgeOffset * t;
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(0.05f);
-        defender.anchoredPosition = originalPos;
-    }
-
-    IEnumerator AttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset, Vector3 worldPos, bool isEnemy)
-    {
-        Vector3 targetPos = originalPos + attackOffset * 1.5f;
-        float duration = 0.35f;
-        float elapsed = 0f;
-
-        float tiltAngle = 25f;
-        Quaternion startRotation = attacker.rotation;
-        Quaternion tiltRotation = Quaternion.Euler(0, 0, attacker == playerIcon ? -tiltAngle : tiltAngle);
-
-        Vector3 originalScale = attacker.localScale;
-        Vector3 enlargedScale = originalScale * 1.2f;
-
-        if (isEnemy)
-        {
-            playerShadow.SetActive(false);
-        }
-        else
-        {
-            enemyShadow.SetActive(false);
-        }
-
-        if (!isMiss)
-        {
-            StartCoroutine(ShowImpactImage(worldPos, isEnemy));
-        }
-
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            attacker.anchoredPosition = Vector3.Lerp(originalPos, targetPos, t);
-            attacker.rotation = Quaternion.Slerp(startRotation, tiltRotation, t);
-            attacker.localScale = Vector3.Lerp(originalScale, enlargedScale, t);
-
-            yield return null;
-        }
-
-        elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-
-            attacker.anchoredPosition = Vector3.Lerp(targetPos, originalPos, t);
-            attacker.rotation = Quaternion.Slerp(tiltRotation, startRotation, t);
-            attacker.localScale = Vector3.Lerp(enlargedScale, originalScale, t);
-
-            yield return null;
-        }
-
-        attacker.anchoredPosition = originalPos;
-        attacker.rotation = startRotation;
-        attacker.localScale = originalScale;
-
-        if (isEnemy)
-        {
-            playerShadow.SetActive(true);
-        }
-        else
-        {
-            enemyShadow.SetActive(true);
-        }
-
-        yield return new WaitForSeconds(0.1f);
-    }
-
-    IEnumerator IntenseAttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset, Vector3 worldPos, bool isEnemy)
-    {
-        Vector3 targetPos = originalPos + attackOffset * 1.5f;
-        float duration = 0.25f;
-        float elapsed = 0f;
-
-        float tiltAngle = 35f;
-        Quaternion startRotation = attacker.rotation;
-        Quaternion tiltRotation = Quaternion.Euler(0, 0, attacker == playerIcon ? -tiltAngle : tiltAngle);
-
-        Vector3 originalScale = attacker.localScale;
-        Vector3 enlargedScale = originalScale * 1.4f;
-
-        if (isEnemy)
-        {
-            playerShadow.SetActive(false);
-        }
-        else
-        {
-            enemyShadow.SetActive(false);
-        }
-
-        if (!isMiss)
-        {
-            StartCoroutine(ShowImpactImage(worldPos, isEnemy));
-        }
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-
-            attacker.anchoredPosition = Vector3.Lerp(originalPos, targetPos, t);
-            attacker.rotation = Quaternion.Slerp(startRotation, tiltRotation, t);
-            attacker.localScale = Vector3.Lerp(originalScale, enlargedScale, t);
-            yield return null;
-        }
-
-        elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            attacker.anchoredPosition = Vector3.Lerp(targetPos, originalPos, t);
-            attacker.rotation = Quaternion.Slerp(tiltRotation, startRotation, t);
-            attacker.localScale = Vector3.Lerp(enlargedScale, originalScale, t);
-            yield return null;
-        }
-
-        attacker.anchoredPosition = originalPos;
-        attacker.rotation = startRotation;
-        attacker.localScale = originalScale;
-
-        if (isEnemy)
-        {
-            playerShadow.SetActive(true);
-        }
-        else
-        {
-            enemyShadow.SetActive(true);
-        }
-
-        yield return new WaitForSeconds(0.1f);
-    }
-
-    IEnumerator ShowImpactImage(Vector3 worldPos, bool isEnemy)
-    {
-
-        Vector3 offset = isEnemy ? new Vector3(-60f, 0f, 0f) : new Vector3(60f, 0f, 0f); // adjust 30f as needed
-
-        // Animate pop
-        impactImage.SetActive(true);
-        impactImage.transform.position = worldPos + offset;
-        impactImage.transform.localScale = Vector3.zero;
-
-        float t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime * 5f;
-            impactImage.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, Mathf.SmoothStep(0, 1, t));
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(0.3f);
-
-        t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime * 7f;
-            impactImage.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, Mathf.SmoothStep(0, 1, t));
-            yield return null;
-        }
-
-        impactImage.SetActive(false);
-    }
-
-    IEnumerator HitShake(RectTransform rectTransform)
-    {
-        Vector3 originalPos = rectTransform.anchoredPosition;
-        float elapsed = 0f;
-        float duration = 0.20f;
-        float magnitude = 20f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float x = Random.Range(-1f, 1f) * magnitude;
-            rectTransform.anchoredPosition = originalPos + new Vector3(x, 0, 0);
-            yield return null;
-        }
-
-        rectTransform.anchoredPosition = originalPos;
-    }
-
     IEnumerator ShowFloatingText(Text textObj, string message, Vector3 worldPos, Color color)
     {
         textObj.text = message;
@@ -733,6 +579,8 @@ public class JumbledQuizManager : MonoBehaviour
     {
         yield return new WaitForSeconds(5f);
         feedbackPanel.SetActive(false);
+        timerContainer.SetActive(true);
+        scoreContainer.SetActive(true);
         canAnswer = true;
         NextQuestionOrEnd();
     }
@@ -772,24 +620,6 @@ public class JumbledQuizManager : MonoBehaviour
 
             iconImage.color = originalColor; // Reset for next use
         }
-
         doubleSwordIcon.SetActive(false);
     }
-
-    IEnumerator GraduallyTurnRed(float duration)
-    {
-        Color startColor = battleBackground.color;
-        Color targetColor = new Color(3f, .5f, .5f); // Dark red (adjust as needed)
-
-        float elapsed = 0f;
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            battleBackground.color = Color.Lerp(startColor, targetColor, elapsed / duration);
-            yield return null;
-        }
-
-        battleBackground.color = targetColor; // Ensure exact final color
-    }
-
 }

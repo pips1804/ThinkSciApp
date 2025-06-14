@@ -24,6 +24,7 @@ public class SwipeManager : MonoBehaviour
     private Vector3 playerStartPos;
     private Vector3 enemyStartPos;
     public BattleManager battleManager;
+    public int suddenDeathDamage = 10;
 
     [Header("UI")]
     public Text scoreText; // Drag your UI text here in the inspector
@@ -48,11 +49,23 @@ public class SwipeManager : MonoBehaviour
     public RectTransform progressHandle;
     public GameObject playerShadow;
     public GameObject enemyShadow;
+    public Image battleBackground;
+
+    public GameObject timerContainer;
+    public GameObject scoreContainer;
+    public Text enemySuddenText;
+    public Text playerSuddenText;
+
+    private bool isBlinking = false;
+    private Vector3 originalScale;
+
+    public IdleAnimation idleAnim;
 
     void Start()
     {
         playerStartPos = playerIcon.anchoredPosition;
         enemyStartPos = enemyIcon.anchoredPosition;
+        originalScale = timerText.transform.localScale;
 
         if (progressBar != null)
         {
@@ -70,12 +83,28 @@ public class SwipeManager : MonoBehaviour
         if (isTimerRunning)
         {
             timer -= Time.deltaTime;
-            timerText.text = Mathf.Ceil(timer).ToString();
+            int displayTime = Mathf.CeilToInt(timer);
+            timerText.text = displayTime.ToString();
+
+
+            // Heartbeat effect when timer is 10 or below
+            if (displayTime <= 5)
+            {
+                timerText.color = Color.red;
+
+                if (!isBlinking)
+                {
+                    isBlinking = true;
+                    StartCoroutine(HeartbeatEffect());
+                }
+            }
 
             if (timer <= 0)
             {
                 isTimerRunning = false;
                 timerText.text = "0";
+                timerText.transform.localScale = originalScale;
+                StopAllCoroutines();
                 PlayerMissedAnswer();
             }
         }
@@ -96,6 +125,8 @@ public class SwipeManager : MonoBehaviour
 
             if (isHit)
             {
+                timerContainer.SetActive(false);
+                scoreContainer.SetActive(false);
                 ShowFeedback("Correct!", questions[currentQuestionIndex].explanationText);
                 int damage = Random.Range(10, 16); // 10 to 15
                 battleManager.EnemyTakeDamage(damage);
@@ -104,10 +135,12 @@ public class SwipeManager : MonoBehaviour
                 StartCoroutine(HitShake(enemyIcon));
                 Color damageColor = new Color(1f, 0f, 0f); // Red
                 StartCoroutine(ShowFloatingText(damageText, "-" + damage, enemyIcon.position, damageColor));
-
+                timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
             }
             else
             {
+                timerContainer.SetActive(false);
+                scoreContainer.SetActive(false);
                 ShowFeedback("Correct!", questions[currentQuestionIndex].explanationText);
                 isMiss = true;
                 StartCoroutine(AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true));
@@ -115,7 +148,7 @@ public class SwipeManager : MonoBehaviour
                 Color missColor;
                 ColorUtility.TryParseHtmlString("#5f9103", out missColor);
                 StartCoroutine(ShowFloatingText(missText, "Miss!", enemyIcon.position, missColor));
-
+                timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
             }
         }
         else
@@ -124,6 +157,8 @@ public class SwipeManager : MonoBehaviour
 
             if (isHit)
             {
+                timerContainer.SetActive(false);
+                scoreContainer.SetActive(false);
                 ShowFeedback("Wrong!", questions[currentQuestionIndex].explanationText);
                 int damage = Random.Range(10, 16);
                 battleManager.PlayerTakeDamage(damage);
@@ -132,10 +167,13 @@ public class SwipeManager : MonoBehaviour
                 StartCoroutine(HitShake(playerIcon));
                 Color damageColor = new Color(1f, 0f, 0f); // Red
                 StartCoroutine(ShowFloatingText(damageText, "-" + damage, playerIcon.position, damageColor));
+                timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
 
             }
             else
             {
+                timerContainer.SetActive(false);
+                scoreContainer.SetActive(false);
                 ShowFeedback("Wrong!", questions[currentQuestionIndex].explanationText);
                 isMiss = true;
                 StartCoroutine(AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, true));
@@ -143,6 +181,7 @@ public class SwipeManager : MonoBehaviour
                 Color missColor;
                 ColorUtility.TryParseHtmlString("#5f9103", out missColor);
                 StartCoroutine(ShowFloatingText(missText, "Miss!", playerIcon.position, missColor));
+                timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
 
             }
         }
@@ -168,6 +207,8 @@ public class SwipeManager : MonoBehaviour
 
         float elapsed = 0f;
 
+        idleAnim.StopIdle();
+
         // Move sideways with a bounce effect (ease in/out)
         while (elapsed < dodgeTime)
         {
@@ -181,6 +222,8 @@ public class SwipeManager : MonoBehaviour
         yield return new WaitForSeconds(0.05f);
 
         defender.anchoredPosition = originalPos;
+
+        idleAnim.StartIdle();
     }
 
     IEnumerator AttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset, Vector3 worldPos, bool isEnemy)
@@ -197,7 +240,9 @@ public class SwipeManager : MonoBehaviour
         Vector3 originalScale = attacker.localScale;
         Vector3 enlargedScale = originalScale * 1.2f; // slightly bigger during impact
 
-        if (isEnemy)
+        idleAnim.StopIdle();
+
+        if (attacker == playerIcon)
         {
             playerShadow.SetActive(false);
         }
@@ -242,7 +287,7 @@ public class SwipeManager : MonoBehaviour
         attacker.rotation = startRotation;
         attacker.localScale = originalScale;
 
-        if (isEnemy)
+        if (attacker == playerIcon)
         {
             playerShadow.SetActive(true);
         }
@@ -250,12 +295,16 @@ public class SwipeManager : MonoBehaviour
         {
             enemyShadow.SetActive(true);
         }
+
+        idleAnim.StartIdle();
     }
 
     IEnumerator HitShake(RectTransform target, float duration = 0.2f, float magnitude = 10f)
     {
         Vector3 originalPos = target.anchoredPosition;
         float elapsed = 0f;
+        idleAnim.StopIdle();
+
 
         while (elapsed < duration)
         {
@@ -267,6 +316,8 @@ public class SwipeManager : MonoBehaviour
         }
 
         target.anchoredPosition = originalPos;
+
+        idleAnim.StartIdle();
     }
 
 
@@ -297,6 +348,8 @@ public class SwipeManager : MonoBehaviour
 
     void PlayerMissedAnswer()
     {
+        timerContainer.SetActive(false);
+        scoreContainer.SetActive(false);
         ShowFeedback("Time's Up!", "You didn't answer in time.");
         int damage = Random.Range(10, 16);
         battleManager.PlayerTakeDamage(damage);
@@ -304,10 +357,26 @@ public class SwipeManager : MonoBehaviour
         StartCoroutine(HitShake(playerIcon));
         Color damageColor = new Color(1f, 0f, 0f); // Red
         StartCoroutine(ShowFloatingText(damageText, "-" + damage, playerIcon.position, damageColor));
+        timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
     }
 
     void MoveToNextQuestion()
     {
+        if (currentQuestionIndex >= questions.Count - 3)
+        {
+            StartCoroutine(GraduallyTurnRed(3f)); // 3 seconds transition
+            battleManager.PlayerTakeDamage(suddenDeathDamage);
+            battleManager.EnemyTakeDamage(suddenDeathDamage);
+
+            // Optional: Show visual effects for damage taken
+            Color suddenColor = new Color(1f, 0.5f, 0f); // Orange
+            StartCoroutine(ShowFloatingText(playerSuddenText, "-" + suddenDeathDamage, playerIcon.position, suddenColor));
+            StartCoroutine(ShowFloatingText(enemySuddenText, "-" + suddenDeathDamage, enemyIcon.position, suddenColor));
+
+            StartCoroutine(HitShake(playerIcon));
+            StartCoroutine(HitShake(enemyIcon));
+        }
+
         currentQuestionIndex++;
 
         if (progressBar != null)
@@ -342,6 +411,7 @@ public class SwipeManager : MonoBehaviour
         questionImage.sprite = question.questionImage;
         timer = 10f;
         isTimerRunning = true;
+        StartCoroutine(FadeTextLoop());
     }
 
     string GetScoreMessage(int score)
@@ -407,6 +477,8 @@ public class SwipeManager : MonoBehaviour
     {
         yield return new WaitForSeconds(5f);
         feedbackPanel.SetActive(false);
+        timerContainer.SetActive(true);
+        scoreContainer.SetActive(true);
         canAnswer = true;
         MoveToNextQuestion();
     }
@@ -529,5 +601,82 @@ public class SwipeManager : MonoBehaviour
         }
 
         rect.localScale = originalScale;
+    }
+
+    IEnumerator GraduallyTurnRed(float duration)
+    {
+        Color startColor = battleBackground.color;
+        Color targetColor = new Color(3f, .5f, .5f); // Dark red (adjust as needed)
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            battleBackground.color = Color.Lerp(startColor, targetColor, elapsed / duration);
+            yield return null;
+        }
+
+        battleBackground.color = targetColor; // Ensure exact final color
+    }
+
+    IEnumerator HeartbeatEffect()
+    {
+        while (isTimerRunning && Mathf.CeilToInt(timer) <= 10)
+        {
+            yield return ScaleTo(originalScale * 1.2f, 0.2f);
+            yield return ScaleTo(originalScale, 0.2f);
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+
+    IEnumerator ScaleTo(Vector3 targetScale, float duration)
+    {
+        Vector3 startScale = timerText.transform.localScale;
+        float time = 0f;
+
+        while (time < duration)
+        {
+            timerText.transform.localScale = Vector3.Lerp(startScale, targetScale, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        timerText.transform.localScale = targetScale;
+    }
+
+    IEnumerator FadeTextLoop()
+    {
+        float duration = 0.5f; // Half a second for fade out, half for fade in
+
+        while (true)
+        {
+            // Fade out
+            yield return StartCoroutine(FadeToAlpha(0f, duration));
+
+            // Fade in
+            yield return StartCoroutine(FadeToAlpha(1f, duration));
+        }
+    }
+
+    IEnumerator FadeToAlpha(float targetAlpha, float duration)
+    {
+        float startAlpha = timerText.color.a;
+        float time = 0f;
+
+        while (time < duration)
+        {
+            float newAlpha = Mathf.Lerp(startAlpha, targetAlpha, time / duration);
+            Color c = timerText.color;
+            c.a = newAlpha;
+            timerText.color = c;
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure final alpha is set
+        Color finalColor = timerText.color;
+        finalColor.a = targetAlpha;
+        timerText.color = finalColor;
     }
 }

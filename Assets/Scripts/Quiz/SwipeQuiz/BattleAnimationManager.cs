@@ -4,24 +4,148 @@ using UnityEngine.UI;
 
 public class BattleAnimationManager : MonoBehaviour
 {
+    public IdleAnimation playerIdleAnim;
+    public IdleAnimation enemyIdleAnim;
+
+    public GameObject enemyShadow;
+    public GameObject playerShadow;
     public GameObject impactImage;
 
-    public IEnumerator AttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset, Vector3 worldPos, bool isMiss, bool isEnemy)
+    public Text timerText;
+
+    public Image battleBackground;
+
+    public IEnumerator DodgeAnimation(RectTransform defender)
     {
-        Vector3 targetPos = originalPos + attackOffset;
+        Vector3 originalPos = defender.anchoredPosition;
+        Vector3 dodgeOffset = new Vector3(80f, 0f, 0f);
+        float dodgeTime = 0.35f;
+        float elapsed = 0f;
+
+        playerIdleAnim.StopIdle();
+        enemyIdleAnim.StopIdle();
+
+        while (elapsed < dodgeTime)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Sin((elapsed / dodgeTime) * Mathf.PI);
+            defender.anchoredPosition = originalPos + dodgeOffset * t;
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.05f);
+        defender.anchoredPosition = originalPos;
+
+        playerIdleAnim.StartIdle();
+        enemyIdleAnim.StartIdle();
+    }
+
+    public IEnumerator AttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset, Vector3 worldPos, bool isEnemy, bool isMiss, bool isPlayer)
+    {
+        Vector3 targetPos = originalPos + attackOffset * 1.5f;
         float duration = 0.35f;
         float elapsed = 0f;
 
         float tiltAngle = 25f;
         Quaternion startRotation = attacker.rotation;
-        Quaternion tiltRotation = Quaternion.Euler(0, 0, attacker.name.Contains("Player") ? -tiltAngle : tiltAngle);
+        Quaternion tiltRotation = Quaternion.Euler(0, 0, isPlayer ? -tiltAngle : tiltAngle);
+
 
         Vector3 originalScale = attacker.localScale;
         Vector3 enlargedScale = originalScale * 1.2f;
 
-        if (!isMiss && impactImage != null)
+        playerIdleAnim.StopIdle();
+        enemyIdleAnim.StopIdle();
+
+        if (isEnemy)
         {
-            yield return ShowImpactImage(worldPos, isEnemy);
+            playerShadow.SetActive(false);
+        }
+        else
+        {
+            enemyShadow.SetActive(false);
+        }
+
+        if (!isMiss)
+        {
+            StartCoroutine(ShowImpactImage(worldPos, isEnemy));
+        }
+
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            attacker.anchoredPosition = Vector3.Lerp(originalPos, targetPos, t);
+            attacker.rotation = Quaternion.Slerp(startRotation, tiltRotation, t);
+            attacker.localScale = Vector3.Lerp(originalScale, enlargedScale, t);
+
+            yield return null;
+        }
+
+        elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+
+            attacker.anchoredPosition = Vector3.Lerp(targetPos, originalPos, t);
+            attacker.rotation = Quaternion.Slerp(tiltRotation, startRotation, t);
+            attacker.localScale = Vector3.Lerp(enlargedScale, originalScale, t);
+
+            yield return null;
+        }
+
+        attacker.anchoredPosition = originalPos;
+        attacker.rotation = startRotation;
+        attacker.localScale = originalScale;
+
+        if (isEnemy)
+        {
+            playerShadow.SetActive(true);
+        }
+        else
+        {
+            enemyShadow.SetActive(true);
+
+        }
+
+        playerIdleAnim.StartIdle();
+        enemyIdleAnim.StartIdle();
+
+        yield return new WaitForSeconds(0.1f);
+    }
+
+    public IEnumerator IntenseAttackAnimation(RectTransform attacker, Vector3 originalPos, Vector3 attackOffset, Vector3 worldPos, bool isEnemy, bool isMiss, bool isPlayer)
+    {
+        Vector3 targetPos = originalPos + attackOffset * 1.5f;
+        float duration = 0.25f;
+        float elapsed = 0f;
+
+        float tiltAngle = 35f;
+        Quaternion startRotation = attacker.rotation;
+        Quaternion tiltRotation = Quaternion.Euler(0, 0, isPlayer ? -tiltAngle : tiltAngle);
+
+
+        Vector3 originalScale = attacker.localScale;
+        Vector3 enlargedScale = originalScale * 1.4f;
+
+        playerIdleAnim.StopIdle();
+        enemyIdleAnim.StopIdle();
+
+        if (isEnemy)
+        {
+            playerShadow.SetActive(false);
+        }
+        else
+        {
+            enemyShadow.SetActive(false);
+        }
+
+        if (!isMiss)
+        {
+            StartCoroutine(ShowImpactImage(worldPos, isEnemy));
         }
 
         while (elapsed < duration)
@@ -41,83 +165,37 @@ public class BattleAnimationManager : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
-
             attacker.anchoredPosition = Vector3.Lerp(targetPos, originalPos, t);
             attacker.rotation = Quaternion.Slerp(tiltRotation, startRotation, t);
             attacker.localScale = Vector3.Lerp(enlargedScale, originalScale, t);
             yield return null;
         }
 
+        attacker.anchoredPosition = originalPos;
         attacker.rotation = startRotation;
         attacker.localScale = originalScale;
-    }
 
-    public IEnumerator DodgeAnimation(RectTransform defender)
-    {
-        Vector3 originalPos = defender.anchoredPosition;
-        Vector3 dodgeOffset = new Vector3(80f, 0f, 0f);
-        float dodgeTime = 0.35f;
-        float elapsed = 0f;
-
-        while (elapsed < dodgeTime)
+        if (isEnemy)
         {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Sin((elapsed / dodgeTime) * Mathf.PI);
-            defender.anchoredPosition = originalPos + dodgeOffset * t;
-            yield return null;
+            playerShadow.SetActive(true);
+        }
+        else
+        {
+            enemyShadow.SetActive(true);
         }
 
-        yield return new WaitForSeconds(0.05f);
-        defender.anchoredPosition = originalPos;
-    }
+        playerIdleAnim.StartIdle();
+        enemyIdleAnim.StartIdle();
 
-    public IEnumerator HitShake(RectTransform target, float duration = 0.2f, float magnitude = 10f)
-    {
-        Vector3 originalPos = target.anchoredPosition;
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float offsetX = Random.Range(-1f, 1f) * magnitude;
-            float offsetY = Random.Range(-1f, 1f) * magnitude;
-            target.anchoredPosition = originalPos + new Vector3(offsetX, offsetY, 0);
-            yield return null;
-        }
-
-        target.anchoredPosition = originalPos;
-    }
-
-    public IEnumerator ShowFloatingText(Text textElement, string content, Vector3 startPos, Color color)
-    {
-        textElement.text = content;
-        textElement.color = new Color(color.r, color.g, color.b, 0f);
-        textElement.transform.position = startPos;
-        textElement.gameObject.SetActive(true);
-
-        float duration = 0.8f;
-        float elapsed = 0f;
-        Vector3 endPos = startPos + new Vector3(0, 50f, 0);
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            float alpha = Mathf.SmoothStep(0f, 1f, t < 0.5f ? t * 2f : (1f - t) * 2f);
-            textElement.color = new Color(color.r, color.g, color.b, alpha);
-            textElement.transform.position = Vector3.Lerp(startPos, endPos, t);
-            yield return null;
-        }
-
-        textElement.gameObject.SetActive(false);
+        yield return new WaitForSeconds(0.1f);
     }
 
     public IEnumerator ShowImpactImage(Vector3 worldPos, bool isEnemy)
     {
-        if (impactImage == null) yield break;
 
-        Vector3 offset = isEnemy ? new Vector3(60f, 0f, 0f) : new Vector3(-60f, 0f, 0f);
+        Vector3 offset = isEnemy ? new Vector3(-60f, 0f, 0f) : new Vector3(60f, 0f, 0f); // adjust 30f as needed
 
+        // Animate pop
         impactImage.SetActive(true);
         impactImage.transform.position = worldPos + offset;
         impactImage.transform.localScale = Vector3.zero;
@@ -142,4 +220,106 @@ public class BattleAnimationManager : MonoBehaviour
 
         impactImage.SetActive(false);
     }
+
+    public IEnumerator HitShake(RectTransform rectTransform)
+    {
+        Vector3 originalPos = rectTransform.anchoredPosition;
+        float elapsed = 0f;
+        float duration = 0.20f;
+        float magnitude = 20f;
+
+        playerIdleAnim.StopIdle();
+        enemyIdleAnim.StopIdle();
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float x = Random.Range(-1f, 1f) * magnitude;
+            rectTransform.anchoredPosition = originalPos + new Vector3(x, 0, 0);
+            yield return null;
+        }
+
+        rectTransform.anchoredPosition = originalPos;
+
+        playerIdleAnim.StartIdle();
+        enemyIdleAnim.StartIdle();
+    }
+    public IEnumerator GraduallyTurnRed(float duration)
+    {
+        Color startColor = battleBackground.color;
+        Color targetColor = new Color(3f, .5f, .5f); // Dark red (adjust as needed)
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            battleBackground.color = Color.Lerp(startColor, targetColor, elapsed / duration);
+            yield return null;
+        }
+
+        battleBackground.color = targetColor; // Ensure exact final color
+    }
+
+
+    public IEnumerator FadeTextLoop()
+    {
+        float duration = 0.5f; // Half a second for fade out, half for fade in
+
+        while (true)
+        {
+            // Fade out
+            yield return StartCoroutine(FadeToAlpha(0f, duration));
+
+            // Fade in
+            yield return StartCoroutine(FadeToAlpha(1f, duration));
+        }
+    }
+
+    public IEnumerator FadeToAlpha(float targetAlpha, float duration)
+    {
+        float startAlpha = timerText.color.a;
+        float time = 0f;
+
+        while (time < duration)
+        {
+            float newAlpha = Mathf.Lerp(startAlpha, targetAlpha, time / duration);
+            Color c = timerText.color;
+            c.a = newAlpha;
+            timerText.color = c;
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure final alpha is set
+        Color finalColor = timerText.color;
+        finalColor.a = targetAlpha;
+        timerText.color = finalColor;
+    }
+
+    public IEnumerator HeartbeatEffect(bool isTimerRunning, Vector3 originalScale, float timer)
+    {
+        while (isTimerRunning && Mathf.CeilToInt(timer) <= 10)
+        {
+            yield return ScaleTo(originalScale * 1.2f, 0.2f);
+            yield return ScaleTo(originalScale, 0.2f);
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+
+    IEnumerator ScaleTo(Vector3 targetScale, float duration)
+    {
+        Vector3 startScale = timerText.transform.localScale;
+        float time = 0f;
+
+        while (time < duration)
+        {
+            timerText.transform.localScale = Vector3.Lerp(startScale, targetScale, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        timerText.transform.localScale = targetScale;
+    }
+
 }
