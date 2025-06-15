@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
+  m_Name: heat-shoe
+  m_EditorClassIdentifier: 
+  itemName: Heat Shoe
+  icon: {fileID: -4837778420356752168, guid: 07b9ca1fc0b7a814ab0c1a212fa76620, type: 3}
+  type: 2
+  itemPrefab: {fileID: 0}
+  leftShoePrefab: {fileID: 6695180726781019467, guid: 363f40ed1d99cd042b158d71539853cb, type: 3}
+  rightShoePrefab: {fileID: 8758905396422358238, guid: 4f9359153e39cd644aae1ee951578452, type: 3}
+  battleItemPrefab: {fileID: 0}
+  battleLeftShoePrefab: {fileID: 8618907736001289770, guid: f787e5bd9aa861c428f1ff6a7a7836cf, type: 3}
+  battleRightShoePrefab: {fileID: 7877668004817698381, guid: 5522375050114bf49b1c19ac3ccb21cc, type: 3}

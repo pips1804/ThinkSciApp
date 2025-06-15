@@ -4025,7 +4025,8 @@ MonoBehaviour:
   equipmentData: {fileID: 11400000, guid: f4e1aade6eb9946418d52e41ca63c547, type: 2}
   hatSlot: {fileID: 926779075}
   shadesSlot: {fileID: 1803232134}
-  shoesSlot: {fileID: 1650054414}
+  shoesSlotLeft: {fileID: 1271657362}
+  shoesSlotRight: {fileID: 1650054414}
 --- !u!114 &127226224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9211,7 +9212,7 @@ GameObject:
   m_Component:
   - component: {fileID: 347902588}
   m_Layer: 5
-  m_Name: ShoesSlot
+  m_Name: ShoesSlot(left)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9233,8 +9234,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -172.52}
-  m_SizeDelta: {x: 200, y: 84.2687}
+  m_AnchoredPosition: {x: -84, y: -196}
+  m_SizeDelta: {x: 157.97, y: 249.7509}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &348855800
 GameObject:
@@ -11913,10 +11914,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1168438647}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 463.7917, y: -66.55}
+  m_SizeDelta: {x: 332.75, y: 133.1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &432701269
 MonoBehaviour:
@@ -12860,8 +12861,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 10, y: 36}
-  m_SizeDelta: {x: 342.981, y: 471.685}
+  m_AnchoredPosition: {x: -0.000017166, y: 41}
+  m_SizeDelta: {x: 278.798, y: 283.7088}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &472641016
 GameObject:
@@ -16241,7 +16242,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 8, y: -17}
+  m_AnchoredPosition: {x: 8, y: -129}
   m_SizeDelta: {x: 573.3873, y: 69.7341}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &578521716
@@ -17965,7 +17966,7 @@ GameObject:
   m_Component:
   - component: {fileID: 643110588}
   m_Layer: 5
-  m_Name: ShoesSLot
+  m_Name: ShoesSLot(left)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17987,8 +17988,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -219}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -118, y: -276}
+  m_SizeDelta: {x: 187.7773, y: 276.711}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &646716302
 GameObject:
@@ -18330,6 +18331,41 @@ RectTransform:
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0.0000090599, y: 172}
   m_SizeDelta: {x: 605.0408, y: 249.0022}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &659086187
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 659086188}
+  m_Layer: 5
+  m_Name: ShoesSlot (left)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &659086188
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 659086187}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 696660601}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 38.31961, y: -117.5271}
+  m_SizeDelta: {x: 124.7241, y: 226.914}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &667386839
 GameObject:
@@ -19065,7 +19101,8 @@ RectTransform:
   m_Children:
   - {fileID: 1967069853}
   - {fileID: 1550220224}
-  - {fileID: 1073474150}
+  - {fileID: 1284640989}
+  - {fileID: 659086188}
   m_Father: {fileID: 758611603}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -19698,6 +19735,7 @@ RectTransform:
   - {fileID: 813100060}
   - {fileID: 471060874}
   - {fileID: 347902588}
+  - {fileID: 1758918263}
   m_Father: {fileID: 1202610916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -19758,7 +19796,8 @@ MonoBehaviour:
   equipmentData: {fileID: 11400000, guid: f4e1aade6eb9946418d52e41ca63c547, type: 2}
   hatSlot: {fileID: 813100060}
   shadesSlot: {fileID: 471060874}
-  shoesSlot: {fileID: 347902588}
+  shoesSlotLeft: {fileID: 347902588}
+  shoesSlotRight: {fileID: 1758918263}
 --- !u!1 &736918272
 GameObject:
   m_ObjectHideFlags: 0
@@ -20575,6 +20614,41 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 764224368}
   m_CullTransparentMesh: 1
+--- !u!1 &764846401
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 764846402}
+  m_Layer: 5
+  m_Name: ShoesSlot(right)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &764846402
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 764846401}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1398688982}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -90.84302, y: -138.00012}
+  m_SizeDelta: {x: 148.3144, y: 135.2832}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &765613893
 GameObject:
   m_ObjectHideFlags: 0
@@ -22134,7 +22208,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0.00002861, y: 392}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 830.1667, y: 233.1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &831094165
 MonoBehaviour:
@@ -22960,7 +23034,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &869993646
 RectTransform:
   m_ObjectHideFlags: 0
@@ -23080,7 +23154,8 @@ MonoBehaviour:
   equipmentData: {fileID: 11400000, guid: f4e1aade6eb9946418d52e41ca63c547, type: 2}
   hatSlot: {fileID: 252939200}
   shadesSlot: {fileID: 967252319}
-  shoesSlot: {fileID: 643110588}
+  shoesSlotLeft: {fileID: 643110588}
+  shoesSlotRight: {fileID: 1478126366}
 --- !u!1 &875561372
 GameObject:
   m_ObjectHideFlags: 0
@@ -25764,8 +25839,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 12, y: 62}
-  m_SizeDelta: {x: 462.6288, y: 556.424}
+  m_AnchoredPosition: {x: 8.5777, y: 55}
+  m_SizeDelta: {x: 371.1554, y: 344.5777}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &967639373
 GameObject:
@@ -28364,10 +28439,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1168438647}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 146.20834, y: -66.55}
+  m_SizeDelta: {x: 292.4167, y: 133.1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1055864205
 MonoBehaviour:
@@ -28623,41 +28698,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1065116110}
   m_CullTransparentMesh: 1
---- !u!1 &1073474149
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1073474150}
-  m_Layer: 5
-  m_Name: ShoesSlot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1073474150
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1073474149}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 696660601}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.9999695, y: -96.99988}
-  m_SizeDelta: {x: 148.3144, y: 135.2832}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1074425627
 GameObject:
   m_ObjectHideFlags: 0
@@ -30366,7 +30406,8 @@ MonoBehaviour:
   equipmentData: {fileID: 11400000, guid: f4e1aade6eb9946418d52e41ca63c547, type: 2}
   hatSlot: {fileID: 1967069853}
   shadesSlot: {fileID: 1550220224}
-  shoesSlot: {fileID: 1073474150}
+  shoesSlotLeft: {fileID: 659086188}
+  shoesSlotRight: {fileID: 1284640989}
 --- !u!1 &1135533362
 GameObject:
   m_ObjectHideFlags: 0
@@ -31735,10 +31776,10 @@ RectTransform:
   - {fileID: 432701268}
   m_Father: {fileID: 831094164}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 415.08334, y: -116.55}
+  m_SizeDelta: {x: 630.1667, y: 133.1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1168438648
 MonoBehaviour:
@@ -34963,6 +35004,41 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1271405280}
   m_CullTransparentMesh: 1
+--- !u!1 &1271657361
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1271657362}
+  m_Layer: 5
+  m_Name: ShoesSlot (left)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1271657362
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1271657361}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1851135575}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 38.3196, y: -109.5273}
+  m_SizeDelta: {x: 124.7241, y: 226.914}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1271975521
 GameObject:
   m_ObjectHideFlags: 0
@@ -35121,6 +35197,41 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1283002201}
   m_CullTransparentMesh: 1
+--- !u!1 &1284640988
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1284640989}
+  m_Layer: 5
+  m_Name: ShoesSlot(right)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1284640989
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1284640988}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 696660601}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -90.84302, y: -145.99976}
+  m_SizeDelta: {x: 148.3144, y: 135.2832}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1285195262
 GameObject:
   m_ObjectHideFlags: 0
@@ -35967,7 +36078,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1322272036
 RectTransform:
   m_ObjectHideFlags: 0
@@ -36041,8 +36152,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   collectedItems:
-  - {fileID: 11400000, guid: 341c1f878c5e5f84a8ac97bef09ead6f, type: 2}
-  - {fileID: 11400000, guid: 8567dd4a8f027734eb28c39e3232db60, type: 2}
+  - {fileID: 11400000, guid: 3eafd733809d0fc4d9180132770ba18a, type: 2}
+  - {fileID: 11400000, guid: b34d6a46606fee641856c2901dc631bf, type: 2}
+  - {fileID: 11400000, guid: 521a126c0eb413b498c548a865180bde, type: 2}
+  - {fileID: 11400000, guid: 559f44a2c0332e840b35ebab7e8ce12b, type: 2}
+  - {fileID: 11400000, guid: 36e545c5bb16445458f893d8a9cf6408, type: 2}
+  - {fileID: 11400000, guid: c648a6c3612f9c540b24088f21c680f9, type: 2}
+  - {fileID: 11400000, guid: a21cf8d01da0d6c4bbc5b92d37ff6b07, type: 2}
+  - {fileID: 11400000, guid: 267d7573d91615341870612d3571bee2, type: 2}
+  - {fileID: 11400000, guid: 78c55b663f35cb640a755eda9befff51, type: 2}
+  - {fileID: 11400000, guid: 28c84a6257c46f946a427baeb34416b6, type: 2}
+  - {fileID: 11400000, guid: 31431708de8e39a4bb755494e45fe778, type: 2}
+  - {fileID: 11400000, guid: 03e94d8d57cab974e8503bf6c2820fe4, type: 2}
+  - {fileID: 11400000, guid: b2204e1f8b683484f9caf964b848dfc0, type: 2}
+  - {fileID: 11400000, guid: d2a6df2cffc6dc14d8e5be7f8c6e4933, type: 2}
+  - {fileID: 11400000, guid: 9ac2130d341a0084f834ecf9506ac618, type: 2}
+  - {fileID: 11400000, guid: c3f505299182126429bc78e472c24f30, type: 2}
+  - {fileID: 11400000, guid: be21d4ab7844d2a4b8b35ae11fb9816f, type: 2}
+  - {fileID: 11400000, guid: 464798d86a8214f46b3ec1544ec97cb3, type: 2}
+  - {fileID: 11400000, guid: b52e3e35b7838ba4d805eb0940643206, type: 2}
+  - {fileID: 11400000, guid: acfba9583f0b57943921df4c61d5f483, type: 2}
+  - {fileID: 11400000, guid: 23d50efc7ef6e6640ae47ec1a731b9ce, type: 2}
 --- !u!114 &1322272041
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37135,7 +37265,8 @@ RectTransform:
   m_Children:
   - {fileID: 1695820615}
   - {fileID: 1384117715}
-  - {fileID: 1478024297}
+  - {fileID: 764846402}
+  - {fileID: 1942828783}
   m_Father: {fileID: 1580086338}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -37309,6 +37440,7 @@ RectTransform:
   - {fileID: 252939200}
   - {fileID: 967252319}
   - {fileID: 643110588}
+  - {fileID: 1478126366}
   m_Father: {fileID: 869993646}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -40188,7 +40320,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1475889621}
   m_CullTransparentMesh: 1
---- !u!1 &1478024296
+--- !u!1 &1478126365
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40196,32 +40328,32 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1478024297}
+  - component: {fileID: 1478126366}
   m_Layer: 5
-  m_Name: ShoesSlot
+  m_Name: ShoesSLot (right)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &1478024297
+--- !u!224 &1478126366
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1478024296}
+  m_GameObject: {fileID: 1478126365}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1398688982}
+  m_Father: {fileID: 1404966560}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1, y: -89}
-  m_SizeDelta: {x: 148.3144, y: 135.2832}
+  m_AnchoredPosition: {x: 122, y: -276}
+  m_SizeDelta: {x: 189.414, y: 257.39}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1483034397
 GameObject:
@@ -43693,7 +43825,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1650054414}
   m_Layer: 5
-  m_Name: ShoesSlot
+  m_Name: ShoesSlot(right)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -43715,7 +43847,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1, y: -89}
+  m_AnchoredPosition: {x: -90.843, y: -138}
   m_SizeDelta: {x: 148.3144, y: 135.2832}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1653800976
@@ -45075,11 +45207,11 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
+  m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 200, y: 200}
-  m_Spacing: {x: 10, y: 10}
+  m_CellSize: {x: 100, y: 100}
+  m_Spacing: {x: 35, y: 35}
   m_Constraint: 0
   m_ConstraintCount: 2
 --- !u!1 &1695820614
@@ -46986,6 +47118,41 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1758849241}
   m_CullTransparentMesh: 1
+--- !u!1 &1758918262
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1758918263}
+  m_Layer: 5
+  m_Name: ShoesSlot(right)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1758918263
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1758918262}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 724788214}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 89.74, y: -196}
+  m_SizeDelta: {x: 158.21, y: 238.7999}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1759472659
 GameObject:
   m_ObjectHideFlags: 0
@@ -48162,7 +48329,8 @@ MonoBehaviour:
   equipmentData: {fileID: 11400000, guid: f4e1aade6eb9946418d52e41ca63c547, type: 2}
   hatSlot: {fileID: 1695820615}
   shadesSlot: {fileID: 1384117715}
-  shoesSlot: {fileID: 1478024297}
+  shoesSlotLeft: {fileID: 1942828783}
+  shoesSlotRight: {fileID: 764846402}
 --- !u!114 &1787176737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48498,8 +48666,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000011921, y: 32}
-  m_SizeDelta: {x: 275.3914, y: 363.656}
+  m_AnchoredPosition: {x: 19.4857, y: 40.5088}
+  m_SizeDelta: {x: 124.7584, y: 233.8404}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1807652976
 GameObject:
@@ -49486,6 +49654,7 @@ RectTransform:
   - {fileID: 926779075}
   - {fileID: 1803232134}
   - {fileID: 1650054414}
+  - {fileID: 1271657362}
   m_Father: {fileID: 489519964}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -52247,6 +52416,41 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!1 &1942828782
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1942828783}
+  m_Layer: 5
+  m_Name: ShoesSlot (left)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1942828783
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942828782}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1398688982}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 38.31961, y: -109.52722}
+  m_SizeDelta: {x: 124.7241, y: 226.914}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1946511731
 GameObject:
   m_ObjectHideFlags: 0

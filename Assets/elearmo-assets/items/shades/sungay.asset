@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
+  m_Name: sungay
+  m_EditorClassIdentifier: 
+  itemName: Sungay
+  icon: {fileID: 5655961887739523553, guid: a87d1962d2025e141804c18f2189cb2d, type: 3}
+  type: 1
+  itemPrefab: {fileID: 3753563535636550320, guid: f9b297cf4251ccf4299b20adbebedf7a, type: 3}
+  leftShoePrefab: {fileID: 0}
+  rightShoePrefab: {fileID: 0}
+  battleItemPrefab: {fileID: 4952427141202276857, guid: 1a1168ba03d27cc46ad5789eaaabf4a4, type: 3}
+  battleLeftShoePrefab: {fileID: 0}
+  battleRightShoePrefab: {fileID: 0}

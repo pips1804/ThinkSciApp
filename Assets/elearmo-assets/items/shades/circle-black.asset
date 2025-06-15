@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
+  m_Name: circle-black
+  m_EditorClassIdentifier: 
+  itemName: Circle (Black)
+  icon: {fileID: -9007621414634168424, guid: c73a1cb82be3e5b45bc18a5f2161c9c9, type: 3}
+  type: 1
+  itemPrefab: {fileID: 3100010589358358468, guid: d3ef75bdb9c03f94cb256bafccdf1bf6, type: 3}
+  battleItemPrefab: {fileID: 9039744674802629225, guid: 35493ce96c8613444bc8b5acfad20cbf, type: 3}

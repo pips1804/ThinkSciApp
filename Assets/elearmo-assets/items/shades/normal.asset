@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
+  m_Name: normal
+  m_EditorClassIdentifier: 
+  itemName: Normal
+  icon: {fileID: 2102054557489826955, guid: 240e9fc062474eb4bb8f318296b0cdbd, type: 3}
+  type: 1
+  itemPrefab: {fileID: 5200260618864306174, guid: d7b2e80717838b648ab62d9a7bac8ab9, type: 3}
+  leftShoePrefab: {fileID: 0}
+  rightShoePrefab: {fileID: 0}
+  battleItemPrefab: {fileID: 8768135374124631511, guid: 3a5cced0b0df6bb4b9e59b902628e535, type: 3}
+  battleLeftShoePrefab: {fileID: 0}
+  battleRightShoePrefab: {fileID: 0}

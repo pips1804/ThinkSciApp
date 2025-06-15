@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
+  m_Name: force-shoe
+  m_EditorClassIdentifier: 
+  itemName: Force Shoe
+  icon: {fileID: 7863009840844134716, guid: e0e9ab726e4e3e54e805b31d61751a6c, type: 3}
+  type: 2
+  itemPrefab: {fileID: 0}
+  leftShoePrefab: {fileID: 3798107789154908638, guid: f56abccfecbe6424aad2fa904ccaea20, type: 3}
+  rightShoePrefab: {fileID: 4520089402422932468, guid: 809557e51011acc47afdefa518b16b2c, type: 3}
+  battleItemPrefab: {fileID: 0}
+  battleLeftShoePrefab: {fileID: 5963451444254358993, guid: c3324f4df831815469c00eec771335cc, type: 3}
+  battleRightShoePrefab: {fileID: 8435771877199830459, guid: 337c495667fe1a64aabc28f0e598b5cc, type: 3}

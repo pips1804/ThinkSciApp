@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
+  m_Name: luffy
+  m_EditorClassIdentifier: 
+  itemName: Luffy
+  icon: {fileID: 9009513955766500904, guid: 6872222ac7964814cbeb67bcfb8c8059, type: 3}
+  type: 0
+  itemPrefab: {fileID: 7156890092162145132, guid: 0c27c1baf624f2d4d946c472e8c47d01, type: 3}
+  battleItemPrefab: {fileID: 8044398510909238975, guid: 5693ad6df1d379c429b1deac4362fb2c, type: 3}

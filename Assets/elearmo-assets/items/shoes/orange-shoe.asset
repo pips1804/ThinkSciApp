@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
+  m_Name: orange-shoe
+  m_EditorClassIdentifier: 
+  itemName: Orange Shoe
+  icon: {fileID: 6272937036041271917, guid: 72caf39056f1b1f42978c39c8bd60e15, type: 3}
+  type: 2
+  itemPrefab: {fileID: 0}
+  leftShoePrefab: {fileID: 8112581990087777099, guid: 30e1bfacd20e68a4183dcfeed0ca2b64, type: 3}
+  rightShoePrefab: {fileID: 4859939596379837621, guid: 734e7275d9f44b84695cdf7d22ea541b, type: 3}
+  battleItemPrefab: {fileID: 0}
+  battleLeftShoePrefab: {fileID: 4517394449940471753, guid: 90c9cbca9ed6fd048883a41513c30da4, type: 3}
+  battleRightShoePrefab: {fileID: 3094102284671834590, guid: 955c8378c261a374da8a8bf61882a9bd, type: 3}

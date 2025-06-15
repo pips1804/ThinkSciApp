@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
+  m_Name: triangle
+  m_EditorClassIdentifier: 
+  itemName: Triangle
+  icon: {fileID: 306765325567764461, guid: beb1477e5c5b2514583e94002accc420, type: 3}
+  type: 1
+  itemPrefab: {fileID: 2938699649142218034, guid: b07d3b728720b664fbb8b554081643cb, type: 3}
+  leftShoePrefab: {fileID: 0}
+  rightShoePrefab: {fileID: 0}
+  battleItemPrefab: {fileID: 3661697758918854180, guid: 9ec5a69faa408334d80216e30c34d0d2, type: 3}
+  battleLeftShoePrefab: {fileID: 0}
+  battleRightShoePrefab: {fileID: 0}

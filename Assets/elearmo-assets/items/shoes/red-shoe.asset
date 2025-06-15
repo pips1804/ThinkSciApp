@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
+  m_Name: red-shoe
+  m_EditorClassIdentifier: 
+  itemName: Red Shoe
+  icon: {fileID: 8001320615131898944, guid: 637f8d6c4b1feba4c9c7a2be65ec0629, type: 3}
+  type: 2
+  itemPrefab: {fileID: 0}
+  leftShoePrefab: {fileID: 5584487006182916516, guid: 974552f0e9439154f9574ea0e8fe0ea1, type: 3}
+  rightShoePrefab: {fileID: 3288007718455710662, guid: b0f809999561fa14b955ce81679197b3, type: 3}
+  battleItemPrefab: {fileID: 0}
+  battleLeftShoePrefab: {fileID: 4932008413087234240, guid: 13aa27bd244a58543ab58296e2ce79f7, type: 3}
+  battleRightShoePrefab: {fileID: 8528902683330831656, guid: fbf438c30aa897842aeb149990de07eb, type: 3}

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
+  m_Name: circle-red
+  m_EditorClassIdentifier: 
+  itemName: Circle (Red)
+  icon: {fileID: 928631969550631516, guid: 5e17a759ebaf6ec49898f4a9e4a5afc2, type: 3}
+  type: 1
+  itemPrefab: {fileID: 2923348246771230422, guid: a1284f968936e664f84c07f25e36c042, type: 3}
+  leftShoePrefab: {fileID: 0}
+  rightShoePrefab: {fileID: 0}
+  battleItemPrefab: {fileID: 4240140578480455438, guid: 1d76bcefa1eec8f408cf1487e2080ed2, type: 3}
+  battleLeftShoePrefab: {fileID: 0}
+  battleRightShoePrefab: {fileID: 0}

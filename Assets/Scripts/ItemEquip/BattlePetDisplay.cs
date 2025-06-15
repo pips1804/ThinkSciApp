@@ -3,7 +3,7 @@ using UnityEngine;
 public class BattlePetDisplay : MonoBehaviour
 {
     public PetEquipmentData equipmentData;
-    public Transform hatSlot, shadesSlot, shoesSlot;
+    public Transform hatSlot, shadesSlot, shoesSlotLeft, shoesSlotRight;
 
     void OnEnable()
     {
@@ -22,12 +22,32 @@ public class BattlePetDisplay : MonoBehaviour
 
     void EquipVisual(Item item)
     {
-        Transform slot = GetSlot(item.type);
-        if (slot == null || item.battleItemPrefab == null) return;
+        if (item.type == ItemType.Shoes)
+        {
+            if (item.battleLeftShoePrefab && shoesSlotLeft)
+            {
+                GameObject left = Instantiate(item.battleLeftShoePrefab, shoesSlotLeft);
+                SetupRectTransform(left);
+            }
+            if (item.battleRightShoePrefab && shoesSlotRight)
+            {
+                GameObject right = Instantiate(item.battleRightShoePrefab, shoesSlotRight);
+                SetupRectTransform(right);
+            }
+        }
+        else
+        {
+            Transform slot = GetSlot(item.type);
+            if (slot == null || item.battleItemPrefab == null) return;
 
-        GameObject instance = Instantiate(item.battleItemPrefab, slot);
+            GameObject instance = Instantiate(item.battleItemPrefab, slot);
+            SetupRectTransform(instance);
+        }
+    }
 
-        RectTransform rt = instance.GetComponent<RectTransform>();
+    void SetupRectTransform(GameObject go)
+    {
+        RectTransform rt = go.GetComponent<RectTransform>();
         if (rt != null)
         {
             rt.anchorMin = Vector2.zero;
@@ -44,7 +64,8 @@ public class BattlePetDisplay : MonoBehaviour
     {
         foreach (Transform t in hatSlot) Destroy(t.gameObject);
         foreach (Transform t in shadesSlot) Destroy(t.gameObject);
-        foreach (Transform t in shoesSlot) Destroy(t.gameObject);
+        foreach (Transform t in shoesSlotLeft) Destroy(t.gameObject);
+        foreach (Transform t in shoesSlotRight) Destroy(t.gameObject);
     }
 
     Transform GetSlot(ItemType type)
@@ -53,7 +74,6 @@ public class BattlePetDisplay : MonoBehaviour
         {
             ItemType.Hat => hatSlot,
             ItemType.Shades => shadesSlot,
-            ItemType.Shoes => shoesSlot,
             _ => null,
         };
     }

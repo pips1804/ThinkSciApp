@@ -4,14 +4,14 @@ using System.Collections.Generic;
 public class PetEquipment : MonoBehaviour
 {
     public PetEquipmentData equipmentData;
-    public Transform hatSlot, shadesSlot, shoesSlot;
+    public Transform hatSlot, shadesSlot, shoesSlotLeft, shoesSlotRight;
     public static PetEquipment Instance;
 
-    private Dictionary<ItemType, GameObject> equippedItems = new Dictionary<ItemType, GameObject>();
+    private Dictionary<ItemType, List<GameObject>> equippedItems = new Dictionary<ItemType, List<GameObject>>();
 
     void OnEnable()
     {
-        LoadEquippedItems(); // Automatically refresh when pet room panel is shown
+        LoadEquippedItems();
     }
 
     void Awake()
@@ -31,31 +31,44 @@ public class PetEquipment : MonoBehaviour
 
     private void EquipVisual(Item item)
     {
-        Transform slot = GetSlot(item.type);
-        if (slot == null) return;
-
-        GameObject instance = Instantiate(item.itemPrefab, slot);
-        RectTransform rt = instance.GetComponent<RectTransform>();
-
-        if (rt != null)
+        if (item.type == ItemType.Shoes)
         {
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
-            rt.localScale = Vector3.one;
-            rt.localRotation = Quaternion.identity;
-            rt.localPosition = Vector3.zero;
-        }
+            List<GameObject> shoes = new List<GameObject>();
 
-        equippedItems[item.type] = instance;
+            if (item.leftShoePrefab && shoesSlotLeft)
+            {
+                GameObject left = Instantiate(item.leftShoePrefab, shoesSlotLeft);
+                SetupRectTransform(left);
+                shoes.Add(left);
+            }
+
+            if (item.rightShoePrefab && shoesSlotRight)
+            {
+                GameObject right = Instantiate(item.rightShoePrefab, shoesSlotRight);
+                SetupRectTransform(right);
+                shoes.Add(right);
+            }
+
+            equippedItems[item.type] = shoes;
+        }
+        else
+        {
+            Transform slot = GetSlot(item.type);
+            if (slot == null) return;
+
+            GameObject instance = Instantiate(item.itemPrefab, slot);
+            SetupRectTransform(instance);
+
+            equippedItems[item.type] = new List<GameObject> { instance };
+        }
     }
 
     private void ClearSlots()
     {
         foreach (Transform t in hatSlot) Destroy(t.gameObject);
         foreach (Transform t in shadesSlot) Destroy(t.gameObject);
-        foreach (Transform t in shoesSlot) Destroy(t.gameObject);
+        foreach (Transform t in shoesSlotLeft) Destroy(t.gameObject);
+        foreach (Transform t in shoesSlotRight) Destroy(t.gameObject);
         equippedItems.Clear();
     }
 
@@ -65,7 +78,6 @@ public class PetEquipment : MonoBehaviour
         {
             ItemType.Hat => hatSlot,
             ItemType.Shades => shadesSlot,
-            ItemType.Shoes => shoesSlot,
             _ => null,
         };
     }
@@ -73,13 +85,30 @@ public class PetEquipment : MonoBehaviour
     public void EquipItem(Item item)
     {
         UnequipItemType(item.type);
+        EquipVisual(item);
+        equipmentData.SetEquippedItem(item);
+    }
 
-        Transform slot = GetSlot(item.type);
-        if (slot == null) return;
+    public void UnequipItem(Item item)
+    {
+        UnequipItemType(item.type);
+        equipmentData.RemoveEquippedItem(item);
+    }
 
-        GameObject equipped = Instantiate(item.itemPrefab, slot);
-        RectTransform rt = equipped.GetComponent<RectTransform>();
+    private void UnequipItemType(ItemType type)
+    {
+        if (equippedItems.TryGetValue(type, out List<GameObject> objs))
+        {
+            foreach (var go in objs)
+                Destroy(go);
 
+            equippedItems.Remove(type);
+        }
+    }
+
+    private void SetupRectTransform(GameObject obj)
+    {
+        RectTransform rt = obj.GetComponent<RectTransform>();
         if (rt != null)
         {
             rt.anchorMin = Vector2.zero;
@@ -90,29 +119,6 @@ public class PetEquipment : MonoBehaviour
             rt.localRotation = Quaternion.identity;
             rt.localPosition = Vector3.zero;
         }
-
-        equippedItems[item.type] = equipped;
-        equipmentData.SetEquippedItem(item);
-    }
-
-    public void UnequipItem(Item item)
-    {
-        if (equippedItems.ContainsKey(item.type))
-        {
-            Destroy(equippedItems[item.type]);
-            equippedItems.Remove(item.type);
-        }
-
-        equipmentData.RemoveEquippedItem(item);
-    }
-
-    private void UnequipItemType(ItemType type)
-    {
-        if (equippedItems.TryGetValue(type, out GameObject go))
-        {
-            Destroy(go);
-            equippedItems.Remove(type);
-        }
     }
 
     public bool IsEquipped(Item item)
@@ -120,4 +126,3 @@ public class PetEquipment : MonoBehaviour
         return equipmentData.IsEquipped(item);
     }
 }
-

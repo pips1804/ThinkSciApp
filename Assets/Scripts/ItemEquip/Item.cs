@@ -8,6 +8,15 @@ public class Item : ScriptableObject
     public string itemName;
     public Sprite icon;
     public ItemType type;
-    public GameObject itemPrefab;
-    public GameObject battleItemPrefab;
+
+    [Header("Regular Use")]
+    public GameObject itemPrefab;              
+    public GameObject leftShoePrefab;           
+    public GameObject rightShoePrefab;          
+
+    [Header("Battle Use")]
+    public GameObject battleItemPrefab;         
+    public GameObject battleLeftShoePrefab;     
+    public GameObject battleRightShoePrefab;    
 }
+
