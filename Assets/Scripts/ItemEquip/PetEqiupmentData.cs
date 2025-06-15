@@ -8,9 +8,8 @@ public class PetEquipmentData : ScriptableObject
 
     public void SetEquippedItem(Item item)
     {
-        RemoveEquippedItem(item); // ensure no duplicates
-
-        equippedItems.RemoveAll(i => i.type == item.type); // only one item per type
+        RemoveEquippedItem(item);
+        equippedItems.RemoveAll(i => i.type == item.type);
         equippedItems.Add(item);
     }
 

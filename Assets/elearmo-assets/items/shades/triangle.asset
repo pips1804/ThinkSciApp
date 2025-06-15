@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
   m_Name: triangle
   m_EditorClassIdentifier: 
+  itemID: shades006
+  price: 100
   itemName: Triangle
   icon: {fileID: 306765325567764461, guid: beb1477e5c5b2514583e94002accc420, type: 3}
   type: 1

@@ -74,6 +74,10 @@ public class InventoryUI : MonoBehaviour
         equipPanel.SetActive(false);
     }
 
+    private bool IsItemOwned(Item item)
+    {
+        return PlayerPrefs.GetInt("ItemOwned_" + item.itemName, 0) == 1;
+    }
 
     public void ShowAll() => PopulateInventory(null);
     public void ShowHats() => PopulateInventory(ItemType.Hat);

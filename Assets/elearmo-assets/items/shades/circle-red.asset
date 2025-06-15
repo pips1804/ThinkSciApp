@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
   m_Name: circle-red
   m_EditorClassIdentifier: 
+  itemID: shades002
+  price: 100
   itemName: Circle (Red)
   icon: {fileID: 928631969550631516, guid: 5e17a759ebaf6ec49898f4a9e4a5afc2, type: 3}
   type: 1

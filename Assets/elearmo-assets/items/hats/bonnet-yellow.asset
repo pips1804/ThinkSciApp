@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
   m_Name: bonnet-yellow
   m_EditorClassIdentifier: 
+  itemID: hat002
+  price: 100
   itemName: Bonnet (Yellow)
   icon: {fileID: -2827414643024721878, guid: 398abcfe2775312408030bdd57903c85, type: 3}
   type: 0
   itemPrefab: {fileID: 1494700720954160864, guid: c83acc936a638c3468bb243dd762e4e5, type: 3}
+  leftShoePrefab: {fileID: 0}
+  rightShoePrefab: {fileID: 0}
   battleItemPrefab: {fileID: 4960688098833562829, guid: 9ae0d61472f3e064b84026b5231f4aa0, type: 3}
+  battleLeftShoePrefab: {fileID: 0}
+  battleRightShoePrefab: {fileID: 0}

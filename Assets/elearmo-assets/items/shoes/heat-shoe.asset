@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
   m_Name: heat-shoe
   m_EditorClassIdentifier: 
+  itemID: shoes005
+  price: 100
   itemName: Heat Shoe
   icon: {fileID: -4837778420356752168, guid: 07b9ca1fc0b7a814ab0c1a212fa76620, type: 3}
   type: 2

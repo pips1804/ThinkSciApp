@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
   m_Name: red
   m_EditorClassIdentifier: 
+  itemID: shades004
+  price: 100
   itemName: Red
   icon: {fileID: 8080913895440392153, guid: ff87464082d549344bc51e90e9d1c696, type: 3}
   type: 1
   itemPrefab: {fileID: 4831504387288797367, guid: e1bceeb9203f58a4a8e9c6bed3a0a092, type: 3}
+  leftShoePrefab: {fileID: 0}
+  rightShoePrefab: {fileID: 0}
   battleItemPrefab: {fileID: 6564523634035163701, guid: 1599e4295b688de428f890261c38430c, type: 3}
+  battleLeftShoePrefab: {fileID: 0}
+  battleRightShoePrefab: {fileID: 0}

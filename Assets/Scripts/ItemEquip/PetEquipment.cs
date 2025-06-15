@@ -56,6 +56,12 @@ public class PetEquipment : MonoBehaviour
             Transform slot = GetSlot(item.type);
             if (slot == null) return;
 
+            if (item.itemPrefab == null)
+            {
+                Debug.LogWarning("Item prefab is missing for: " + item.itemName);
+                return;
+            }
+
             GameObject instance = Instantiate(item.itemPrefab, slot);
             SetupRectTransform(instance);
 

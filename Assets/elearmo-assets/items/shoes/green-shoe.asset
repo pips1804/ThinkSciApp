@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
   m_Name: green-shoe
   m_EditorClassIdentifier: 
+  itemID: shoes003
+  price: 100
   itemName: Green Shoe
   icon: {fileID: 9121352115429386624, guid: fff63a95809ebe74daa24ce937ad0a71, type: 3}
   type: 2

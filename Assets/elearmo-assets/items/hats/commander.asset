@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
   m_Name: commander
   m_EditorClassIdentifier: 
+  itemID: hat003
+  price: 100
   itemName: Commander
   icon: {fileID: -8098417938083492448, guid: eb90eeede7370354c878d7baede8aac0, type: 3}
   type: 0
   itemPrefab: {fileID: 4579517206929966383, guid: 43d349722312a2a44af27010f9dc0c4a, type: 3}
+  leftShoePrefab: {fileID: 0}
+  rightShoePrefab: {fileID: 0}
   battleItemPrefab: {fileID: 1655676529554312717, guid: 5ae1472c59cd25945a91aa0d68cb2ab0, type: 3}
+  battleLeftShoePrefab: {fileID: 0}
+  battleRightShoePrefab: {fileID: 0}

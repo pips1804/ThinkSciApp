@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
   m_Name: peaky-blinder
   m_EditorClassIdentifier: 
+  itemID: hat005
+  price: 100
   itemName: Peaky Blinder
   icon: {fileID: 6116127258512270764, guid: 75d53f9d90b705643b9b2ad9f1751e43, type: 3}
   type: 0
   itemPrefab: {fileID: 5277421388597769509, guid: d02511f84c1090b4a9888ca66e369558, type: 3}
+  leftShoePrefab: {fileID: 0}
+  rightShoePrefab: {fileID: 0}
   battleItemPrefab: {fileID: 2585688544445006002, guid: 889b3efe0dc13c44695e204cd53559f6, type: 3}
+  battleLeftShoePrefab: {fileID: 0}
+  battleRightShoePrefab: {fileID: 0}

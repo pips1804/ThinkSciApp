@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
   m_Name: force-shoe
   m_EditorClassIdentifier: 
+  itemID: shoes002
+  price: 100
   itemName: Force Shoe
   icon: {fileID: 7863009840844134716, guid: e0e9ab726e4e3e54e805b31d61751a6c, type: 3}
   type: 2

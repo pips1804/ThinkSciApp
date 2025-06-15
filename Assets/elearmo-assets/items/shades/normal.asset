@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
   m_Name: normal
   m_EditorClassIdentifier: 
+  itemID: shades003
+  price: 100
   itemName: Normal
   icon: {fileID: 2102054557489826955, guid: 240e9fc062474eb4bb8f318296b0cdbd, type: 3}
   type: 1

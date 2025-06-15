@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89dcaccef624274caabe5b3c650dc9f, type: 3}
   m_Name: red-shoe
   m_EditorClassIdentifier: 
+  itemID: shoes006
+  price: 100
   itemName: Red Shoe
   icon: {fileID: 8001320615131898944, guid: 637f8d6c4b1feba4c9c7a2be65ec0629, type: 3}
   type: 2
