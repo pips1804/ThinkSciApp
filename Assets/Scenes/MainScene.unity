@@ -4259,7 +4259,7 @@ RectTransform:
   m_Father: {fileID: 1137062826}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0.9232025, y: 0}
   m_SizeDelta: {x: 11.8464, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4401,7 +4401,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &127226218
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4515,6 +4515,10 @@ MonoBehaviour:
   playerIdleAnim: {fileID: 1851135579}
   enemyIdleAnim: {fileID: 385727515}
   battleAnim: {fileID: 127226224}
+  dbManager: {fileID: 1473477790}
+  lessonId: 1
+  userId: 1
+  currentScore: 0
 --- !u!114 &127226220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5966,6 +5970,7 @@ GameObject:
   - component: {fileID: 179446379}
   - component: {fileID: 179446381}
   - component: {fileID: 179446380}
+  - component: {fileID: 179446382}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -6025,7 +6030,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Modern Renewable Energy Sources
+  m_Text: 
 --- !u!222 &179446381
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6034,6 +6039,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 179446378}
   m_CullTransparentMesh: 1
+--- !u!114 &179446382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 179446378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 11
 --- !u!1 &184154933
 GameObject:
   m_ObjectHideFlags: 0
@@ -8262,6 +8281,7 @@ GameObject:
   - component: {fileID: 255747233}
   - component: {fileID: 255747235}
   - component: {fileID: 255747234}
+  - component: {fileID: 255747236}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -8321,7 +8341,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Uniform Velocity and Distance-Time Graphs
+  m_Text: 
 --- !u!222 &255747235
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -8330,6 +8350,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 255747232}
   m_CullTransparentMesh: 1
+--- !u!114 &255747236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 255747232}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 7
 --- !u!1 &264410001
 GameObject:
   m_ObjectHideFlags: 0
@@ -11459,6 +11493,7 @@ GameObject:
   - component: {fileID: 358846626}
   - component: {fileID: 358846628}
   - component: {fileID: 358846627}
+  - component: {fileID: 358846629}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -11518,7 +11553,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Balanced vs. Unbalanced Forces
+  m_Text: 
 --- !u!222 &358846628
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11527,6 +11562,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 358846625}
   m_CullTransparentMesh: 1
+--- !u!114 &358846629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 358846625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 2
 --- !u!1 &359330661
 GameObject:
   m_ObjectHideFlags: 0
@@ -11560,7 +11609,7 @@ RectTransform:
   m_Father: {fileID: 2129445129}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -12185,6 +12234,7 @@ GameObject:
   - component: {fileID: 393243579}
   - component: {fileID: 393243581}
   - component: {fileID: 393243580}
+  - component: {fileID: 393243582}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -12244,7 +12294,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Device Transforming Heat Enerrgy
+  m_Text: 
 --- !u!222 &393243581
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12253,6 +12303,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 393243578}
   m_CullTransparentMesh: 1
+--- !u!114 &393243582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 393243578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 12
 --- !u!1 &399082829
 GameObject:
   m_ObjectHideFlags: 0
@@ -12778,6 +12842,7 @@ GameObject:
   - component: {fileID: 412092466}
   - component: {fileID: 412092468}
   - component: {fileID: 412092467}
+  - component: {fileID: 412092469}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -12837,7 +12902,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Local and Global Solutions to the Energy Crisis
+  m_Text: 
 --- !u!222 &412092468
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12846,6 +12911,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 412092465}
   m_CullTransparentMesh: 1
+--- !u!114 &412092469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412092465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 14
 --- !u!1 &415297808
 GameObject:
   m_ObjectHideFlags: 0
@@ -15573,7 +15652,7 @@ RectTransform:
   m_Father: {fileID: 1786656979}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: -0.000038146973}
   m_SizeDelta: {x: 130, y: 27.9059}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -17441,6 +17520,7 @@ GameObject:
   - component: {fileID: 555634438}
   - component: {fileID: 555634440}
   - component: {fileID: 555634439}
+  - component: {fileID: 555634441}
   m_Layer: 5
   m_Name: CategName
   m_TagString: Untagged
@@ -17500,7 +17580,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Energy Sources and Innovation
+  m_Text: 
 --- !u!222 &555634440
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -17509,6 +17589,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 555634437}
   m_CullTransparentMesh: 1
+--- !u!114 &555634441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 555634437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 1
+  id: 4
 --- !u!1 &555765861
 GameObject:
   m_ObjectHideFlags: 0
@@ -17908,6 +18002,10 @@ MonoBehaviour:
   playerIdleAnim: {fileID: 0}
   enemyIdleAnim: {fileID: 0}
   battleAnim: {fileID: 0}
+  dbManager: {fileID: 0}
+  lessonId: 0
+  userId: 1
+  currentScore: 0
 --- !u!1 &562941940
 GameObject:
   m_ObjectHideFlags: 0
@@ -18239,6 +18337,7 @@ GameObject:
   - component: {fileID: 572280868}
   - component: {fileID: 572280870}
   - component: {fileID: 572280869}
+  - component: {fileID: 572280871}
   m_Layer: 5
   m_Name: CategName
   m_TagString: Untagged
@@ -18298,7 +18397,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Energy Sources and Innovation
+  m_Text: 
 --- !u!222 &572280870
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -18307,6 +18406,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 572280867}
   m_CullTransparentMesh: 1
+--- !u!114 &572280871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 572280867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 1
+  id: 4
 --- !u!1 &573552934
 GameObject:
   m_ObjectHideFlags: 0
@@ -20160,6 +20273,7 @@ GameObject:
   - component: {fileID: 627925677}
   - component: {fileID: 627925679}
   - component: {fileID: 627925678}
+  - component: {fileID: 627925680}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -20219,7 +20333,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: What are Forces?
+  m_Text: 
 --- !u!222 &627925679
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -20228,6 +20342,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 627925676}
   m_CullTransparentMesh: 1
+--- !u!114 &627925680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 627925676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 1
 --- !u!1 &630064948
 GameObject:
   m_ObjectHideFlags: 0
@@ -23444,6 +23572,7 @@ GameObject:
   - component: {fileID: 760439904}
   - component: {fileID: 760439906}
   - component: {fileID: 760439905}
+  - component: {fileID: 760439907}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -23503,7 +23632,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Heat Transer and the Partice Model
+  m_Text: 
 --- !u!222 &760439906
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -23512,6 +23641,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 760439903}
   m_CullTransparentMesh: 1
+--- !u!114 &760439907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 760439903}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 10
 --- !u!1 &762458422
 GameObject:
   m_ObjectHideFlags: 0
@@ -23759,6 +23902,7 @@ GameObject:
   - component: {fileID: 765613894}
   - component: {fileID: 765613896}
   - component: {fileID: 765613895}
+  - component: {fileID: 765613897}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -23818,7 +23962,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Distance vs. Displacement
+  m_Text: 
 --- !u!222 &765613896
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -23827,6 +23971,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 765613893}
   m_CullTransparentMesh: 1
+--- !u!114 &765613897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 765613893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 5
 --- !u!1 &767343136
 GameObject:
   m_ObjectHideFlags: 0
@@ -27381,6 +27539,7 @@ GameObject:
   - component: {fileID: 894932753}
   - component: {fileID: 894932755}
   - component: {fileID: 894932754}
+  - component: {fileID: 894932756}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -27440,7 +27599,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Modes of Heat Transfer
+  m_Text: 
 --- !u!222 &894932755
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -27449,6 +27608,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 894932752}
   m_CullTransparentMesh: 1
+--- !u!114 &894932756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 894932752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 9
 --- !u!1 &895915814
 GameObject:
   m_ObjectHideFlags: 0
@@ -29956,6 +30129,7 @@ GameObject:
   - component: {fileID: 973155582}
   - component: {fileID: 973155584}
   - component: {fileID: 973155583}
+  - component: {fileID: 973155585}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -30015,7 +30189,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Effects of Unbalanced Forces
+  m_Text: 
 --- !u!222 &973155584
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -30024,6 +30198,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 973155581}
   m_CullTransparentMesh: 1
+--- !u!114 &973155585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973155581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 4
 --- !u!1 &980835797
 GameObject:
   m_ObjectHideFlags: 0
@@ -30436,7 +30624,7 @@ RectTransform:
   m_Father: {fileID: 738868780}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0.9232025, y: 0}
   m_SizeDelta: {x: 11.8464, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -31850,7 +32038,7 @@ RectTransform:
   m_Father: {fileID: 615315025}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0.9232178, y: 0}
   m_SizeDelta: {x: 11.8464, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -32449,6 +32637,7 @@ GameObject:
   - component: {fileID: 1054051427}
   - component: {fileID: 1054051429}
   - component: {fileID: 1054051428}
+  - component: {fileID: 1054051430}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -32508,7 +32697,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Free-Body Diagrams
+  m_Text: 
 --- !u!222 &1054051429
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -32517,6 +32706,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1054051426}
   m_CullTransparentMesh: 1
+--- !u!114 &1054051430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1054051426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 3
 --- !u!1 &1055183844
 GameObject:
   m_ObjectHideFlags: 0
@@ -33972,6 +34175,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c29150ac829d924ebd93fe80dbf6eae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
 --- !u!212 &1120801145
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -34061,6 +34265,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eac77789c067f284d984b6dae1af76c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rectTransform: {fileID: 0}
+  canvas: {fileID: 0}
   hintBubble: {fileID: 1243186311}
   bubbleImage: {fileID: 1243186312}
   bubbleRightSprite: {fileID: -6491351488798282019, guid: 40dfe3fda3708654184a100091ed4d80, type: 3}
@@ -34606,6 +34812,10 @@ MonoBehaviour:
   enemySuddenText: {fileID: 430091264}
   playerSuddenText: {fileID: 1946511732}
   idleAnim: {fileID: 0}
+  dbManager: {fileID: 1473477790}
+  lessonId: 2
+  userId: 1
+  currentScore: 0
 --- !u!114 &1131922919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35719,7 +35929,7 @@ RectTransform:
   m_Father: {fileID: 1057591344}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0.9232178, y: 0}
   m_SizeDelta: {x: 11.8464, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -37359,6 +37569,7 @@ GameObject:
   - component: {fileID: 1195750360}
   - component: {fileID: 1195750362}
   - component: {fileID: 1195750361}
+  - component: {fileID: 1195750363}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -37418,7 +37629,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Particle Model in Energy Innovations
+  m_Text: 
 --- !u!222 &1195750362
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -37427,6 +37638,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1195750359}
   m_CullTransparentMesh: 1
+--- !u!114 &1195750363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195750359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 13
 --- !u!1 &1196517830
 GameObject:
   m_ObjectHideFlags: 0
@@ -38125,9 +38350,21 @@ MonoBehaviour:
   - {fileID: 1588145819}
   nextButton: {fileID: 1621998034}
   backButton: {fileID: 1150115464}
-  correctColor: {r: 0, g: 1, b: 0, a: 1}
-  wrongColor: {r: 1, g: 0, b: 0, a: 1}
-  defaultColor: {r: 0.9960785, g: 0.7960785, b: 0.10980393, a: 1}
+  correctColor:
+    r: 0
+    g: 1
+    b: 0
+    a: 1
+  wrongColor:
+    r: 1
+    g: 0
+    b: 0
+    a: 1
+  defaultColor:
+    r: 0.9960785
+    g: 0.7960785
+    b: 0.10980393
+    a: 1
   questions:
   - questionText: What is the formula used to calculate force?
     answers:
@@ -38242,14 +38479,23 @@ MonoBehaviour:
     - "F = m \xD7 a"
     - "1,200 \xD7 3 = ?"
     - Units are in Newtons
+  currentQuestionIndex: 0
+  hasAnswered: 0
   scoreText: {fileID: 1214090029}
   progressBar: {fileID: 2044204383}
   questionNumberText: {fileID: 985983782}
   hintDisplayText: {fileID: 1711409401}
   hintButton: {fileID: 0}
+  hintIndex: 0
+  selectedAnswers: 
   hintBubble: {fileID: 1243186310}
   hintBubbleText: {fileID: 1711409401}
   timerText: {fileID: 1082956500}
+  currentTime: 0
+  isTimerRunning: 0
+  twentySecondQuestions: 
+  questionExpired: []
+  consecutiveWrongAnswers: 0
   resultModal: {fileID: 937881780}
   resultHeaderText: {fileID: 651785734}
   resultScoreText: {fileID: 2046679217}
@@ -38654,6 +38900,7 @@ GameObject:
   - component: {fileID: 1220662125}
   - component: {fileID: 1220662127}
   - component: {fileID: 1220662126}
+  - component: {fileID: 1220662128}
   m_Layer: 5
   m_Name: CategName
   m_TagString: Untagged
@@ -38713,7 +38960,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Describing Motion
+  m_Text: 
 --- !u!222 &1220662127
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -38722,6 +38969,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1220662124}
   m_CullTransparentMesh: 1
+--- !u!114 &1220662128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1220662124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 1
+  id: 2
 --- !u!1 &1223149993
 GameObject:
   m_ObjectHideFlags: 0
@@ -39511,6 +39772,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eac77789c067f284d984b6dae1af76c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rectTransform: {fileID: 0}
+  canvas: {fileID: 0}
   hintBubble: {fileID: 1102765711}
   bubbleImage: {fileID: 1102765712}
   bubbleRightSprite: {fileID: -6491351488798282019, guid: 40dfe3fda3708654184a100091ed4d80, type: 3}
@@ -39604,6 +39867,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c29150ac829d924ebd93fe80dbf6eae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
 --- !u!1 &1271405280
 GameObject:
   m_ObjectHideFlags: 0
@@ -43157,9 +43421,21 @@ MonoBehaviour:
   - {fileID: 672742930}
   nextButton: {fileID: 113493108}
   backButton: {fileID: 1511460320}
-  correctColor: {r: 0, g: 1, b: 0, a: 1}
-  wrongColor: {r: 1, g: 0, b: 0, a: 1}
-  defaultColor: {r: 0.9960785, g: 0.7960785, b: 0.10980393, a: 1}
+  correctColor:
+    r: 0
+    g: 1
+    b: 0
+    a: 1
+  wrongColor:
+    r: 1
+    g: 0
+    b: 0
+    a: 1
+  defaultColor:
+    r: 0.9960785
+    g: 0.7960785
+    b: 0.10980393
+    a: 1
   questions:
   - questionText: What is the formula used to calculate force?
     answers:
@@ -43274,14 +43550,23 @@ MonoBehaviour:
     - "F = m \xD7 a"
     - "1,200 \xD7 3 = ?"
     - Units are in Newtons
+  currentQuestionIndex: 0
+  hasAnswered: 0
   scoreText: {fileID: 858556441}
   progressBar: {fileID: 1173404546}
   questionNumberText: {fileID: 1957427918}
   hintDisplayText: {fileID: 607942624}
   hintButton: {fileID: 0}
+  hintIndex: 0
+  selectedAnswers: 
   hintBubble: {fileID: 1102765710}
   hintBubbleText: {fileID: 607942624}
   timerText: {fileID: 143097817}
+  currentTime: 0
+  isTimerRunning: 0
+  twentySecondQuestions: 
+  questionExpired: []
+  consecutiveWrongAnswers: 0
   resultModal: {fileID: 1208728718}
   resultHeaderText: {fileID: 1337063545}
   resultScoreText: {fileID: 753694129}
@@ -44880,6 +45165,7 @@ GameObject:
   - component: {fileID: 1463655060}
   - component: {fileID: 1463655062}
   - component: {fileID: 1463655061}
+  - component: {fileID: 1463655063}
   m_Layer: 5
   m_Name: CategName
   m_TagString: Untagged
@@ -44939,7 +45225,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Describing Motion
+  m_Text: 
 --- !u!222 &1463655062
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -44948,6 +45234,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1463655059}
   m_CullTransparentMesh: 1
+--- !u!114 &1463655063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1463655059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 1
+  id: 2
 --- !u!1 &1464431296
 GameObject:
   m_ObjectHideFlags: 0
@@ -46400,6 +46700,7 @@ GameObject:
   - component: {fileID: 1504970057}
   - component: {fileID: 1504970059}
   - component: {fileID: 1504970058}
+  - component: {fileID: 1504970060}
   m_Layer: 5
   m_Name: CategName
   m_TagString: Untagged
@@ -46459,7 +46760,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Understanding Forces and Motion
+  m_Text: 
 --- !u!222 &1504970059
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -46468,6 +46769,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1504970056}
   m_CullTransparentMesh: 1
+--- !u!114 &1504970060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1504970056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 1
+  id: 1
 --- !u!1 &1505905755
 GameObject:
   m_ObjectHideFlags: 0
@@ -47119,6 +47434,7 @@ GameObject:
   - component: {fileID: 1535704891}
   - component: {fileID: 1535704893}
   - component: {fileID: 1535704892}
+  - component: {fileID: 1535704894}
   m_Layer: 5
   m_Name: CategName
   m_TagString: Untagged
@@ -47178,7 +47494,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Thermal Energy and Heat Transfer
+  m_Text: 
 --- !u!222 &1535704893
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -47187,6 +47503,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1535704890}
   m_CullTransparentMesh: 1
+--- !u!114 &1535704894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1535704890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 1
+  id: 3
 --- !u!1 &1536317321
 GameObject:
   m_ObjectHideFlags: 0
@@ -48301,6 +48631,7 @@ GameObject:
   - component: {fileID: 1590412143}
   - component: {fileID: 1590412145}
   - component: {fileID: 1590412144}
+  - component: {fileID: 1590412146}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -48360,7 +48691,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Speed vs. Velocity
+  m_Text: 
 --- !u!222 &1590412145
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -48369,6 +48700,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1590412142}
   m_CullTransparentMesh: 1
+--- !u!114 &1590412146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1590412142}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 6
 --- !u!1 &1598191246
 GameObject:
   m_ObjectHideFlags: 0
@@ -50648,6 +50993,7 @@ GameObject:
   - component: {fileID: 1669974076}
   - component: {fileID: 1669974078}
   - component: {fileID: 1669974077}
+  - component: {fileID: 1669974079}
   m_Layer: 5
   m_Name: LessonName
   m_TagString: Untagged
@@ -50707,7 +51053,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Heat vs. Temperature
+  m_Text: 
 --- !u!222 &1669974078
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -50716,6 +51062,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1669974075}
   m_CullTransparentMesh: 1
+--- !u!114 &1669974079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1669974075}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 8
 --- !u!1 &1671181964
 GameObject:
   m_ObjectHideFlags: 0
@@ -52858,7 +53218,7 @@ RectTransform:
   m_Father: {fileID: 830371782}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -0.000038146973}
   m_SizeDelta: {x: 130, y: 27.9059}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -54563,7 +54923,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1787176733
 RectTransform:
   m_ObjectHideFlags: 0
@@ -54782,6 +55142,10 @@ MonoBehaviour:
   playerIdleAnim: {fileID: 0}
   enemyIdleAnim: {fileID: 0}
   battleAnim: {fileID: 1787176739}
+  dbManager: {fileID: 1473477790}
+  lessonId: 3
+  userId: 1
+  currentScore: 0
 --- !u!1 &1789532151
 GameObject:
   m_ObjectHideFlags: 0
@@ -55321,6 +55685,10 @@ MonoBehaviour:
   enemySuddenText: {fileID: 0}
   playerSuddenText: {fileID: 0}
   idleAnim: {fileID: 0}
+  dbManager: {fileID: 0}
+  lessonId: 0
+  userId: 1
+  currentScore: 0
 --- !u!114 &1810767373
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -55654,6 +56022,7 @@ GameObject:
   - component: {fileID: 1823623650}
   - component: {fileID: 1823623652}
   - component: {fileID: 1823623651}
+  - component: {fileID: 1823623653}
   m_Layer: 5
   m_Name: LessonNumber
   m_TagString: Untagged
@@ -55713,7 +56082,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Lesson One
+  m_Text: 
 --- !u!222 &1823623652
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -55722,6 +56091,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1823623649}
   m_CullTransparentMesh: 1
+--- !u!114 &1823623653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1823623649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 0
+  id: 11
 --- !u!1 &1836988228
 GameObject:
   m_ObjectHideFlags: 0
@@ -55964,6 +56347,7 @@ GameObject:
   - component: {fileID: 1850721049}
   - component: {fileID: 1850721051}
   - component: {fileID: 1850721050}
+  - component: {fileID: 1850721052}
   m_Layer: 5
   m_Name: CategName
   m_TagString: Untagged
@@ -56023,7 +56407,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Understanding Forces and Motion
+  m_Text: 
 --- !u!222 &1850721051
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -56032,6 +56416,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1850721048}
   m_CullTransparentMesh: 1
+--- !u!114 &1850721052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1850721048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 1
+  id: 1
 --- !u!1 &1851135574
 GameObject:
   m_ObjectHideFlags: 0
@@ -59243,7 +59641,7 @@ RectTransform:
   m_Father: {fileID: 1913948444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -62377,6 +62775,7 @@ GameObject:
   - component: {fileID: 2049746351}
   - component: {fileID: 2049746353}
   - component: {fileID: 2049746352}
+  - component: {fileID: 2049746354}
   m_Layer: 5
   m_Name: CategName
   m_TagString: Untagged
@@ -62436,7 +62835,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.8
-  m_Text: Thermal Energy and Heat Transfer
+  m_Text: 
 --- !u!222 &2049746353
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -62445,6 +62844,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2049746350}
   m_CullTransparentMesh: 1
+--- !u!114 &2049746354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2049746350}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf266dcbaf23df948a1150b8ccac1279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayType: 1
+  id: 3
 --- !u!1 &2057107725
 GameObject:
   m_ObjectHideFlags: 0

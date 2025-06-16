@@ -24,7 +24,7 @@ public class ShopManager : MonoBehaviour
             return;
         }
 
-        coins = db.LoadPlayerStats().coins;
+        coins = db.LoadPlayerStats();
         coinsText.text = "Coins: " + coins;
         PopulateShop();
     }
@@ -46,9 +46,7 @@ public class ShopManager : MonoBehaviour
             coins -= cost;
             coinsText.text = "Coins: " + coins;
 
-            var currentStats = db.LoadPlayerStats();
-            db.SavePlayerStats(coins, currentStats.energy, currentStats.maxEnergy,
-                currentStats.experience, currentStats.level, currentStats.petHealth);
+            db.SavePlayerStats(coins);
 
             PlayerPrefs.SetInt("item_" + item.itemID, 1);
             PlayerPrefs.Save();
@@ -57,7 +55,6 @@ public class ShopManager : MonoBehaviour
         }
         return false;
     }
-
 
     public bool IsItemOwned(Item item)
     {

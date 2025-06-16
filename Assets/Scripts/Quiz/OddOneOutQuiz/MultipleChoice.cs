@@ -97,6 +97,11 @@ public class MultipleChoice : MonoBehaviour
 
     public BattleAnimationManager battleAnim;
 
+    public DatabaseManager dbManager;
+    public int lessonId;
+    public int userId = 1;
+    public int currentScore;
+
     private bool longPressTriggered = false;
 
     private void Awake()
@@ -511,6 +516,14 @@ public class MultipleChoice : MonoBehaviour
         {
             scoreMessageText.text = gradeMsg;
         }
+
+        OnQuizCompleted();
+    }
+
+    public void OnQuizCompleted()
+    {
+        dbManager.SaveQuizAndScore(lessonId, userId, score);
+        Debug.Log("Quiz and score saved to database.");
     }
 
     IEnumerator AnimateProgressBar()

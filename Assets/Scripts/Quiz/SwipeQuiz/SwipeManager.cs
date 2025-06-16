@@ -61,6 +61,11 @@ public class SwipeManager : MonoBehaviour
 
     public IdleAnimation idleAnim;
 
+    public DatabaseManager dbManager;
+    public int lessonId;
+    public int userId = 1;
+    public int currentScore;
+
     void Start()
     {
         playerStartPos = playerIcon.anchoredPosition;
@@ -439,6 +444,14 @@ public class SwipeManager : MonoBehaviour
 
         if (scoreMessageText != null)
             scoreMessageText.text = GetScoreMessage(score);
+
+        OnQuizCompleted();
+    }
+
+    public void OnQuizCompleted()
+    {
+        dbManager.SaveQuizAndScore(lessonId, userId, score);
+        Debug.Log("Quiz and score saved to database.");
     }
 
 

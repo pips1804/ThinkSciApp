@@ -93,7 +93,10 @@ public class JumbledQuizManager : MonoBehaviour
     public IdleAnimation enemyIdleAnim;
 
     public BattleAnimationManager battleAnim;
-
+    public DatabaseManager dbManager;
+    public int lessonId;
+    public int userId = 1;
+    public int currentScore;
 
     private void Awake()
     {
@@ -450,7 +453,16 @@ public class JumbledQuizManager : MonoBehaviour
         {
             scoreMessageText.text = gradeMsg;
         }
+
+        OnQuizCompleted();
     }
+
+    public void OnQuizCompleted()
+    {
+        dbManager.SaveQuizAndScore(lessonId, userId, score);
+        Debug.Log("Quiz and score saved to database.");
+    }
+
 
     void ClearLetters()
     {
