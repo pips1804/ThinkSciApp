@@ -32,3 +32,6 @@ Builds/
 
 # Crash reports
 sysinfo.txt
+
+#Ignore video lessons folder
+/Assets/VideoLessons/

@@ -33,6 +33,19 @@ public class JumbledQuizManager : MonoBehaviour
     public Transform letterContainer;
     public Text timerText;
 
+    public GameObject passingModal;
+    public GameObject failingModal;
+
+    public Text passingHeader;
+    public Text passingScore;
+    public Text passingNote;
+
+    public Text failingHeader;
+    public Text failingScore;
+    public Text failingNote;
+
+    public Button retryButton;
+
     private int currentQuestionIndex = 0;
     private float timer = 20f;  // Jumbled quiz timer
     private bool isTimerRunning = false;
@@ -46,9 +59,6 @@ public class JumbledQuizManager : MonoBehaviour
 
     public Text scoreText;
     private int score = 0;
-
-    public Text finalScoreText;
-    public Text scoreMessageText;
 
     public float hitChancePercent = 50f; // adjustable
 
@@ -97,6 +107,7 @@ public class JumbledQuizManager : MonoBehaviour
     public int quizId;
     public int userId = 1;
     public int currentScore;
+    public int earnedGold;
 
     private void Awake()
     {
@@ -431,31 +442,72 @@ public class JumbledQuizManager : MonoBehaviour
 
     void ShowResult()
     {
-        resultPanel.SetActive(true);
+        // Show passing/retry modal depending on score
+        if (score >= 7)
+        {
+            passingModal.SetActive(true);
+
+            if (passingHeader != null && passingScore != null)
+            {
+                int earnedGold;
+                string scoreMsg, goldMsg;
+                GetResultMessage(score, out earnedGold, out scoreMsg, out goldMsg);
+
+                passingHeader.text = scoreMsg;
+                passingScore.text = goldMsg;
+                passingNote.text = "NOTE: Lesson completed, next lesson unlocked!";
+            }
+        }
+        else
+        {
+            failingModal.SetActive(true);
+
+            if (failingHeader != null && failingScore != null)
+            {
+                int earnedGold;
+                string scoreMsg, goldMsg;
+                GetResultMessage(score, out earnedGold, out scoreMsg, out goldMsg);
+
+                failingHeader.text = scoreMsg;
+                failingScore.text = goldMsg;
+                failingNote.text = "NOTE: Can not unlock the next lesson, retake the quiz!";
+            }
+        }
+
         questionText.text = "";
         timerText.text = "";
         ClearLetters();
-
-        string gradeMsg = "Good try!";
-        if (score >= questions.Count * 0.8f)
-            gradeMsg = "Excellent! You're a quiz master!";
-        else if (score >= questions.Count * 0.5f)
-            gradeMsg = "Good job! Keep practicing!";
-        else
-            gradeMsg = "Don't worry, try again and improve!";
-
-        if (finalScoreText != null)
-        {
-            finalScoreText.text = $"Your Score: {score}/{questions.Count}"; 
-        }
-
-        if (scoreMessageText != null)
-        {
-            scoreMessageText.text = gradeMsg;
-        }
-
         OnQuizCompleted();
     }
+
+    void GetResultMessage(int score, out int goldEarned, out string scoreMsg, out string goldMsg)
+    {
+        if (score >= 9)
+        {
+            goldEarned = 100;
+            scoreMsg = $"Amazing! You aced the quiz with {score} points!";
+            goldMsg = $"You've earned {goldEarned} gold!";
+        }
+        else if (score >= 7)
+        {
+            goldEarned = 80;
+            scoreMsg = $"Great job! You scored {score} points.";
+            goldMsg = $"You've earned {goldEarned} gold!";
+        }
+        else if (score >= 5)
+        {
+            goldEarned = 60;
+            scoreMsg = $"Not bad! You got {score} points.";
+            goldMsg = $"You’ve earned {goldEarned} gold!";
+        }
+        else
+        {
+            goldEarned = 40;
+            scoreMsg = $"Keep trying! You scored {score} points.";
+            goldMsg = $"You earned {goldEarned} gold!";
+        }
+    }
+
 
     public void OnQuizCompleted()
     {

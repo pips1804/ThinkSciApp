@@ -1,21 +1,32 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using System.Collections;
 
 public class CategoryLocker : MonoBehaviour
 {
+    public DatabaseManager dbManager;
+    public int currentUserId = 1; // Replace with actual user ID
+
+    public Button categoryOneButton;
     public Button categoryTwoButton;
     public Button categoryThreeButton;
     public Button categoryFourButton;
 
     void Start()
     {
-        // Initially lock categories
-        UnlockCategory(categoryTwoButton);
-        UnlockCategory(categoryThreeButton);
-        UnlockCategory(categoryFourButton);
+        RefreshCategoryLocks();
     }
 
-    // Lock a category
+    void ApplyUnlock(Button button, int isUnlocked)
+    {
+        if (isUnlocked == 1)
+            UnlockCategory(button);
+        else
+            LockCategory(button);
+    }
+
+
     public void LockCategory(Button button)
     {
         button.interactable = false;
@@ -27,13 +38,11 @@ public class CategoryLocker : MonoBehaviour
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
 
-        // Optional: Show lock icon
         Transform lockIcon = button.transform.Find("LockIcon");
         if (lockIcon != null)
             lockIcon.gameObject.SetActive(true);
     }
 
-    //  Unlock a category
     public void UnlockCategory(Button button)
     {
         button.interactable = true;
@@ -46,20 +55,33 @@ public class CategoryLocker : MonoBehaviour
             canvasGroup.blocksRaycasts = true;
         }
 
-        // Optional: Hide lock icon
         Transform lockIcon = button.transform.Find("LockIcon");
         if (lockIcon != null)
             lockIcon.gameObject.SetActive(false);
     }
 
- /* 
- * Unlocking a Lesson or Category
- * public CategoryLocker categoryLocker;
+    public void RefreshCategoryLocks()
+    {
+        List<CategoryUnlockData> unlockData = dbManager.GetCategoryUnlockData(currentUserId);
 
-    void CheckPlayerProgress() {
-        if (playerLevel >= 5) {
-            categoryLocker.UnlockCategory(categoryLocker.categoryTwoButton);
+        foreach (var data in unlockData)
+        {
+            switch (data.CategoryID)
+            {
+                case 1:
+                    ApplyUnlock(categoryOneButton, data.IsUnlocked);
+                    break;
+                case 2:
+                    ApplyUnlock(categoryTwoButton, data.IsUnlocked);
+                    break;
+                case 3:
+                    ApplyUnlock(categoryThreeButton, data.IsUnlocked);
+                    break;
+                case 4:
+                    ApplyUnlock(categoryFourButton, data.IsUnlocked);
+                    break;
+            }
         }
     }
- */
+
 }

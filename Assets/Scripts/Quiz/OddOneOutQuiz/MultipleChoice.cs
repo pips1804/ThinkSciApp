@@ -104,6 +104,19 @@ public class MultipleChoice : MonoBehaviour
 
     private bool longPressTriggered = false;
 
+    public GameObject passingModal;
+    public GameObject failingModal;
+
+    public Text passingHeader;
+    public Text passingScore;
+    public Text passingNote;
+
+    public Text failingHeader;
+    public Text failingScore;
+    public Text failingNote;
+
+    public Button retryButton;
+
     private void Awake()
     {
         ColorUtility.TryParseHtmlString("#116530", out defaultColor);
@@ -495,29 +508,69 @@ public class MultipleChoice : MonoBehaviour
 
     void ShowResult()
     {
-        resultPanel.SetActive(true);
         questionText.text = "";
         timerText.text = "";
 
-        string gradeMsg = "Good try!";
-        if (score >= questions.Count * 0.8f)
-            gradeMsg = "Excellent! You're a quiz master!";
-        else if (score >= questions.Count * 0.5f)
-            gradeMsg = "Good job! Keep practicing!";
-        else
-            gradeMsg = "Don't worry, try again and improve!";
-
-        if (finalScoreText != null)
+        if (score >= 7)
         {
-            finalScoreText.text = $"Your Score: {score}/{questions.Count}";
+            passingModal.SetActive(true);
+
+            if (passingHeader != null && passingScore != null)
+            {
+                int earnedGold;
+                string scoreMsg, goldMsg;
+                GetResultMessage(score, out earnedGold, out scoreMsg, out goldMsg);
+
+                passingHeader.text = scoreMsg;
+                passingScore.text = goldMsg;
+                passingNote.text = "NOTE: Lesson completed, next lesson unlocked!";
+            }
         }
-
-        if (scoreMessageText != null)
+        else
         {
-            scoreMessageText.text = gradeMsg;
+            failingModal.SetActive(true);
+
+            if (failingHeader != null && failingScore != null)
+            {
+                int earnedGold;
+                string scoreMsg, goldMsg;
+                GetResultMessage(score, out earnedGold, out scoreMsg, out goldMsg);
+
+                failingHeader.text = scoreMsg;
+                failingScore.text = goldMsg;
+                failingNote.text = "NOTE: Can not unlock the next lesson, retake the quiz!";
+            }
         }
 
         OnQuizCompleted();
+    }
+
+    void GetResultMessage(int score, out int goldEarned, out string scoreMsg, out string goldMsg)
+    {
+        if (score >= 9)
+        {
+            goldEarned = 100;
+            scoreMsg = $"Amazing! You aced the quiz with {score} points!";
+            goldMsg = $"You've earned {goldEarned} gold!";
+        }
+        else if (score >= 7)
+        {
+            goldEarned = 80;
+            scoreMsg = $"Great job! You scored {score} points.";
+            goldMsg = $"You've earned {goldEarned} gold!";
+        }
+        else if (score >= 5)
+        {
+            goldEarned = 60;
+            scoreMsg = $"Not bad! You got {score} points.";
+            goldMsg = $"You’ve earned {goldEarned} gold!";
+        }
+        else
+        {
+            goldEarned = 40;
+            scoreMsg = $"Keep trying! You scored {score} points.";
+            goldMsg = $"You earned {goldEarned} gold!";
+        }
     }
 
     public void OnQuizCompleted()
