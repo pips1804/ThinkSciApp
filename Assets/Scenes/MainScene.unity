@@ -4516,7 +4516,7 @@ MonoBehaviour:
   enemyIdleAnim: {fileID: 385727515}
   battleAnim: {fileID: 127226224}
   dbManager: {fileID: 1473477790}
-  lessonId: 1
+  quizId: 1
   userId: 1
   currentScore: 0
 --- !u!114 &127226220
@@ -18003,7 +18003,7 @@ MonoBehaviour:
   enemyIdleAnim: {fileID: 0}
   battleAnim: {fileID: 0}
   dbManager: {fileID: 0}
-  lessonId: 0
+  quizId: 0
   userId: 1
   currentScore: 0
 --- !u!1 &562941940
@@ -34175,7 +34175,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c29150ac829d924ebd93fe80dbf6eae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 0}
 --- !u!212 &1120801145
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -34265,12 +34264,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eac77789c067f284d984b6dae1af76c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rectTransform: {fileID: 0}
-  canvas: {fileID: 0}
-  hintBubble: {fileID: 1243186311}
-  bubbleImage: {fileID: 1243186312}
-  bubbleRightSprite: {fileID: -6491351488798282019, guid: 40dfe3fda3708654184a100091ed4d80, type: 3}
-  bubbleLeftSprite: {fileID: -9136834448258697486, guid: e2bcdfa8910fafb4987ad56b04309025, type: 3}
 --- !u!114 &1120801148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34813,7 +34806,7 @@ MonoBehaviour:
   playerSuddenText: {fileID: 1946511732}
   idleAnim: {fileID: 0}
   dbManager: {fileID: 1473477790}
-  lessonId: 2
+  quizId: 2
   userId: 1
   currentScore: 0
 --- !u!114 &1131922919
@@ -38337,172 +38330,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa06da23340591544b1751cdf60791ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  questionText: {fileID: 674990154}
-  answerButtons:
-  - {fileID: 276276535}
-  - {fileID: 1902719939}
-  - {fileID: 904828947}
-  - {fileID: 994520178}
-  answerTexts:
-  - {fileID: 814146430}
-  - {fileID: 935917185}
-  - {fileID: 908687847}
-  - {fileID: 1588145819}
-  nextButton: {fileID: 1621998034}
-  backButton: {fileID: 1150115464}
-  correctColor:
-    r: 0
-    g: 1
-    b: 0
-    a: 1
-  wrongColor:
-    r: 1
-    g: 0
-    b: 0
-    a: 1
-  defaultColor:
-    r: 0.9960785
-    g: 0.7960785
-    b: 0.10980393
-    a: 1
-  questions:
-  - questionText: What is the formula used to calculate force?
-    answers:
-    - F = m + a
-    - "F = m \xD7 a"
-    - "F = m \xF7 a"
-    - F = a - m
-    correctAnswerIndex: 1
-    hints:
-    - It involves mass and acceleration.
-    - Newton's Second Law explains it.
-    - The units are in Newtons.
-  - questionText: "A 500 kg object accelerates at 2 m/s\xB2. What is the net force?"
-    answers:
-    - 1,000 N
-    - 250 N
-    - 100 N
-    - 1,200 N
-    correctAnswerIndex: 0
-    hints:
-    - "Use F = m \xD7 a."
-    - Multiply mass by acceleration.
-    - "500 \xD7 2 = ?"
-  - questionText: What unit is force measured in?
-    answers:
-    - Kilograms (kg)
-    - Joules (J)
-    - Newtons
-    - Meters per second (m/s)
-    correctAnswerIndex: 2
-    hints:
-    - Named after Isaac Newton.
-    - "It equals kg\xB7m/s\xB2."
-    - It measures how strong a push or pull is.
-  - questionText: "What does the \u201Cm\u201D in F = m \xD7 a stand for?"
-    answers:
-    - Momentum
-    - Motion
-    - Mass
-    - Magnitude
-    correctAnswerIndex: 3
-    hints:
-    - It tells how heavy something is.
-    - Measured in kilograms.
-    - "It\u2019s part of Newton\u2019s Law formula."
-  - questionText: "What does the \u201Ca\u201D in F = m \xD7 a stand for?"
-    answers:
-    - Area
-    - Acceleration
-    - Angle
-    - Altitude
-    correctAnswerIndex: 1
-    hints:
-    - It shows how fast speed changes.
-    - "Measured in m/s\xB2."
-    - Q5 Hint3
-  - questionText: If a force is applied and an object speeds up, what kind of force
-      is it?
-    answers:
-    - Balanced force
-    - Unbalanced force
-    - Gravitational force
-    - Normal force
-    correctAnswerIndex: 1
-    hints:
-    - It causes motion.
-    - Not equal on both sides.
-    - It results in acceleration.
-  - questionText: What happens to force if you increase mass but keep acceleration
-      the same?
-    answers:
-    - Force decreases
-    - Force stays the same
-    - Force increases
-    - Force becomes zero
-    correctAnswerIndex: 2
-    hints:
-    - "F = m \xD7 a"
-    - More mass, more force
-    - Direct relationship
-  - questionText: What happens to force if you double the acceleration?
-    answers:
-    - Force becomes zero
-    - Force stays the same
-    - Force is cut in half
-    - Force doubles
-    correctAnswerIndex: 3
-    hints:
-    - "F = m \xD7 a"
-    - More acceleration means more force
-    - Directly proportional
-  - questionText: Which force pulls objects toward the Earth?
-    answers:
-    - Magnetic force
-    - Friction
-    - Gravity
-    - Tension
-    correctAnswerIndex: 2
-    hints:
-    - Acts downward
-    - "Caused by Earth\u2019s mass"
-    - Keeps us on the ground
-  - questionText: "A car with a mass of 1,200 kg accelerates at 3 m/s\xB2. What is
-      the net force?"
-    answers:
-    - 3,600 N
-    - 400 N
-    - 900 N
-    - 3,000 N
-    correctAnswerIndex: 0
-    hints:
-    - "F = m \xD7 a"
-    - "1,200 \xD7 3 = ?"
-    - Units are in Newtons
-  currentQuestionIndex: 0
-  hasAnswered: 0
-  scoreText: {fileID: 1214090029}
-  progressBar: {fileID: 2044204383}
-  questionNumberText: {fileID: 985983782}
-  hintDisplayText: {fileID: 1711409401}
-  hintButton: {fileID: 0}
-  hintIndex: 0
-  selectedAnswers: 
-  hintBubble: {fileID: 1243186310}
-  hintBubbleText: {fileID: 1711409401}
-  timerText: {fileID: 1082956500}
-  currentTime: 0
-  isTimerRunning: 0
-  twentySecondQuestions: 
-  questionExpired: []
-  consecutiveWrongAnswers: 0
-  resultModal: {fileID: 937881780}
-  resultHeaderText: {fileID: 651785734}
-  resultScoreText: {fileID: 2046679217}
-  playerHealthSlider: {fileID: 1712464363}
-  enemyHealthSlider: {fileID: 1868269132}
-  playerHealth: 100
-  enemyHealth: 100
 --- !u!114 &1209605793
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39772,12 +39599,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eac77789c067f284d984b6dae1af76c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rectTransform: {fileID: 0}
-  canvas: {fileID: 0}
-  hintBubble: {fileID: 1102765711}
-  bubbleImage: {fileID: 1102765712}
-  bubbleRightSprite: {fileID: -6491351488798282019, guid: 40dfe3fda3708654184a100091ed4d80, type: 3}
-  bubbleLeftSprite: {fileID: -9136834448258697486, guid: e2bcdfa8910fafb4987ad56b04309025, type: 3}
 --- !u!212 &1271195893
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -39867,7 +39688,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c29150ac829d924ebd93fe80dbf6eae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 0}
 --- !u!1 &1271405280
 GameObject:
   m_ObjectHideFlags: 0
@@ -43408,172 +43228,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa06da23340591544b1751cdf60791ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  questionText: {fileID: 2130555061}
-  answerButtons:
-  - {fileID: 1196517835}
-  - {fileID: 1286170680}
-  - {fileID: 1998768780}
-  - {fileID: 452238427}
-  answerTexts:
-  - {fileID: 767485398}
-  - {fileID: 1868208307}
-  - {fileID: 634356739}
-  - {fileID: 672742930}
-  nextButton: {fileID: 113493108}
-  backButton: {fileID: 1511460320}
-  correctColor:
-    r: 0
-    g: 1
-    b: 0
-    a: 1
-  wrongColor:
-    r: 1
-    g: 0
-    b: 0
-    a: 1
-  defaultColor:
-    r: 0.9960785
-    g: 0.7960785
-    b: 0.10980393
-    a: 1
-  questions:
-  - questionText: What is the formula used to calculate force?
-    answers:
-    - F = m + a
-    - "F = m \xD7 a"
-    - "F = m \xF7 a"
-    - F = a - m
-    correctAnswerIndex: 1
-    hints:
-    - It involves mass and acceleration.
-    - Newton's Second Law explains it.
-    - The units are in Newtons.
-  - questionText: "A 500 kg object accelerates at 2 m/s\xB2. What is the net force?"
-    answers:
-    - 1,000 N
-    - 250 N
-    - 100 N
-    - 1,200 N
-    correctAnswerIndex: 0
-    hints:
-    - "Use F = m \xD7 a."
-    - Multiply mass by acceleration.
-    - "500 \xD7 2 = ?"
-  - questionText: What unit is force measured in?
-    answers:
-    - Kilograms (kg)
-    - Joules (J)
-    - Newtons
-    - Meters per second (m/s)
-    correctAnswerIndex: 2
-    hints:
-    - Named after Isaac Newton.
-    - "It equals kg\xB7m/s\xB2."
-    - It measures how strong a push or pull is.
-  - questionText: "What does the \u201Cm\u201D in F = m \xD7 a stand for?"
-    answers:
-    - Momentum
-    - Motion
-    - Mass
-    - Magnitude
-    correctAnswerIndex: 3
-    hints:
-    - It tells how heavy something is.
-    - Measured in kilograms.
-    - "It\u2019s part of Newton\u2019s Law formula."
-  - questionText: "What does the \u201Ca\u201D in F = m \xD7 a stand for?"
-    answers:
-    - Area
-    - Acceleration
-    - Angle
-    - Altitude
-    correctAnswerIndex: 1
-    hints:
-    - It shows how fast speed changes.
-    - "Measured in m/s\xB2."
-    - Q5 Hint3
-  - questionText: If a force is applied and an object speeds up, what kind of force
-      is it?
-    answers:
-    - Balanced force
-    - Unbalanced force
-    - Gravitational force
-    - Normal force
-    correctAnswerIndex: 1
-    hints:
-    - It causes motion.
-    - Not equal on both sides.
-    - It results in acceleration.
-  - questionText: What happens to force if you increase mass but keep acceleration
-      the same?
-    answers:
-    - Force decreases
-    - Force stays the same
-    - Force increases
-    - Force becomes zero
-    correctAnswerIndex: 2
-    hints:
-    - "F = m \xD7 a"
-    - More mass, more force
-    - Direct relationship
-  - questionText: What happens to force if you double the acceleration?
-    answers:
-    - Force becomes zero
-    - Force stays the same
-    - Force is cut in half
-    - Force doubles
-    correctAnswerIndex: 3
-    hints:
-    - "F = m \xD7 a"
-    - More acceleration means more force
-    - Directly proportional
-  - questionText: Which force pulls objects toward the Earth?
-    answers:
-    - Magnetic force
-    - Friction
-    - Gravity
-    - Tension
-    correctAnswerIndex: 2
-    hints:
-    - Acts downward
-    - "Caused by Earth\u2019s mass"
-    - Keeps us on the ground
-  - questionText: "A car with a mass of 1,200 kg accelerates at 3 m/s\xB2. What is
-      the net force?"
-    answers:
-    - 3,600 N
-    - 400 N
-    - 900 N
-    - 3,000 N
-    correctAnswerIndex: 0
-    hints:
-    - "F = m \xD7 a"
-    - "1,200 \xD7 3 = ?"
-    - Units are in Newtons
-  currentQuestionIndex: 0
-  hasAnswered: 0
-  scoreText: {fileID: 858556441}
-  progressBar: {fileID: 1173404546}
-  questionNumberText: {fileID: 1957427918}
-  hintDisplayText: {fileID: 607942624}
-  hintButton: {fileID: 0}
-  hintIndex: 0
-  selectedAnswers: 
-  hintBubble: {fileID: 1102765710}
-  hintBubbleText: {fileID: 607942624}
-  timerText: {fileID: 143097817}
-  currentTime: 0
-  isTimerRunning: 0
-  twentySecondQuestions: 
-  questionExpired: []
-  consecutiveWrongAnswers: 0
-  resultModal: {fileID: 1208728718}
-  resultHeaderText: {fileID: 1337063545}
-  resultScoreText: {fileID: 753694129}
-  playerHealthSlider: {fileID: 0}
-  enemyHealthSlider: {fileID: 0}
-  playerHealth: 100
-  enemyHealth: 100
 --- !u!1 &1427973440
 GameObject:
   m_ObjectHideFlags: 0
@@ -55143,7 +54797,7 @@ MonoBehaviour:
   enemyIdleAnim: {fileID: 0}
   battleAnim: {fileID: 1787176739}
   dbManager: {fileID: 1473477790}
-  lessonId: 3
+  quizId: 3
   userId: 1
   currentScore: 0
 --- !u!1 &1789532151
@@ -55686,7 +55340,7 @@ MonoBehaviour:
   playerSuddenText: {fileID: 0}
   idleAnim: {fileID: 0}
   dbManager: {fileID: 0}
-  lessonId: 0
+  quizId: 0
   userId: 1
   currentScore: 0
 --- !u!114 &1810767373

@@ -62,7 +62,7 @@ public class SwipeManager : MonoBehaviour
     public IdleAnimation idleAnim;
 
     public DatabaseManager dbManager;
-    public int lessonId;
+    public int quizId;
     public int userId = 1;
     public int currentScore;
 
@@ -450,7 +450,7 @@ public class SwipeManager : MonoBehaviour
 
     public void OnQuizCompleted()
     {
-        dbManager.SaveQuizAndScore(lessonId, userId, score);
+        dbManager.SaveQuizAndScore(userId, quizId, score);
         Debug.Log("Quiz and score saved to database.");
     }
 

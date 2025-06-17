@@ -200,42 +200,11 @@ public class DatabaseManager : MonoBehaviour
         return 200;
     }
 
-    public void SaveQuizAndScore(int lessonId, int userId, int score)
+    public void SaveQuizAndScore(int userId, int quizId, int score)
     {
         using (var connection = new SqliteConnection(dbPath))
         {
             connection.Open();
-
-            
-            string lessonName = "";
-            using (var cmd = connection.CreateCommand())
-            {
-                cmd.CommandText = "SELECT Lesson_Name FROM Lessons_Table WHERE Lesson_ID = @lessonId LIMIT 1";
-                cmd.Parameters.AddWithValue("@lessonId", lessonId);
-                var result = cmd.ExecuteScalar();
-                lessonName = result != null ? result.ToString() : "";
-            }
-
-            if (string.IsNullOrEmpty(lessonName))
-            {
-                Debug.LogWarning("Lesson name not found for lesson ID: " + lessonId);
-                return;
-            }
-
-            int quizId = -1;
-
-            
-            using (var cmd = connection.CreateCommand())
-            {
-                cmd.CommandText = "INSERT INTO Quiz_Table (Lesson_ID, Quiz_Name) VALUES (@lessonId, @quizName)";
-                cmd.Parameters.AddWithValue("@lessonId", lessonId);
-                cmd.Parameters.AddWithValue("@quizName", lessonName);
-                cmd.ExecuteNonQuery();
-
-                
-                cmd.CommandText = "SELECT last_insert_rowid()";
-                quizId = Convert.ToInt32(cmd.ExecuteScalar());
-            }
 
             using (var cmd = connection.CreateCommand())
             {
@@ -248,11 +217,7 @@ public class DatabaseManager : MonoBehaviour
                 cmd.ExecuteNonQuery();
             }
 
-            Debug.Log($"Saved quiz '{lessonName}' (ID: {quizId}) for user {userId} with score {score}");
+            Debug.Log($"Saved quiz (ID: {quizId}) for user {userId} with score {score}");
         }
     }
-
-
-
-
 }
