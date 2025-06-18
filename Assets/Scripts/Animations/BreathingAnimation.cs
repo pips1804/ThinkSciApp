@@ -2,25 +2,32 @@ using UnityEngine;
 
 public class BreathingAnimation : MonoBehaviour
 {
-    public float bounceAmount = 0.05f;       // Size of bounce
-    public float bounceSpeed = 2f;           // Speed of bounce
+    public float bounceAmount = 0.05f;       // How much the UI bounces
+    public float bounceSpeed = 2f;           // Speed of the breathing cycle
+    public float verticalJumpAmount = 5f;    // UI jump height in units (pixels)
 
+    private RectTransform rectTransform;
     private Vector3 originalScale;
+    private Vector2 originalAnchoredPos;
 
     void Start()
     {
-        originalScale = transform.localScale;
+        rectTransform = GetComponent<RectTransform>();
+        originalScale = rectTransform.localScale;
+        originalAnchoredPos = rectTransform.anchoredPosition;
     }
 
     void Update()
     {
-        // Use Mathf.Sin to create a rhythmic bounce
         float bounce = Mathf.Sin(Time.time * bounceSpeed) * bounceAmount;
 
-        // Jolly squish/stretch: scale X and Y in opposite directions
+        // Jolly bounce: squish/stretch X and Y
         float scaleX = originalScale.x + bounce;
         float scaleY = originalScale.y - bounce;
+        rectTransform.localScale = new Vector3(scaleX, scaleY, originalScale.z);
 
-        transform.localScale = new Vector3(scaleX, scaleY, originalScale.z);
+        // Slight vertical hop
+        float jump = Mathf.Sin(Time.time * bounceSpeed) * verticalJumpAmount;
+        rectTransform.anchoredPosition = new Vector2(originalAnchoredPos.x, originalAnchoredPos.y + jump);
     }
 }

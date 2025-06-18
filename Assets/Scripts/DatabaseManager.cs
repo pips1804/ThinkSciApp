@@ -53,7 +53,9 @@ public class DatabaseManager : MonoBehaviour
                     first_name TEXT,
                     middle_name TEXT,
                     last_name TEXT,
-                    coins INTEGER DEFAULT 200
+                    coins INTEGER DEFAULT 200,
+                    Pet_ID INTEGER,
+                    FOREIGN KEY(Pet_ID) REFERENCES Pet_Table(Pet_ID)
                 );
 
                 CREATE TABLE IF NOT EXISTS Category_Table (
@@ -117,7 +119,15 @@ public class DatabaseManager : MonoBehaviour
                     PRIMARY KEY(User_ID, Badge_ID),
                     FOREIGN KEY(User_ID) REFERENCES users(id),
                     FOREIGN KEY(Badge_ID) REFERENCES Badge_Table(Badges_ID)
-                );";
+                );
+
+                CREATE TABLE IF NOT EXISTS Pet_Table (
+                    Pet_ID INTEGER PRIMARY KEY,
+                    Pet_Name TEXT NOT NULL,
+                    Base_Health INTEGER DEFAULT 100,
+                    Base_Damage INTEGER DEFAULT 10,
+                );
+                ";
 
                 command.ExecuteNonQuery();
             }
@@ -164,7 +174,7 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
-    public (string, string, string) GetUser()
+    public (string, string, string, int) GetUser()
     {
         using (var connection = new SqliteConnection(dbPath))
         {
@@ -172,19 +182,19 @@ public class DatabaseManager : MonoBehaviour
 
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT first_name, middle_name, last_name FROM users LIMIT 1";
+                command.CommandText = "SELECT first_name, middle_name, last_name, coins FROM users LIMIT 1";
 
                 using (IDataReader reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        return (reader.GetString(0), reader.GetString(1), reader.GetString(2));
+                        return (reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3));
                     }
                 }
             }
         }
 
-        return ("", "", "");
+        return ("", "", "", 0);
     }
 
     public void SavePlayerStats(int coins)
@@ -379,7 +389,6 @@ public class DatabaseManager : MonoBehaviour
         return badges;
     }
 
-
     public void ClaimBadge(int userId, int badgeId, int goldReward)
     {
         using (IDbConnection dbConn = new SqliteConnection(dbPath))
@@ -431,5 +440,77 @@ public class DatabaseManager : MonoBehaviour
             }
         }
     }
+    public (string name, int baseHealth, int baseDamage) GetPetStats(int userId)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
 
+            string query = @"
+            SELECT p.Pet_Name, p.Base_Health, p.Base_Damage 
+            FROM users u
+            JOIN Pet_Table p ON u.Pet_ID = p.Pet_ID
+            WHERE u.id = @userId";
+
+            using (var cmd = new SqliteCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@userId", userId);
+
+                using (IDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        string name = reader.GetString(0);
+                        int baseHealth = reader.GetInt32(1);
+                        int baseDamage = reader.GetInt32(2);
+                        return (name, baseHealth, baseDamage);
+                    }
+                }
+            }
+        }
+
+        Debug.LogWarning("Pet not found for user: " + userId);
+        return ("None", 0, 0);
+    }
+
+    public void AddToPetStats(int userId, int healthToAdd, int damageToAdd)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+
+            // First get Pet_ID from user
+            string getPetIdQuery = "SELECT Pet_ID FROM users WHERE id = @userId";
+            int petId = -1;
+
+            using (var cmd = new SqliteCommand(getPetIdQuery, conn))
+            {
+                cmd.Parameters.AddWithValue("@userId", userId);
+                var result = cmd.ExecuteScalar();
+                if (result != null)
+                    petId = int.Parse(result.ToString());
+            }
+
+            if (petId == -1)
+            {
+                Debug.LogWarning("User has no pet assigned.");
+                return;
+            }
+
+            // Now update pet stats
+            string updateQuery = @"
+                UPDATE Pet_Table
+                SET Base_Health = Base_Health + @health,
+                    Base_Damage = Base_Damage + @damage
+                WHERE Pet_ID = @petId";
+
+            using (var cmd = new SqliteCommand(updateQuery, conn))
+            {
+                cmd.Parameters.AddWithValue("@health", healthToAdd);
+                cmd.Parameters.AddWithValue("@damage", damageToAdd);
+                cmd.Parameters.AddWithValue("@petId", petId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+    }
 }
