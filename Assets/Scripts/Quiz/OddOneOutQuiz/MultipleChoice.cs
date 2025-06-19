@@ -117,6 +117,15 @@ public class MultipleChoice : MonoBehaviour
 
     public Button retryButton;
 
+    public int enemyDamage = 10;
+
+    public int lessonToUnlock;
+    public int categoryToUnlock;
+    public int firstLesson;
+    public int earnedGold;
+    public int healthToAdd;
+    public int damageToAdd;
+
     private void Awake()
     {
         ColorUtility.TryParseHtmlString("#116530", out defaultColor);
@@ -247,6 +256,8 @@ public class MultipleChoice : MonoBehaviour
         var currentQ = questions[currentQuestionIndex];
         bool isCorrect = selectedIndex == currentQ.correctIndex;
 
+        var (name, baseHealth, baseDamage) = dbManager.GetPetStats(userId);
+
         if (isCorrect)
         {
             isPlayer = true;
@@ -255,7 +266,6 @@ public class MultipleChoice : MonoBehaviour
             if (isHit)
             {
                 ShowFeedback("Correct!", currentQ.explanationText);
-                int baseDamage = Random.Range(10, 16);
                 int damage = isSkillActive ? baseDamage * 2 : baseDamage;
                 battleManager.EnemyTakeDamage(damage);
                 isMiss = false;
@@ -294,8 +304,6 @@ public class MultipleChoice : MonoBehaviour
                 ColorUtility.TryParseHtmlString("#5f9103", out missColor);
                 StartCoroutine(ShowFloatingText(missText, "Miss!", enemyIcon.position, missColor));
                 timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
-
-
             }
 
             score++;
@@ -342,14 +350,13 @@ public class MultipleChoice : MonoBehaviour
         timerContainer.SetActive(false);
         scoreContainer.SetActive(false);
         canAnswer = false;
-        int damage = Random.Range(10, 16);
-        battleManager.PlayerTakeDamage(damage);
+        battleManager.PlayerTakeDamage(enemyDamage);
         isMiss = false;
         isPlayer = false;
         battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
         battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
         Color damageColor = new Color(1f, 0f, 0f); // Red
-        StartCoroutine(ShowFloatingText(damageText, "-" + damage, playerIcon.position, damageColor));
+        StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
         ShowFeedback("Time's Up!", "You didn't answer in time.");
         StartCoroutine(WaitThenNextQuestion());
         timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
@@ -420,51 +427,6 @@ public class MultipleChoice : MonoBehaviour
         }
     }
 
-    public void ActivateSkill()
-    {
-        if (skillTimer > 0) return;
-
-        isSkillActive = true;
-        doubleSwordIcon.SetActive(true);
-        Image iconImage = doubleSwordIcon.GetComponent<Image>();
-        if (iconImage != null)
-        {
-            Color color = iconImage.color;
-            iconImage.color = new Color(color.r, color.g, color.b, 1f); // full opacity
-        }
-
-        skillTimer = skillCooldown;
-        skillButton.interactable = false;
-
-        StartCoroutine(DeactivateSkillAfterDelay());
-    }
-
-    private IEnumerator DeactivateSkillAfterDelay()
-    {
-        yield return new WaitForSeconds(3f);
-        isSkillActive = false;
-
-        // Fade out icon
-        Image iconImage = doubleSwordIcon.GetComponent<Image>();
-        if (iconImage != null)
-        {
-            float fadeDuration = 0.5f;
-            float elapsed = 0f;
-            Color originalColor = iconImage.color;
-
-            while (elapsed < fadeDuration)
-            {
-                elapsed += Time.deltaTime;
-                float alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
-                iconImage.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
-                yield return null;
-            }
-
-            iconImage.color = originalColor; // Reset for next use
-        }
-        doubleSwordIcon.SetActive(false);
-    }
-
     void NextQuestionOrEnd()
     {
         if (feedbackPanel != null)
@@ -523,7 +485,20 @@ public class MultipleChoice : MonoBehaviour
 
                 passingHeader.text = scoreMsg;
                 passingScore.text = goldMsg;
-                passingNote.text = "NOTE: Lesson completed, next lesson unlocked!";
+
+                dbManager.UnlockLessonForUser(userId, lessonToUnlock);
+
+                if (categoryToUnlock != 0 && firstLesson != 0)
+                {
+                    dbManager.UnlockCategoryForUser(userId, categoryToUnlock);
+                    dbManager.UnlockLessonForUser(userId, firstLesson);
+                    dbManager.AddToPetStats(userId, healthToAdd, damageToAdd);
+                    passingNote.text = "NOTE: Lesson completed, next lesson and new category unlocked!";
+                }
+                else
+                {
+                    passingNote.text = "NOTE: Lesson completed, next lesson unlocked!";
+                }
             }
         }
         else
@@ -571,11 +546,14 @@ public class MultipleChoice : MonoBehaviour
             scoreMsg = $"Keep trying! You scored {score} points.";
             goldMsg = $"You earned {goldEarned} gold!";
         }
+
+        earnedGold = goldEarned;
     }
 
     public void OnQuizCompleted()
     {
         dbManager.SaveQuizAndScore(userId, quizId, score);
+        dbManager.AddCoin(userId, earnedGold);
         Debug.Log("Quiz and score saved to database.");
     }
 
@@ -624,4 +602,86 @@ public class MultipleChoice : MonoBehaviour
             progressHandle.localScale = originalScale;
     }
 
+    public void ActivateSkill()
+    {
+        if (skillTimer > 0) return;
+
+        isSkillActive = true;
+        doubleSwordIcon.SetActive(true);
+        Image iconImage = doubleSwordIcon.GetComponent<Image>();
+        if (iconImage != null)
+        {
+            Color color = iconImage.color;
+            iconImage.color = new Color(color.r, color.g, color.b, 1f); // full opacity
+        }
+
+        skillTimer = skillCooldown;
+        skillButton.interactable = false;
+
+        StartCoroutine(DeactivateSkillAfterDelay());
+    }
+
+    private IEnumerator DeactivateSkillAfterDelay()
+    {
+        yield return new WaitForSeconds(3f);
+        isSkillActive = false;
+
+        // Fade out icon
+        Image iconImage = doubleSwordIcon.GetComponent<Image>();
+        if (iconImage != null)
+        {
+            float fadeDuration = 0.5f;
+            float elapsed = 0f;
+            Color originalColor = iconImage.color;
+
+            while (elapsed < fadeDuration)
+            {
+                elapsed += Time.deltaTime;
+                float alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
+                iconImage.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+                yield return null;
+            }
+
+            iconImage.color = originalColor; // Reset for next use
+        }
+        doubleSwordIcon.SetActive(false);
+    }
+
+    public void RestartQuiz()
+    {
+        currentQuestionIndex = 0;
+        score = 0;
+        timer = 30f;
+        isTimerRunning = false;
+        isSkillActive = false;
+        skillTimer = 0f;
+
+        if (skillButton != null)
+        {
+            skillButton.interactable = true;
+        }
+
+        // Reset progress bar and score UI
+        if (progressBar != null) progressBar.value = 0;
+        UpdateScoreText();
+
+        // Hide modals and feedback
+        passingModal.SetActive(false);
+        failingModal.SetActive(false);
+        feedbackPanel.SetActive(false);
+
+        // Reset shadows and any UI effects
+        playerShadow.SetActive(true);
+        enemyShadow.SetActive(true);
+
+        // Reset player/enemy positions
+        playerIcon.anchoredPosition = playerStartPos;
+        enemyIcon.anchoredPosition = enemyStartPos;
+
+        // Reset HP and state via battle manager
+        battleManager.ResetBattle();
+        battleAnim.StartCoroutine(battleAnim.GraduallyRestoreColor(3));
+
+        DisplayQuestion();
+    }
 }

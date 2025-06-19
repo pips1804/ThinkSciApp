@@ -96,11 +96,11 @@ public class DatabaseManager : MonoBehaviour
                 );
 
                 CREATE TABLE IF NOT EXISTS User_Quiz_Scores (
+                    ID INTEGER PRIMARY KEY AUTOINCREMENT,
                     User_ID INTEGER,
                     Quiz_ID INTEGER,
                     Score INTEGER,
                     Completed_At TEXT,
-                    PRIMARY KEY(User_ID, Quiz_ID),
                     FOREIGN KEY(User_ID) REFERENCES users(id),
                     FOREIGN KEY(Quiz_ID) REFERENCES Quiz_Table(Quiz_ID)
                 );
@@ -243,7 +243,7 @@ public class DatabaseManager : MonoBehaviour
             using (var cmd = connection.CreateCommand())
             {
                 cmd.CommandText = @"
-                INSERT OR REPLACE INTO User_Quiz_Scores (User_ID, Quiz_ID, Score, Completed_At)
+                INSERT INTO User_Quiz_Scores (User_ID, Quiz_ID, Score, Completed_At)
                 VALUES (@userId, @quizId, @score, datetime('now'))";
                 cmd.Parameters.AddWithValue("@userId", userId);
                 cmd.Parameters.AddWithValue("@quizId", quizId);
@@ -343,6 +343,8 @@ public class DatabaseManager : MonoBehaviour
                 cmd.ExecuteNonQuery();
             }
         }
+
+        Debug.Log("Lesson unlocked!");
     }
 
     public List<Badge> GetUserBadges(int userId)
@@ -419,9 +421,9 @@ public class DatabaseManager : MonoBehaviour
                 using (IDbCommand cmd = dbConn.CreateCommand())
                 {
                     cmd.Transaction = transaction;
-                    cmd.CommandText = @"UPDATE User 
-                                    SET Coins = Coins + @gold 
-                                    WHERE User_ID = @userId";
+                    cmd.CommandText = @"UPDATE users 
+                                    SET coins = coins + @gold 
+                                    WHERE id = @userId";
 
                     var param1 = cmd.CreateParameter();
                     param1.ParameterName = "@gold";
@@ -513,4 +515,32 @@ public class DatabaseManager : MonoBehaviour
             }
         }
     }
+
+    public void AddCoin(int userId, int goldToAdd)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open(); 
+
+            using (IDbCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = @"UPDATE users 
+                                SET coins = coins + @goldToAdd
+                                WHERE id = @userId";    
+
+                var param1 = cmd.CreateParameter();
+                param1.ParameterName = "@goldToAdd";
+                param1.Value = goldToAdd;
+                cmd.Parameters.Add(param1);
+
+                var param2 = cmd.CreateParameter();
+                param2.ParameterName = "@userId";
+                param2.Value = userId;
+                cmd.Parameters.Add(param2);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+    }
+
 }

@@ -14,6 +14,14 @@ public class BattleAnimationManager : MonoBehaviour
     public Text timerText;
 
     public Image battleBackground;
+    private Color originalBackgroundColor;
+
+
+    void Start()
+    {
+        originalBackgroundColor = battleBackground.color;
+    }
+
 
     public IEnumerator DodgeAnimation(RectTransform defender)
     {
@@ -321,5 +329,21 @@ public class BattleAnimationManager : MonoBehaviour
 
         timerText.transform.localScale = targetScale;
     }
+
+    public IEnumerator GraduallyRestoreColor(float duration)
+    {
+        Color startColor = battleBackground.color;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            battleBackground.color = Color.Lerp(startColor, originalBackgroundColor, elapsed / duration);
+            yield return null;
+        }
+
+        battleBackground.color = originalBackgroundColor; // Ensure exact final color
+    }
+
 
 }

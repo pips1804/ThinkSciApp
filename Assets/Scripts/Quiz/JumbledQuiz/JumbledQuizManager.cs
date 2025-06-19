@@ -109,6 +109,15 @@ public class JumbledQuizManager : MonoBehaviour
     public int currentScore;
     public int earnedGold;
 
+    public int enemyDamage = 10;
+
+    public int lessonToUnlock;
+    public int categoryToUnlock;
+    public int firstLesson;
+
+    public int healthToAdd;
+    public int damageToAdd;
+
     private void Awake()
     {
         ColorUtility.TryParseHtmlString("#116530", out defaultColor);
@@ -118,6 +127,7 @@ public class JumbledQuizManager : MonoBehaviour
 
     void Start()
     {
+        retryButton.onClick.AddListener(RestartQuiz);
         playerStartPos = playerIcon.anchoredPosition;
         enemyStartPos = enemyIcon.anchoredPosition;
         originalScale = timerText.transform.localScale;
@@ -255,6 +265,7 @@ public class JumbledQuizManager : MonoBehaviour
         {
             isPlayer = true;
             bool isHit = Random.value <= (hitChancePercent * 0.01f);
+            var (name, baseHealth, baseDamage) = dbManager.GetPetStats(userId);
 
             Debug.Log($"User Answer: {userAnswer}");
             Debug.Log($"Correct Answer: {correctAnswer}");
@@ -262,7 +273,6 @@ public class JumbledQuizManager : MonoBehaviour
             if (isHit)
             {
                 ShowFeedback("Correct!", currentQ.explanationText);
-                int baseDamage = Random.Range(10, 16);
                 int damage = isSkillActive ? baseDamage * 2 : baseDamage;
                 battleManager.EnemyTakeDamage(damage);
                 isMiss = false;
@@ -321,12 +331,11 @@ public class JumbledQuizManager : MonoBehaviour
                 scoreContainer.SetActive(false);
                 isMiss = false;
                 ShowFeedback("Wrong!", currentQ.explanationText);
-                int damage = Random.Range(10, 16);
-                battleManager.PlayerTakeDamage(damage);
+                battleManager.PlayerTakeDamage(enemyDamage);
                 battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
                 battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
                 Color damageColor = new Color(1f, 0f, 0f); // Red
-                StartCoroutine(ShowFloatingText(damageText, "-" + damage, playerIcon.position, damageColor));
+                StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
                 timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
             }
             else
@@ -410,8 +419,8 @@ public class JumbledQuizManager : MonoBehaviour
         if (currentQuestionIndex >= questions.Count - 3)
         {
             battleAnim.StartCoroutine(battleAnim.GraduallyTurnRed(3f)); // 3 seconds transition
-            battleManager.PlayerTakeDamage(suddenDeathDamage);
-            battleManager.EnemyTakeDamage(suddenDeathDamage);
+            battleManager.SuddenDeathDamage(suddenDeathDamage);
+            battleManager.SuddenDeathDamage(suddenDeathDamage);
 
             // Optional: Show visual effects for damage taken
             Color suddenColor = new Color(1f, 0.5f, 0f); // Orange
@@ -455,7 +464,18 @@ public class JumbledQuizManager : MonoBehaviour
 
                 passingHeader.text = scoreMsg;
                 passingScore.text = goldMsg;
-                passingNote.text = "NOTE: Lesson completed, next lesson unlocked!";
+
+                if (categoryToUnlock != 0 && firstLesson != 0)
+                {
+                    dbManager.UnlockCategoryForUser(userId, categoryToUnlock);
+                    dbManager.UnlockLessonForUser(userId, firstLesson);
+                    dbManager.AddToPetStats(userId, healthToAdd, damageToAdd);
+                    passingNote.text = "NOTE: Lesson completed, next lesson and new category unlocked!";
+                } else
+                {
+                    dbManager.UnlockLessonForUser(userId, lessonToUnlock);
+                    passingNote.text = "NOTE: Lesson completed, next lesson unlocked!";
+                }
             }
         }
         else
@@ -506,11 +526,14 @@ public class JumbledQuizManager : MonoBehaviour
             scoreMsg = $"Keep trying! You scored {score} points.";
             goldMsg = $"You earned {goldEarned} gold!";
         }
+
+        earnedGold = goldEarned;
     }
 
 
     public void OnQuizCompleted()
     {
+        dbManager.AddCoin(userId, earnedGold);
         dbManager.SaveQuizAndScore(userId, quizId, score);
         Debug.Log("Quiz and score saved to database.");
     }
@@ -641,7 +664,7 @@ public class JumbledQuizManager : MonoBehaviour
 
     IEnumerator WaitThenNextQuestion()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(1f);
         feedbackPanel.SetActive(false);
         timerContainer.SetActive(true);
         scoreContainer.SetActive(true);
@@ -685,5 +708,43 @@ public class JumbledQuizManager : MonoBehaviour
             iconImage.color = originalColor; // Reset for next use
         }
         doubleSwordIcon.SetActive(false);
+    }
+    public void RestartQuiz()
+    {
+        currentQuestionIndex = 0;
+        score = 0;
+        timer = 30f;
+        isTimerRunning = false;
+        isSkillActive = false;
+        skillTimer = 0f;
+
+        if(skillButton != null)
+        {
+            skillButton.interactable = true;
+        }
+
+        // Reset progress bar and score UI
+        if (progressBar != null) progressBar.value = 0;
+        UpdateScoreText();
+
+        // Hide modals and feedback
+        passingModal.SetActive(false);
+        failingModal.SetActive(false);
+        resultPanel.SetActive(false);
+        feedbackPanel.SetActive(false);
+
+        // Reset shadows and any UI effects
+        playerShadow.SetActive(true);
+        enemyShadow.SetActive(true);
+
+        // Reset player/enemy positions
+        playerIcon.anchoredPosition = playerStartPos;
+        enemyIcon.anchoredPosition = enemyStartPos;
+
+        // Reset HP and state via battle manager
+        battleManager.ResetBattle();
+        battleAnim.StartCoroutine(battleAnim.GraduallyRestoreColor(3));
+
+        DisplayQuestion();
     }
 }

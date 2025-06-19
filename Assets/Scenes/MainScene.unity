@@ -4047,6 +4047,12 @@ MonoBehaviour:
   userId: 1
   currentScore: 0
   earnedGold: 0
+  enemyDamage: 10
+  lessonToUnlock: 2
+  categoryToUnlock: 0
+  firstLesson: 0
+  healthToAdd: 0
+  damageToAdd: 0
 --- !u!114 &127226220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4061,8 +4067,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerHealth: 100
   enemyHealth: 100
+  enemyHealthFixed: 100
   playerHealthBar: {fileID: 1452046257}
   enemyHealthBar: {fileID: 1470402742}
+  dbManager: {fileID: 1473477790}
+  userID: 1
 --- !u!114 &127226221
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7042,8 +7051,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerHealth: 100
   enemyHealth: 100
+  enemyHealthFixed: 100
   playerHealthBar: {fileID: 955934064}
   enemyHealthBar: {fileID: 1577704019}
+  dbManager: {fileID: 0}
+  userID: 1
 --- !u!114 &253501705
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29490,6 +29502,16 @@ MonoBehaviour:
   failingNote: {fileID: 1195517499}
   retryButton: {fileID: 1627539750}
   battleAnim: {fileID: 1131922923}
+  enemyDamage: 10
+  skillButton: {fileID: 0}
+  doubleSwordIcon: {fileID: 0}
+  skillCooldownFill: {fileID: 0}
+  lessonToUnlock: 0
+  categoryToUnlock: 0
+  firstLesson: 0
+  earnedGold: 0
+  healthToAdd: 0
+  damageToAdd: 0
 --- !u!114 &1131922919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29504,8 +29526,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerHealth: 100
   enemyHealth: 100
+  enemyHealthFixed: 100
   playerHealthBar: {fileID: 352757032}
   enemyHealthBar: {fileID: 599879302}
+  dbManager: {fileID: 0}
+  userID: 1
 --- !u!114 &1131922920
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36473,7 +36498,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 548, y: -1283}
+  m_AnchoredPosition: {x: 548, y: -1305}
   m_SizeDelta: {x: 900, y: 650}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1437369548
@@ -37726,6 +37751,7 @@ GameObject:
   - component: {fileID: 1473477795}
   - component: {fileID: 1473477796}
   - component: {fileID: 1473477797}
+  - component: {fileID: 1473477798}
   m_Layer: 5
   m_Name: GameManager
   m_TagString: Untagged
@@ -37887,6 +37913,22 @@ MonoBehaviour:
   inProgressButton: {fileID: 1199072115}
   doneButton: {fileID: 752583676}
   databaseManager: {fileID: 1473477790}
+--- !u!114 &1473477798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1473477789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6250051da9d90e24ca603582da8a1901, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dbManager: {fileID: 1473477790}
+  categoryLocker: {fileID: 1473477795}
+  lessonLocker: {fileID: 1473477796}
+  currentUserId: 1
 --- !u!1 &1475462625
 GameObject:
   m_ObjectHideFlags: 0
@@ -43301,7 +43343,6 @@ GameObject:
   - component: {fileID: 1693798692}
   - component: {fileID: 1693798695}
   - component: {fileID: 1693798694}
-  - component: {fileID: 1693798693}
   m_Layer: 5
   m_Name: RetakeBtn
   m_TagString: Untagged
@@ -43353,9 +43394,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1693798693}
-        m_TargetAssemblyTypeName: PanelSwitcher, Assembly-CSharp
-        m_MethodName: ActivatePanel
+      - m_Target: {fileID: 127226219}
+        m_TargetAssemblyTypeName: JumbledQuizManager, Assembly-CSharp
+        m_MethodName: RestartQuiz
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -43365,21 +43406,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &1693798693
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1693798691}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 81180073}
-  panelsToDeactivate:
-  - {fileID: 0}
 --- !u!114 &1693798694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -46403,8 +46429,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerHealth: 100
   enemyHealth: 100
+  enemyHealthFixed: 100
   playerHealthBar: {fileID: 1666879700}
   enemyHealthBar: {fileID: 1921352430}
+  dbManager: {fileID: 0}
+  userID: 1
 --- !u!114 &1787176736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -46592,6 +46621,13 @@ MonoBehaviour:
   failingScore: {fileID: 769022072}
   failingNote: {fileID: 1703446528}
   retryButton: {fileID: 1631504393}
+  enemyDamage: 10
+  lessonToUnlock: 0
+  categoryToUnlock: 0
+  firstLesson: 0
+  earnedGold: 0
+  healthToAdd: 0
+  damageToAdd: 0
 --- !u!1 &1789532151
 GameObject:
   m_ObjectHideFlags: 0
