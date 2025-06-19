@@ -13,12 +13,22 @@ public class InventoryUI : MonoBehaviour
     public Button equipButton;
     public Text equipButtonText;
 
+    [Header("Filter Button Texts")]
+    public Text textAll;
+    public Text textHats;
+    public Text textShades;
+    public Text textShoes;
+
+    public Color activeTextColor = Color.yellow;
+    public Color inactiveTextColor = Color.white;
+
     private Item selectedItem;
 
     void Start()
     {
-        ShowAll(); // Default
-        equipPanel.SetActive(false); // Hide panel at start
+        SetActiveFilterText(textAll);
+        ShowAll();
+        equipPanel.SetActive(false);
     }
 
     public void PopulateInventory(ItemType? filter = null)
@@ -79,8 +89,39 @@ public class InventoryUI : MonoBehaviour
         return PlayerPrefs.GetInt("ItemOwned_" + item.itemName, 0) == 1;
     }
 
-    public void ShowAll() => PopulateInventory(null);
-    public void ShowHats() => PopulateInventory(ItemType.Hat);
-    public void ShowShades() => PopulateInventory(ItemType.Shades);
-    public void ShowShoes() => PopulateInventory(ItemType.Shoes);
+    private void SetActiveFilterText(Text activeText)
+    {
+        Text[] allTexts = { textAll, textHats, textShades, textShoes };
+
+        foreach (Text t in allTexts)
+        {
+            t.color = inactiveTextColor;
+        }
+
+        activeText.color = activeTextColor;
+    }
+
+    public void ShowAll()
+    {
+        PopulateInventory(null);
+        SetActiveFilterText(textAll);
+    }
+
+    public void ShowHats()
+    {
+        PopulateInventory(ItemType.Hat);
+        SetActiveFilterText(textHats);
+    }
+
+    public void ShowShades()
+    {
+        PopulateInventory(ItemType.Shades);
+        SetActiveFilterText(textShades);
+    }
+
+    public void ShowShoes()
+    {
+        PopulateInventory(ItemType.Shoes);
+        SetActiveFilterText(textShoes);
+    }
 }

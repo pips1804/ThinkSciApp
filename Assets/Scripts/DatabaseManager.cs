@@ -125,7 +125,7 @@ public class DatabaseManager : MonoBehaviour
                     Pet_ID INTEGER PRIMARY KEY,
                     Pet_Name TEXT NOT NULL,
                     Base_Health INTEGER DEFAULT 100,
-                    Base_Damage INTEGER DEFAULT 10,
+                    Base_Damage INTEGER DEFAULT 10
                 );
                 ";
 
