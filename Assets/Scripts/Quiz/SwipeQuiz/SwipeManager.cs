@@ -101,7 +101,6 @@ public class SwipeManager : MonoBehaviour
 
     void Start()
     {
-        originalEnemySprite = enemyImage.sprite;
         playerStartPos = playerIcon.anchoredPosition;
         enemyStartPos = enemyIcon.anchoredPosition;
         originalScale = timerText.transform.localScale;
@@ -151,6 +150,7 @@ public class SwipeManager : MonoBehaviour
 
     void OnEnable()
     {
+        originalEnemySprite = enemyImage.sprite;
         RestartQuiz();
     }
 

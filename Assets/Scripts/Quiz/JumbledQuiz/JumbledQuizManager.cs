@@ -133,7 +133,6 @@ public class JumbledQuizManager : MonoBehaviour
 
     void Start()
     {
-        originalEnemySprite = enemyImage.sprite;
         retryButton.onClick.AddListener(RestartQuiz);
         playerStartPos = playerIcon.anchoredPosition;
         enemyStartPos = enemyIcon.anchoredPosition;
@@ -200,6 +199,7 @@ public class JumbledQuizManager : MonoBehaviour
 
     void OnEnable()
     {
+        originalEnemySprite = enemyImage.sprite;
         RestartQuiz();
     }
 

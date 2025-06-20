@@ -138,7 +138,6 @@ public class MultipleChoice : MonoBehaviour
     }
     void Start()
     {
-        originalEnemySprite = enemyImage.sprite;
         playerStartPos = playerIcon.anchoredPosition;
         enemyStartPos = enemyIcon.anchoredPosition;
         originalScale = timerText.transform.localScale;
@@ -204,6 +203,7 @@ public class MultipleChoice : MonoBehaviour
 
     void OnEnable()
     {
+        originalEnemySprite = enemyImage.sprite;
         RestartQuiz();
     }
 
