@@ -26,11 +26,13 @@ public class BattleManager : MonoBehaviour
         enemyHealthBar.SetMaxHealth(enemyHealth);
     }
 
-    public void EnemyTakeDamage(int damage)
+    public bool EnemyTakeDamage(int damage)
     {
         enemyHealth -= damage;
         enemyHealthBar.SetHealth(enemyHealth);
         //enemyAnimator.SetTrigger("Hit");
+
+        return enemyHealth <= 0;
     }
 
     public void SuddenDeathDamage(int damage)

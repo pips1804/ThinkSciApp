@@ -101,6 +101,7 @@ public class DatabaseManager : MonoBehaviour
                     Quiz_ID INTEGER,
                     Score INTEGER,
                     Completed_At TEXT,
+                    Stats_Given INTEGER DEFAULT 0,
                     FOREIGN KEY(User_ID) REFERENCES users(id),
                     FOREIGN KEY(Quiz_ID) REFERENCES Quiz_Table(Quiz_ID)
                 );
@@ -538,6 +539,37 @@ public class DatabaseManager : MonoBehaviour
                 param2.Value = userId;
                 cmd.Parameters.Add(param2);
 
+                cmd.ExecuteNonQuery();
+            }
+        }
+    }
+
+    public bool HasReceivedStatBonus(int userId, int quizId)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT Stats_Given FROM User_Quiz_Scores WHERE User_ID = @uid AND Quiz_ID = @qid";
+                cmd.Parameters.AddWithValue("@uid", userId);
+                cmd.Parameters.AddWithValue("@qid", quizId);
+                var result = cmd.ExecuteScalar();
+                return result != null && Convert.ToInt32(result) == 1;
+            }
+        }
+    }
+
+    public void MarkStatBonusAsGiven(int userId, int quizId)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "UPDATE User_Quiz_Scores SET Stats_Given = 1 WHERE User_ID = @uid AND Quiz_ID = @qid";
+                cmd.Parameters.AddWithValue("@uid", userId);
+                cmd.Parameters.AddWithValue("@qid", quizId);
                 cmd.ExecuteNonQuery();
             }
         }

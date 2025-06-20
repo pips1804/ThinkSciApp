@@ -88,14 +88,20 @@ public class SwipeManager : MonoBehaviour
 
     public int lessonToUnlock;
     public int categoryToUnlock;
-    public int firstLesson;
     public int earnedGold;
     public int healthToAdd;
     public int damageToAdd;
 
+    private bool enemyDefeated = false;
+
+    public Image enemyImage; // Drag the Image component in Inspector
+    public Sprite enemySoulSprite; // Drag the soul sprite in Inspector
+    private Sprite originalEnemySprite; // Backup of original image
+
 
     void Start()
     {
+        originalEnemySprite = enemyImage.sprite;
         playerStartPos = playerIcon.anchoredPosition;
         enemyStartPos = enemyIcon.anchoredPosition;
         originalScale = timerText.transform.localScale;
@@ -143,6 +149,11 @@ public class SwipeManager : MonoBehaviour
         }
     }
 
+    void OnEnable()
+    {
+        RestartQuiz();
+    }
+
     public void HandleAnswer(string swipeDirection)
     {
         var (name, baseHealth, baseDamage) = dbManager.GetPetStats(userId);
@@ -162,20 +173,41 @@ public class SwipeManager : MonoBehaviour
                 timerContainer.SetActive(false);
                 scoreContainer.SetActive(false);
                 ShowFeedback("Correct!", questions[currentQuestionIndex].explanationText);
-                battleManager.EnemyTakeDamage(baseDamage);
                 isMiss = false;
                 isPlayer = true;
-                if (isSkillActive)
+                if (!enemyDefeated)
                 {
-                    battleAnim.StartCoroutine(battleAnim.IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
+                    bool enemyJustDefeated = battleManager.EnemyTakeDamage(baseDamage);
+
+                    if (enemyJustDefeated)
+                    {
+                        enemyDefeated = true;
+                        Debug.Log("Enemy defeated!");
+
+                        if (enemyImage != null && enemySoulSprite != null)
+                        {
+                            battleManager.StartCoroutine(battleAnim.FadeToSoul());
+                        }
+                    }
+
+                    if (isSkillActive)
+                    {
+                        battleAnim.StartCoroutine(battleAnim.IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
+                    }
+                    else
+                    {
+                        battleAnim.StartCoroutine(battleAnim.AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
+                    }
+                    battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
+                    Color damageColor = new Color(1f, 0f, 0f); // Red
+                    StartCoroutine(ShowFloatingText(damageText, "-" + baseDamage, enemyIcon.position, damageColor));
                 }
                 else
                 {
-                    battleAnim.StartCoroutine(battleAnim.AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
+                    earnedGold += 5;
+                    Debug.Log("Enemy already defeated. Skipping battle animation.");
+                    StartCoroutine(ShowFloatingText(damageText, "+5 coins", enemyIcon.position, Color.yellow));
                 }
-                battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
-                Color damageColor = new Color(1f, 0f, 0f); // Red
-                StartCoroutine(ShowFloatingText(damageText, "-" + baseDamage, enemyIcon.position, damageColor));
                 timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
             }
             else
@@ -208,16 +240,21 @@ public class SwipeManager : MonoBehaviour
             {
                 timerContainer.SetActive(false);
                 scoreContainer.SetActive(false);
-                ShowFeedback("Wrong!", questions[currentQuestionIndex].explanationText);
-                battleManager.PlayerTakeDamage(enemyDamage);
                 isMiss = false;
-                isPlayer = false;
-                battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
-                battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
-                Color damageColor = new Color(1f, 0f, 0f); // Red
-                StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
+                ShowFeedback("Wrong!", questions[currentQuestionIndex].explanationText);
+                if (enemyDefeated)
+                {
+                    Debug.Log("Enemy already defeated. Skipping battle animation.");
+                }
+                else
+                {
+                    battleManager.PlayerTakeDamage(enemyDamage);
+                    battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
+                    battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
+                    Color damageColor = new Color(1f, 0f, 0f); // Red
+                    StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
+                }
                 timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
-
             }
             else
             {
@@ -280,13 +317,20 @@ public class SwipeManager : MonoBehaviour
         scoreContainer.SetActive(false);
         ShowFeedback("Time's Up!", "You didn't answer in time.");
         int damage = Random.Range(10, 16);
-        battleManager.PlayerTakeDamage(damage);
         isMiss = false;
         isPlayer = false;
-        battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
-        battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
-        Color damageColor = new Color(1f, 0f, 0f); // Red
-        StartCoroutine(ShowFloatingText(damageText, "-" + damage, playerIcon.position, damageColor));
+        if (enemyDefeated)
+        {
+            Debug.Log("Enemy already defeated. Skipping battle animation.");
+        }
+        else
+        {
+            battleManager.PlayerTakeDamage(enemyDamage);
+            battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
+            battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
+            Color damageColor = new Color(1f, 0f, 0f); // Red
+            StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
+        }
         timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
     }
 
@@ -364,13 +408,18 @@ public class SwipeManager : MonoBehaviour
                 passingHeader.text = scoreMsg;
                 passingScore.text = goldMsg;
 
-                dbManager.UnlockLessonForUser(userId, lessonToUnlock);
+                bool alreadyGiven = dbManager.HasReceivedStatBonus(userId, quizId);
 
-                if (categoryToUnlock != 0 && firstLesson != 0)
+                if (!alreadyGiven)
+                {
+                    dbManager.UnlockLessonForUser(userId, lessonToUnlock);
+                    dbManager.AddToPetStats(userId, healthToAdd, damageToAdd);
+                    dbManager.MarkStatBonusAsGiven(userId, quizId); // set Stats_Given = 1
+                }
+
+                if (categoryToUnlock != 0)
                 {
                     dbManager.UnlockCategoryForUser(userId, categoryToUnlock);
-                    dbManager.UnlockLessonForUser(userId, firstLesson);
-                    dbManager.AddToPetStats(userId, healthToAdd, damageToAdd);
                     passingNote.text = "NOTE: Lesson completed, next lesson and new category unlocked!";
                 }
                 else
@@ -379,11 +428,11 @@ public class SwipeManager : MonoBehaviour
                 }
             }
         }
-        else
+        else if (battleManager.playerHealth <= 0 || score <= 6)
         {
             failingModal.SetActive(true);
 
-            if (failingHeader != null && failingScore != null)
+            if ((failingHeader != null && failingScore != null))
             {
                 int earnedGold;
                 string scoreMsg, goldMsg;
@@ -391,7 +440,16 @@ public class SwipeManager : MonoBehaviour
 
                 failingHeader.text = scoreMsg;
                 failingScore.text = goldMsg;
-                failingNote.text = "NOTE: Can not unlock the next lesson, retake the quiz!";
+
+                if (battleManager.playerHealth <= 0)
+                {
+                    failingNote.text = "NOTE: You died, can not unlock the next lesson, retake the quiz!";
+                }
+                else
+                {
+                    failingNote.text = "NOTE: You've got a low score, can not unlock the next lesson, retake the quiz!";
+                }
+
             }
         }
 
@@ -638,8 +696,11 @@ public class SwipeManager : MonoBehaviour
         enemyShadow.SetActive(true);
 
         // Reset player/enemy positions
-        playerIcon.anchoredPosition = playerStartPos;
-        enemyIcon.anchoredPosition = enemyStartPos;
+        playerStartPos = playerIcon.anchoredPosition;
+        enemyStartPos = enemyIcon.anchoredPosition;
+
+        enemyImage.sprite = originalEnemySprite;
+        enemyDefeated = false; // Reset flag!
 
         // Reset HP and state via battle manager
         battleManager.ResetBattle();

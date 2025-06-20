@@ -113,10 +113,16 @@ public class JumbledQuizManager : MonoBehaviour
 
     public int lessonToUnlock;
     public int categoryToUnlock;
-    public int firstLesson;
 
     public int healthToAdd;
     public int damageToAdd;
+
+    private bool enemyDefeated = false;
+
+    public Image enemyImage; // Drag the Image component in Inspector
+    public Sprite enemySoulSprite; // Drag the soul sprite in Inspector
+    private Sprite originalEnemySprite; // Backup of original image
+
 
     private void Awake()
     {
@@ -127,6 +133,7 @@ public class JumbledQuizManager : MonoBehaviour
 
     void Start()
     {
+        originalEnemySprite = enemyImage.sprite;
         retryButton.onClick.AddListener(RestartQuiz);
         playerStartPos = playerIcon.anchoredPosition;
         enemyStartPos = enemyIcon.anchoredPosition;
@@ -189,6 +196,11 @@ public class JumbledQuizManager : MonoBehaviour
         {
             skillCooldownFill.fillAmount = skillTimer > 0 ? skillTimer / skillCooldown : 0;
         }
+    }
+
+    void OnEnable()
+    {
+        RestartQuiz();
     }
 
     void DisplayQuestion()
@@ -274,21 +286,43 @@ public class JumbledQuizManager : MonoBehaviour
             {
                 ShowFeedback("Correct!", currentQ.explanationText);
                 int damage = isSkillActive ? baseDamage * 2 : baseDamage;
-                battleManager.EnemyTakeDamage(damage);
                 isMiss = false;
                 timerContainer.SetActive(false);
                 scoreContainer.SetActive(false);
-                if (isSkillActive)
+
+                if (!enemyDefeated)
                 {
-                    battleAnim.StartCoroutine(battleAnim.IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
+                    bool enemyJustDefeated = battleManager.EnemyTakeDamage(damage);
+
+                    if (enemyJustDefeated)
+                    {
+                        enemyDefeated = true;
+                        Debug.Log("Enemy defeated!");
+
+                        if (enemyImage != null && enemySoulSprite != null)
+                        {
+                            battleManager.StartCoroutine(battleAnim.FadeToSoul());
+                        }
+                    }
+
+                    if (isSkillActive)
+                    {
+                        battleAnim.StartCoroutine(battleAnim.IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
+                    }
+                    else
+                    {
+                        battleAnim.StartCoroutine(battleAnim.AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
+                    }
+                    battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
+                    Color damageColor = new Color(1f, 0f, 0f); // Red
+                    StartCoroutine(ShowFloatingText(damageText, "-" + damage, enemyIcon.position, damageColor));
                 }
                 else
                 {
-                    battleAnim.StartCoroutine(battleAnim.AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
+                    earnedGold += 5;
+                    Debug.Log("Enemy already defeated. Skipping battle animation.");
+                    StartCoroutine(ShowFloatingText(damageText, "+5 coins", enemyIcon.position, Color.yellow));
                 }
-                battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
-                Color damageColor = new Color(1f, 0f, 0f); // Red
-                StartCoroutine(ShowFloatingText(damageText, "-" + damage, enemyIcon.position, damageColor));
                 timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
 
             }
@@ -331,11 +365,18 @@ public class JumbledQuizManager : MonoBehaviour
                 scoreContainer.SetActive(false);
                 isMiss = false;
                 ShowFeedback("Wrong!", currentQ.explanationText);
-                battleManager.PlayerTakeDamage(enemyDamage);
-                battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
-                battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
-                Color damageColor = new Color(1f, 0f, 0f); // Red
-                StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
+
+                if (enemyDefeated)
+                {
+                    Debug.Log("Enemy already defeated. Skipping battle animation.");
+                } else
+                {
+                    battleManager.PlayerTakeDamage(enemyDamage);
+                    battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
+                    battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
+                    Color damageColor = new Color(1f, 0f, 0f); // Red
+                    StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
+                }
                 timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
             }
             else
@@ -362,13 +403,21 @@ public class JumbledQuizManager : MonoBehaviour
         scoreContainer.SetActive(false);
         canAnswer = false;
         int damage = Random.Range(10, 16);
-        battleManager.PlayerTakeDamage(damage);
         isMiss = false;
         isPlayer = false;
-        battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
-        battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
-        Color damageColor = new Color(1f, 0f, 0f); // Red
-        StartCoroutine(ShowFloatingText(damageText, "-" + damage, playerIcon.position, damageColor));
+        battleManager.PlayerTakeDamage(damage);
+        if (enemyDefeated)
+        {
+            Debug.Log("Enemy already defeated. Skipping battle animation.");
+        }
+        else
+        {
+            battleManager.PlayerTakeDamage(enemyDamage);
+            battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
+            battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
+            Color damageColor = new Color(1f, 0f, 0f); // Red
+            StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
+        }
         ShowFeedback("Time's Up!", "You didn't answer in time.");
         StartCoroutine(WaitThenNextQuestion());
         timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
@@ -465,24 +514,33 @@ public class JumbledQuizManager : MonoBehaviour
                 passingHeader.text = scoreMsg;
                 passingScore.text = goldMsg;
 
-                if (categoryToUnlock != 0 && firstLesson != 0)
+
+                bool alreadyGiven = dbManager.HasReceivedStatBonus(userId, quizId);
+
+                if (!alreadyGiven)
+                {
+                    dbManager.UnlockLessonForUser(userId, lessonToUnlock);
+                    dbManager.AddToPetStats(userId, healthToAdd, damageToAdd);
+                    dbManager.MarkStatBonusAsGiven(userId, quizId); // set Stats_Given = 1
+                }
+
+
+                if (categoryToUnlock != 0)
                 {
                     dbManager.UnlockCategoryForUser(userId, categoryToUnlock);
-                    dbManager.UnlockLessonForUser(userId, firstLesson);
-                    dbManager.AddToPetStats(userId, healthToAdd, damageToAdd);
                     passingNote.text = "NOTE: Lesson completed, next lesson and new category unlocked!";
                 } else
                 {
-                    dbManager.UnlockLessonForUser(userId, lessonToUnlock);
+                    
                     passingNote.text = "NOTE: Lesson completed, next lesson unlocked!";
                 }
             }
         }
-        else
+        else if (battleManager.playerHealth <= 0 || score <= 6)
         {
             failingModal.SetActive(true);
 
-            if (failingHeader != null && failingScore != null)
+            if ((failingHeader != null && failingScore != null))
             {
                 int earnedGold;
                 string scoreMsg, goldMsg;
@@ -490,7 +548,16 @@ public class JumbledQuizManager : MonoBehaviour
 
                 failingHeader.text = scoreMsg;
                 failingScore.text = goldMsg;
-                failingNote.text = "NOTE: Can not unlock the next lesson, retake the quiz!";
+
+                if (battleManager.playerHealth <= 0)
+                {
+                    failingNote.text = "NOTE: You died, can not unlock the next lesson, retake the quiz!";
+                }
+                else
+                {
+                    failingNote.text = "NOTE: You've got a low score, can not unlock the next lesson, retake the quiz!";
+                }
+
             }
         }
 
@@ -527,7 +594,7 @@ public class JumbledQuizManager : MonoBehaviour
             goldMsg = $"You earned {goldEarned} gold!";
         }
 
-        earnedGold = goldEarned;
+        earnedGold += goldEarned;
     }
 
 
@@ -664,7 +731,7 @@ public class JumbledQuizManager : MonoBehaviour
 
     IEnumerator WaitThenNextQuestion()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(5f);
         feedbackPanel.SetActive(false);
         timerContainer.SetActive(true);
         scoreContainer.SetActive(true);
@@ -738,12 +805,15 @@ public class JumbledQuizManager : MonoBehaviour
         enemyShadow.SetActive(true);
 
         // Reset player/enemy positions
-        playerIcon.anchoredPosition = playerStartPos;
-        enemyIcon.anchoredPosition = enemyStartPos;
+        playerStartPos = playerIcon.anchoredPosition;
+        enemyStartPos = enemyIcon.anchoredPosition;
 
         // Reset HP and state via battle manager
         battleManager.ResetBattle();
         battleAnim.StartCoroutine(battleAnim.GraduallyRestoreColor(3));
+
+        enemyImage.sprite = originalEnemySprite;
+        enemyDefeated = false; // Reset flag!
 
         DisplayQuestion();
     }
