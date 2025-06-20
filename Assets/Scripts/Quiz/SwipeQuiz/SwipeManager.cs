@@ -39,7 +39,7 @@ public class SwipeManager : MonoBehaviour
     private bool isMiss = false;
     public Text timerText;
     private int currentQuestionIndex = 0;
-    private float timer = 10f;
+    private float timer = 20f;
     private bool isTimerRunning = false;
     public Slider progressBar;
     private float targetProgress = 0f;
@@ -98,9 +98,14 @@ public class SwipeManager : MonoBehaviour
     public Sprite enemySoulSprite; // Drag the soul sprite in Inspector
     private Sprite originalEnemySprite; // Backup of original image
 
+    public Image playerImage; // Drag the Image component in Inspector
+    public Sprite playerSoulSprite; // Drag the soul sprite in Inspector
+    private Sprite originalPlayerSprite; // Backup of original image
+
 
     void Start()
     {
+        enemyDefeated = false;
         playerStartPos = playerIcon.anchoredPosition;
         enemyStartPos = enemyIcon.anchoredPosition;
         originalScale = timerText.transform.localScale;
@@ -151,6 +156,7 @@ public class SwipeManager : MonoBehaviour
     void OnEnable()
     {
         originalEnemySprite = enemyImage.sprite;
+        originalPlayerSprite = playerImage.sprite;
         RestartQuiz();
     }
 
@@ -367,6 +373,12 @@ public class SwipeManager : MonoBehaviour
         {
             EndQuiz();
         }
+
+        if (battleManager.playerHealth <= 0)
+        {
+            battleAnim.StartCoroutine(battleAnim.PlayerFadeToSoul());
+            EndQuiz();
+        }
     }
 
     void ShowFeedback(string resultText, string explanation)
@@ -383,14 +395,14 @@ public class SwipeManager : MonoBehaviour
         StartCoroutine(FadeInImage());
         var question = questions[currentQuestionIndex];
         questionImage.sprite = question.questionImage;
-        timer = 10f;
+        timer = 20f;
         isTimerRunning = true;
         battleAnim.StartCoroutine(battleAnim.FadeTextLoop());
     }
     void EndQuiz()
     {
         isTimerRunning = false;
-        timerText.text = "0";
+        timerText.text = "";
 
         if (questionImage != null)
             questionImage.enabled = false;
@@ -672,10 +684,10 @@ public class SwipeManager : MonoBehaviour
     {
         currentQuestionIndex = 0;
         score = 0;
-        timer = 30f;
         isTimerRunning = false;
         isSkillActive = false;
         skillTimer = 0f;
+        DisplayQuestion();
 
         if (skillButton != null)
         {
@@ -702,9 +714,14 @@ public class SwipeManager : MonoBehaviour
         enemyImage.sprite = originalEnemySprite;
         enemyDefeated = false; // Reset flag!
 
+        playerImage.sprite = originalPlayerSprite;
+
         // Reset HP and state via battle manager
         battleManager.ResetBattle();
         battleAnim.StartCoroutine(battleAnim.GraduallyRestoreColor(3));
+
+        if (questionImage != null)
+            questionImage.enabled = true;
 
         DisplayQuestion();
     }

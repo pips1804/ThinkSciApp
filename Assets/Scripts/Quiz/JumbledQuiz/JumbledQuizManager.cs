@@ -123,6 +123,10 @@ public class JumbledQuizManager : MonoBehaviour
     public Sprite enemySoulSprite; // Drag the soul sprite in Inspector
     private Sprite originalEnemySprite; // Backup of original image
 
+    public Image playerImage; // Drag the Image component in Inspector
+    public Sprite playerSoulSprite; // Drag the soul sprite in Inspector
+    private Sprite originalPlayerSprite; // Backup of original image
+
 
     private void Awake()
     {
@@ -199,6 +203,7 @@ public class JumbledQuizManager : MonoBehaviour
 
     void OnEnable()
     {
+        originalPlayerSprite = playerImage.sprite;
         originalEnemySprite = enemyImage.sprite;
         RestartQuiz();
     }
@@ -496,10 +501,18 @@ public class JumbledQuizManager : MonoBehaviour
         {
             ShowResult();
         }
+
+        if (battleManager.playerHealth <= 0)
+        {
+            battleAnim.StartCoroutine(battleAnim.PlayerFadeToSoul());
+            ShowResult();
+        }
     }
 
     void ShowResult()
     {
+        questionText.text = "";
+        timerText.text = "";
         // Show passing/retry modal depending on score
         if (score >= 7)
         {
@@ -807,6 +820,8 @@ public class JumbledQuizManager : MonoBehaviour
         // Reset player/enemy positions
         playerStartPos = playerIcon.anchoredPosition;
         enemyStartPos = enemyIcon.anchoredPosition;
+
+        playerImage.sprite = originalPlayerSprite;
 
         // Reset HP and state via battle manager
         battleManager.ResetBattle();

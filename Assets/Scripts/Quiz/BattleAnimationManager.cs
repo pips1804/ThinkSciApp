@@ -19,6 +19,9 @@ public class BattleAnimationManager : MonoBehaviour
     public Image enemyImage; // Drag the Image component in Inspector
     public Sprite enemySoulSprite; // Drag the soul sprite in Inspector
 
+    public Image playerImage; // Drag the Image component in Inspector
+    public Sprite playerSoulSprite; // Drag the soul sprite in Inspector
+
 
     void Start()
     {
@@ -373,6 +376,35 @@ public class BattleAnimationManager : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             enemyImage.color = Color.Lerp(fadedColor, startColor, elapsed / duration);
+            yield return null;
+        }
+    }
+
+    public IEnumerator PlayerFadeToSoul()
+    {
+        float duration = 0.5f;
+        float elapsed = 0f;
+
+        Color startColor = playerImage.color;
+        Color fadedColor = new Color(startColor.r, startColor.g, startColor.b, 0f);
+
+        // Fade out
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            playerImage.color = Color.Lerp(startColor, fadedColor, elapsed / duration);
+            yield return null;
+        }
+
+        // Swap to soul
+        playerImage.sprite = playerSoulSprite;
+
+        // Fade back in
+        elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            playerImage.color = Color.Lerp(fadedColor, startColor, elapsed / duration);
             yield return null;
         }
     }

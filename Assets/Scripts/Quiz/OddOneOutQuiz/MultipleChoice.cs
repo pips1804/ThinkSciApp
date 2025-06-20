@@ -130,6 +130,10 @@ public class MultipleChoice : MonoBehaviour
     public Sprite enemySoulSprite; // Drag the soul sprite in Inspector
     private Sprite originalEnemySprite; // Backup of original image
 
+    public Image playerImage; // Drag the Image component in Inspector
+    public Sprite playerSoulSprite; // Drag the soul sprite in Inspector
+    private Sprite originalPlayerSprite; // Backup of original image
+
     private void Awake()
     {
         ColorUtility.TryParseHtmlString("#116530", out defaultColor);
@@ -203,6 +207,7 @@ public class MultipleChoice : MonoBehaviour
 
     void OnEnable()
     {
+        originalPlayerSprite = playerImage.sprite;
         originalEnemySprite = enemyImage.sprite;
         RestartQuiz();
     }
@@ -510,6 +515,12 @@ public class MultipleChoice : MonoBehaviour
         {
             ShowResult();
         }
+
+        if (battleManager.playerHealth <= 0)
+        {
+            battleAnim.StartCoroutine(battleAnim.PlayerFadeToSoul());
+            ShowResult();
+        }
     }
 
     void ShowResult()
@@ -738,6 +749,8 @@ public class MultipleChoice : MonoBehaviour
 
         enemyImage.sprite = originalEnemySprite;
         enemyDefeated = false; // Reset flag!
+
+        playerImage.sprite = originalPlayerSprite;
 
         // Reset HP and state via battle manager
         battleManager.ResetBattle();
