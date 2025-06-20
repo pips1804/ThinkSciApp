@@ -12,6 +12,9 @@ public class MainSceneUI : MonoBehaviour
     public Slider healthSlider;
     public Slider damageSlider;
 
+    public Slider bgmSlider;
+    public Slider sfxSlider;
+
     public int userID = 1;
 
     void Start()
@@ -19,6 +22,9 @@ public class MainSceneUI : MonoBehaviour
         // Fetch user data from the database
         var (firstName, middleName, lastName, coin) = dbManager.GetUser();
         var(name, baseHealth, baseDamage) = dbManager.GetPetStats(userID);
+
+        AudioManager.Instance.RegisterBgmSlider(bgmSlider);
+        AudioManager.Instance.RegisterSfxSlider(sfxSlider);
 
         if (healthSlider != null)
         {

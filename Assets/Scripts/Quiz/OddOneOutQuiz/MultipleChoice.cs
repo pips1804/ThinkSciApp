@@ -37,7 +37,7 @@ public class MultipleChoice : MonoBehaviour
     public Text timerText;
 
     private int currentQuestionIndex = 0;
-    private float timer = 20f; 
+    private float timer = 30f; 
     private bool isTimerRunning = false;
 
     private bool isBlinking = false;
@@ -74,7 +74,7 @@ public class MultipleChoice : MonoBehaviour
     public Button skillButton;
     public GameObject doubleSwordIcon;
     private bool isSkillActive = false;
-    private float skillCooldown = 30f;
+    private float skillCooldown = 90f;
     private float skillTimer = 0f;
 
     public Image skillCooldownFill;
@@ -133,6 +133,17 @@ public class MultipleChoice : MonoBehaviour
     public Image playerImage; // Drag the Image component in Inspector
     public Sprite playerSoulSprite; // Drag the soul sprite in Inspector
     private Sprite originalPlayerSprite; // Backup of original image
+
+    public Slider bgmSlider;
+    public Slider sfxSlider;
+
+    public AudioClip attack;
+    public AudioClip hurt;
+    public AudioClip passed;
+    public AudioClip failed;
+    public AudioClip correct;
+    public AudioClip wrong;
+
 
     private void Awake()
     {
@@ -207,6 +218,8 @@ public class MultipleChoice : MonoBehaviour
 
     void OnEnable()
     {
+        AudioManager.Instance.RegisterBgmSlider(bgmSlider);
+        AudioManager.Instance.RegisterSfxSlider(sfxSlider);
         originalPlayerSprite = playerImage.sprite;
         originalEnemySprite = enemyImage.sprite;
         RestartQuiz();
@@ -277,6 +290,7 @@ public class MultipleChoice : MonoBehaviour
         {
             isPlayer = true;
             bool isHit = Random.value <= (hitChancePercent * 0.01f);
+            AudioManager.Instance.PlaySFX(correct);
 
             if (isHit)
             {
@@ -303,12 +317,14 @@ public class MultipleChoice : MonoBehaviour
                     if (isSkillActive)
                     {
                         battleAnim.StartCoroutine(battleAnim.IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
+                        StartCoroutine(DeactivateSkillAfterDelay());
                     }
                     else
                     {
                         battleAnim.StartCoroutine(battleAnim.AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
                     }
                     battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
+                    AudioManager.Instance.PlaySFX(attack);
                     Color damageColor = new Color(1f, 0f, 0f); // Red
                     StartCoroutine(ShowFloatingText(damageText, "-" + damage, enemyIcon.position, damageColor));
                 }
@@ -346,6 +362,7 @@ public class MultipleChoice : MonoBehaviour
         }
         else
         {
+            AudioManager.Instance.PlaySFX(wrong);
             bool isHit = Random.value <= (hitChancePercent * 0.01f);
             isPlayer = false;
 
@@ -363,9 +380,11 @@ public class MultipleChoice : MonoBehaviour
                 {
                     battleManager.PlayerTakeDamage(enemyDamage);
                     battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
+                    AudioManager.Instance.PlaySFX(hurt);
                     battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
                     Color damageColor = new Color(1f, 0f, 0f); // Red
                     StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
+                    isSkillActive = false;
                 }
                 timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
             }
@@ -402,9 +421,11 @@ public class MultipleChoice : MonoBehaviour
         {
             battleManager.PlayerTakeDamage(enemyDamage);
             battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
+            AudioManager.Instance.PlaySFX(hurt);
             battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
             Color damageColor = new Color(1f, 0f, 0f); // Red
             StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
+            isSkillActive = false;
         }
         ShowFeedback("Time's Up!", "You didn't answer in time.");
         StartCoroutine(WaitThenNextQuestion());
@@ -494,7 +515,7 @@ public class MultipleChoice : MonoBehaviour
             Color suddenColor = new Color(1f, 0.5f, 0f); // Orange
             StartCoroutine(ShowFloatingText(playerSuddenText, "-" + suddenDeathDamage, playerIcon.position, suddenColor));
             StartCoroutine(ShowFloatingText(enemySuddenText, "-" + suddenDeathDamage, enemyIcon.position, suddenColor));
-
+            AudioManager.Instance.PlaySFX(hurt);
             battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
             battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
         }
@@ -526,10 +547,11 @@ public class MultipleChoice : MonoBehaviour
     void ShowResult()
     {
         questionText.text = "";
-        timerText.text = "";
+        timerText.text = "0";
 
         if (score >= 7)
         {
+            AudioManager.Instance.PlaySFX(passed);
             passingModal.SetActive(true);
 
             if (passingHeader != null && passingScore != null)
@@ -563,6 +585,7 @@ public class MultipleChoice : MonoBehaviour
         }
         else if (battleManager.playerHealth <= 0 || score <= 6)
         {
+            AudioManager.Instance.PlaySFX(failed);
             failingModal.SetActive(true);
 
             if ((failingHeader != null && failingScore != null))
@@ -686,8 +709,6 @@ public class MultipleChoice : MonoBehaviour
 
         skillTimer = skillCooldown;
         skillButton.interactable = false;
-
-        StartCoroutine(DeactivateSkillAfterDelay());
     }
 
     private IEnumerator DeactivateSkillAfterDelay()

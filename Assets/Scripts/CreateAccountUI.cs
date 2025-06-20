@@ -38,15 +38,16 @@ public class CreateAccountUI : MonoBehaviour
         LoadingSlider.value = 1f; // Set to 1 directly when splash ends
         yield return new WaitForSeconds(0.5f); // nice tiny pause
 
-        if (dbManager.HasUser())
+        if (dbManager.HasUser() && !dbManager.IsDefaultUser())
         {
             StartCoroutine(LoadSceneAsync("MainScene"));
         }
         else
         {
-            LoadingScreen.SetActive(false); // Hide loading
+            LoadingScreen.SetActive(false);
             CreateAccountPanel.SetActive(true);
         }
+
     }
 
     public void OnSubmit()
@@ -66,7 +67,7 @@ public class CreateAccountUI : MonoBehaviour
 
         WarningPanel.SetActive(false);
 
-        dbManager.SaveUser(firstName, middleName, lastName);
+        dbManager.UpdateUser(firstName, middleName, lastName);
 
         ShowSuccessModal();
     }

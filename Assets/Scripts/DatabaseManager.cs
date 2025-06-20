@@ -48,6 +48,15 @@ public class DatabaseManager : MonoBehaviour
                 command.CommandText = @"
                 PRAGMA foreign_keys = ON;
 
+                -- === Create Tables ===
+
+                CREATE TABLE IF NOT EXISTS Pet_Table (
+                    Pet_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Pet_Name TEXT DEFAULT 'Iglot',
+                    Base_Health INTEGER DEFAULT 100,
+                    Base_Damage INTEGER DEFAULT 10
+                );
+
                 CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     first_name TEXT,
@@ -122,12 +131,119 @@ public class DatabaseManager : MonoBehaviour
                     FOREIGN KEY(Badge_ID) REFERENCES Badge_Table(Badges_ID)
                 );
 
-                CREATE TABLE IF NOT EXISTS Pet_Table (
-                    Pet_ID INTEGER PRIMARY KEY,
-                    Pet_Name TEXT NOT NULL,
-                    Base_Health INTEGER DEFAULT 100,
-                    Base_Damage INTEGER DEFAULT 10
-                );
+                -- === Seed Static Tables ===
+
+                -- Insert Pet
+                INSERT OR IGNORE INTO Pet_Table (Pet_ID, Pet_Name, Base_Health, Base_Damage) VALUES
+                (1, 'Iglot', 100, 10);
+
+                -- Insert User
+                INSERT INTO users (id, first_name, middle_name, last_name, coins, Pet_ID)
+                SELECT 1, 'Juan', 'Dela', 'Cruz', 200, 1
+                WHERE NOT EXISTS (SELECT 1 FROM users WHERE id = 1);
+
+                -- Insert Categories
+                INSERT OR IGNORE INTO Category_Table (Category_ID, Category_Name) VALUES
+                (1, 'Understanding Forces and Motion'),
+                (2, 'Describing Motion'),
+                (3, 'Thermal Energy and Heat Transfer'),
+                (4, 'Energy Sources and Innovation');
+
+                -- Insert Lessons
+                INSERT OR IGNORE INTO Lessons_Table (Lesson_ID, Category_ID, Lesson_Name) VALUES
+                (1, 1, 'What Are Forces?'),
+                (2, 1, 'Balanced vs. Unbalanced Forces'),
+                (3, 1, 'Free-Body Diagrams'),
+                (4, 1, 'Effects of Unbalanced Forces'),
+                (5, 2, 'Distance vs. Displacement'),
+                (6, 2, 'Speed vs. Velocity'),
+                (7, 2, 'Uniform Velocity and Distance-Time Graphs'),
+                (8, 3, 'Heat vs. Temperature'),
+                (9, 3, 'Modes of Heat Transfer'),
+                (10, 3, 'Heat Transfer and the Particle Model'),
+                (11, 4, 'Modern Renewable Energy Sources'),
+                (12, 4, 'Technological Devices Transforming Heat Energy'),
+                (13, 4, 'Particle Model in Energy Innovations'),
+                (14, 4, 'Local and Global Solutions to the Energy Crisis');
+
+                -- Insert Quizzes
+                INSERT OR IGNORE INTO Quiz_Table (Quiz_ID, Lesson_ID, Quiz_Name) VALUES
+                (1, 1, 'What Are Forces?'),
+                (2, 2, 'Balanced vs. Unbalanced Forces'),
+                (3, 3, 'Free-Body Diagrams'),
+                (4, 4, 'Effects of Unbalanced Forces'),
+                (5, 5, 'Distance vs. Displacement'),
+                (6, 6, 'Speed vs. Velocity'),
+                (7, 7, 'Uniform Velocity and Distance-Time'),
+                (8, 8, 'Heat vs. Temperature'),
+                (9, 9, 'Modes of Heat Transfer'),
+                (10, 10, 'Heat Transfer and the Particle Model'),
+                (11, 11, 'Modern Renewable Energy Sources'),
+                (12, 12, 'Technological Devices Transforming Heat Energy'),
+                (13, 13, 'Particle Model in Energy Innovations'),
+                (14, 14, 'Local and Global Solutions to the Energy Crisis');
+
+                -- Insert Badges
+                INSERT OR IGNORE INTO Badge_Table (Badges_ID, Badges_Name, Badges_Description) VALUES
+                (1, 'First Step', 'Finish your first lesson'),
+                (2, 'Lesson Explorer', 'Complete 5 lessons in total'),
+                (3, 'Correct Machine', 'Answer 100 total questions correctly across all quizzes'),
+                (4, 'All-Rounder', 'Finish at least one lesson in all 4 categories'),
+                (5, 'Full Completionist', 'Finish all lessons in all categories'),
+                (6, 'Quiz Champion', 'Score 90% or higher on any quiz'),
+                (7, 'Flawless Victory', 'Score 100% on any quiz'),
+                (8, 'Quiz Veteran', 'Finished 10 quizzes'),
+                (9, 'Category One Finisher', 'Finish all lessons in category one'),
+                (10, 'Category Two Finisher', 'Finish all lessons in category two'),
+                (11, 'Category Three Finisher', 'Finish all lessons in category three'),
+                (12, 'Category Four Finisher', 'Finish all lessons in category four');
+
+                -- === Insert/Update User Progress ===
+
+                -- User Category Unlocks
+                INSERT INTO User_Category_Unlocks (User_ID, Category_ID, Is_Unlocked) VALUES
+                (1, 1, 1),
+                (1, 2, 1),
+                (1, 3, 0),
+                (1, 4, 0)
+                ON CONFLICT(User_ID, Category_ID) DO UPDATE SET Is_Unlocked = excluded.Is_Unlocked;
+
+                -- User Lesson Unlocks
+                INSERT INTO User_Lesson_Unlocks (User_ID, Lesson_ID, Is_Unlocked) VALUES
+                (1, 1, 1),
+                (1, 2, 1),
+                (1, 3, 1),
+                (1, 4, 1),
+                (1, 5, 1),
+                (1, 6, 1),
+                (1, 7, 1),
+                (1, 8, 0),
+                (1, 9, 0),
+                (1, 10, 0),
+                (1, 11, 0),
+                (1, 12, 0),
+                (1, 13, 0),
+                (1, 14, 0)
+                ON CONFLICT(User_ID, Lesson_ID) DO UPDATE SET Is_Unlocked = excluded.Is_Unlocked;
+
+                -- User Badges
+                INSERT INTO User_Badges (User_ID, Badge_ID, Is_Unlocked, Is_Claimed) VALUES
+                (1, 1, 1, 0),
+                (1, 2, 1, 0),
+                (1, 3, 1, 0),
+                (1, 4, 1, 0),
+                (1, 5, 1, 0),
+                (1, 6, 1, 0),
+                (1, 7, 1, 0),
+                (1, 8, 1, 0),
+                (1, 9, 1, 0),
+                (1, 10, 1, 0),
+                (1, 11, 1, 0),
+                (1, 12, 1, 0)
+                ON CONFLICT(User_ID, Badge_ID) DO UPDATE SET
+                    Is_Unlocked = excluded.Is_Unlocked,
+                    Is_Claimed = excluded.Is_Claimed;
+
                 ";
 
                 command.ExecuteNonQuery();
@@ -135,11 +251,11 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
-    public void SaveUser(string firstName, string middleName, string lastName)
+    public void UpdateUser(string firstName, string middleName, string lastName)
     {
         if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(middleName) || string.IsNullOrWhiteSpace(lastName))
         {
-            Debug.LogWarning("Attempted to save user with incomplete or invalid data. Operation cancelled.");
+            Debug.LogWarning("Attempted to update user with incomplete or invalid data. Operation cancelled.");
             return;
         }
 
@@ -149,16 +265,59 @@ public class DatabaseManager : MonoBehaviour
 
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "INSERT INTO users (first_name, middle_name, last_name) VALUES (@first, @middle, @last)";
+                command.CommandText = @"
+                UPDATE users
+                SET first_name = @first,
+                    middle_name = @middle,
+                    last_name = @last
+                WHERE id = 1";  // Hardcoded ID
+
                 command.Parameters.AddWithValue("@first", firstName);
                 command.Parameters.AddWithValue("@middle", middleName);
                 command.Parameters.AddWithValue("@last", lastName);
-                command.ExecuteNonQuery();
+
+                int rowsAffected = command.ExecuteNonQuery();
+
+                if (rowsAffected > 0)
+                    Debug.Log("User data successfully updated.");
+                else
+                    Debug.LogWarning("No user was updated. User ID 1 may not exist.");
+            }
+        }
+    }
+
+    public bool IsDefaultUser()
+    {
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+                SELECT first_name, middle_name, last_name 
+                FROM users 
+                WHERE id = 1
+                LIMIT 1";
+
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        string firstName = reader.GetString(0);
+                        string middleName = reader.GetString(1);
+                        string lastName = reader.GetString(2);
+
+                        // Adjust to match your default inserted values
+                        return firstName == "Juan" && middleName == "Dela" && lastName == "Cruz";
+                    }
+                }
             }
         }
 
-        Debug.Log("User data successfully saved.");
+        return true; // Assume default if user not found
     }
+
 
     public bool HasUser()
     {

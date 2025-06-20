@@ -7,7 +7,8 @@ public class PanelSwitcher : MonoBehaviour
 
     public void ActivatePanel()
     {
-        foreach (var panel in panelsToDeactivate)
+
+            foreach (var panel in panelsToDeactivate)
         {
             panel.SetActive(false);
         }

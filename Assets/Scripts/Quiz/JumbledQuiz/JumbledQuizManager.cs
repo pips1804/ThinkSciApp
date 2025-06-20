@@ -127,6 +127,15 @@ public class JumbledQuizManager : MonoBehaviour
     public Sprite playerSoulSprite; // Drag the soul sprite in Inspector
     private Sprite originalPlayerSprite; // Backup of original image
 
+    public Slider bgmSlider;
+    public Slider sfxSlider;
+
+    public AudioClip attack;
+    public AudioClip hurt;
+    public AudioClip passed;
+    public AudioClip failed;
+    public AudioClip correct;
+    public AudioClip wrong;
 
     private void Awake()
     {
@@ -203,6 +212,8 @@ public class JumbledQuizManager : MonoBehaviour
 
     void OnEnable()
     {
+        AudioManager.Instance.RegisterBgmSlider(bgmSlider);
+        AudioManager.Instance.RegisterSfxSlider(sfxSlider);
         originalPlayerSprite = playerImage.sprite;
         originalEnemySprite = enemyImage.sprite;
         RestartQuiz();
@@ -286,6 +297,7 @@ public class JumbledQuizManager : MonoBehaviour
 
             Debug.Log($"User Answer: {userAnswer}");
             Debug.Log($"Correct Answer: {correctAnswer}");
+            AudioManager.Instance.PlaySFX(correct);
 
             if (isHit)
             {
@@ -313,11 +325,13 @@ public class JumbledQuizManager : MonoBehaviour
                     if (isSkillActive)
                     {
                         battleAnim.StartCoroutine(battleAnim.IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
+                        StartCoroutine(DeactivateSkillAfterDelay());
                     }
                     else
                     {
                         battleAnim.StartCoroutine(battleAnim.AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
                     }
+                    AudioManager.Instance.PlaySFX(attack);
                     battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
                     Color damageColor = new Color(1f, 0f, 0f); // Red
                     StartCoroutine(ShowFloatingText(damageText, "-" + damage, enemyIcon.position, damageColor));
@@ -358,6 +372,7 @@ public class JumbledQuizManager : MonoBehaviour
         }
         else
         {
+            AudioManager.Instance.PlaySFX(wrong);
             bool isHit = Random.value <= (hitChancePercent * 0.01f);
 
             Debug.Log($"User Answer: {userAnswer}");
@@ -378,9 +393,11 @@ public class JumbledQuizManager : MonoBehaviour
                 {
                     battleManager.PlayerTakeDamage(enemyDamage);
                     battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
+                    AudioManager.Instance.PlaySFX(hurt);
                     battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
                     Color damageColor = new Color(1f, 0f, 0f); // Red
                     StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
+                    isSkillActive = false;
                 }
                 timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
             }
@@ -419,6 +436,7 @@ public class JumbledQuizManager : MonoBehaviour
         {
             battleManager.PlayerTakeDamage(enemyDamage);
             battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
+            AudioManager.Instance.PlaySFX(hurt);
             battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
             Color damageColor = new Color(1f, 0f, 0f); // Red
             StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
@@ -459,7 +477,6 @@ public class JumbledQuizManager : MonoBehaviour
         skillTimer = skillCooldown;
         skillButton.interactable = false;
 
-        StartCoroutine(DeactivateSkillAfterDelay());
     }
 
     void NextQuestionOrEnd()
@@ -480,7 +497,7 @@ public class JumbledQuizManager : MonoBehaviour
             Color suddenColor = new Color(1f, 0.5f, 0f); // Orange
             StartCoroutine(ShowFloatingText(playerSuddenText, "-" + suddenDeathDamage, playerIcon.position, suddenColor));
             StartCoroutine(ShowFloatingText(enemySuddenText, "-" + suddenDeathDamage, enemyIcon.position, suddenColor));
-
+            AudioManager.Instance.PlaySFX(hurt);
             battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
             battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
         }
@@ -516,6 +533,7 @@ public class JumbledQuizManager : MonoBehaviour
         // Show passing/retry modal depending on score
         if (score >= 7)
         {
+            AudioManager.Instance.PlaySFX(passed);
             passingModal.SetActive(true);
 
             if (passingHeader != null && passingScore != null)
@@ -551,6 +569,7 @@ public class JumbledQuizManager : MonoBehaviour
         }
         else if (battleManager.playerHealth <= 0 || score <= 6)
         {
+            AudioManager.Instance.PlaySFX(failed);
             failingModal.SetActive(true);
 
             if ((failingHeader != null && failingScore != null))

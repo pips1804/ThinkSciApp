@@ -81,7 +81,7 @@ public class SwipeManager : MonoBehaviour
     public Button skillButton;
     public GameObject doubleSwordIcon;
     private bool isSkillActive = false;
-    private float skillCooldown = 30f;
+    private float skillCooldown = 60f;
     private float skillTimer = 0f;
 
     public Image skillCooldownFill;
@@ -102,6 +102,15 @@ public class SwipeManager : MonoBehaviour
     public Sprite playerSoulSprite; // Drag the soul sprite in Inspector
     private Sprite originalPlayerSprite; // Backup of original image
 
+    public Slider bgmSlider;
+    public Slider sfxSlider;
+
+    public AudioClip attack;
+    public AudioClip hurt;
+    public AudioClip passed;
+    public AudioClip failed;
+    public AudioClip correct;
+    public AudioClip wrong;
 
     void Start()
     {
@@ -151,10 +160,28 @@ public class SwipeManager : MonoBehaviour
                 PlayerMissedAnswer();
             }
         }
+
+        // Skill cooldown timer
+        if (skillTimer > 0)
+        {
+            skillTimer -= Time.deltaTime;
+            if (skillTimer <= 0)
+            {
+                skillButton.interactable = true;
+            }
+        }
+
+        // Cooldown visual
+        if (skillCooldownFill != null)
+        {
+            skillCooldownFill.fillAmount = skillTimer > 0 ? skillTimer / skillCooldown : 0;
+        }
     }
 
     void OnEnable()
     {
+        AudioManager.Instance.RegisterBgmSlider(bgmSlider);
+        AudioManager.Instance.RegisterSfxSlider(sfxSlider);
         originalEnemySprite = enemyImage.sprite;
         originalPlayerSprite = playerImage.sprite;
         RestartQuiz();
@@ -172,6 +199,7 @@ public class SwipeManager : MonoBehaviour
 
         if (isCorrect)
         {
+            AudioManager.Instance.PlaySFX(correct);
             bool isHit = Random.value <= (hitChancePercent * 0.01); // 80% hit chance
 
             if (isHit)
@@ -179,11 +207,12 @@ public class SwipeManager : MonoBehaviour
                 timerContainer.SetActive(false);
                 scoreContainer.SetActive(false);
                 ShowFeedback("Correct!", questions[currentQuestionIndex].explanationText);
+                int damage = isSkillActive ? baseDamage * 2 : baseDamage;
                 isMiss = false;
                 isPlayer = true;
                 if (!enemyDefeated)
                 {
-                    bool enemyJustDefeated = battleManager.EnemyTakeDamage(baseDamage);
+                    bool enemyJustDefeated = battleManager.EnemyTakeDamage(damage);
 
                     if (enemyJustDefeated)
                     {
@@ -199,14 +228,16 @@ public class SwipeManager : MonoBehaviour
                     if (isSkillActive)
                     {
                         battleAnim.StartCoroutine(battleAnim.IntenseAttackAnimation(playerIcon, playerStartPos, new Vector3(300, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
+                        StartCoroutine(DeactivateSkillAfterDelay());
                     }
                     else
                     {
                         battleAnim.StartCoroutine(battleAnim.AttackAnimation(playerIcon, playerStartPos, new Vector3(250, 0, 0), enemyIcon.position, true, isMiss, isPlayer));
                     }
+                    AudioManager.Instance.PlaySFX(attack);
                     battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
                     Color damageColor = new Color(1f, 0f, 0f); // Red
-                    StartCoroutine(ShowFloatingText(damageText, "-" + baseDamage, enemyIcon.position, damageColor));
+                    StartCoroutine(ShowFloatingText(damageText, "-" + damage, enemyIcon.position, damageColor));
                 }
                 else
                 {
@@ -240,6 +271,7 @@ public class SwipeManager : MonoBehaviour
         }
         else
         {
+            AudioManager.Instance.PlaySFX(wrong);
             bool isHit = Random.value <= (hitChancePercent * 0.01);
 
             if (isHit)
@@ -256,9 +288,11 @@ public class SwipeManager : MonoBehaviour
                 {
                     battleManager.PlayerTakeDamage(enemyDamage);
                     battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
+                    AudioManager.Instance.PlaySFX(hurt);
                     battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
                     Color damageColor = new Color(1f, 0f, 0f); // Red
                     StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
+                    isSkillActive = false;
                 }
                 timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
             }
@@ -333,9 +367,11 @@ public class SwipeManager : MonoBehaviour
         {
             battleManager.PlayerTakeDamage(enemyDamage);
             battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
+            AudioManager.Instance.PlaySFX(hurt);
             battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
             Color damageColor = new Color(1f, 0f, 0f); // Red
             StartCoroutine(ShowFloatingText(damageText, "-" + enemyDamage, playerIcon.position, damageColor));
+            isSkillActive = false;
         }
         timerText.color = new Color32(0xE8, 0xE8, 0xCC, 0xFF); // RGB + full alpha
     }
@@ -352,7 +388,7 @@ public class SwipeManager : MonoBehaviour
             Color suddenColor = new Color(1f, 0.5f, 0f); // Orange
             StartCoroutine(ShowFloatingText(playerSuddenText, "-" + suddenDeathDamage, playerIcon.position, suddenColor));
             StartCoroutine(ShowFloatingText(enemySuddenText, "-" + suddenDeathDamage, enemyIcon.position, suddenColor));
-
+            AudioManager.Instance.PlaySFX(hurt);
             battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
             battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
         }
@@ -409,6 +445,7 @@ public class SwipeManager : MonoBehaviour
 
         if (score >= 7)
         {
+            AudioManager.Instance.PlaySFX(passed);
             passingModal.SetActive(true);
 
             if (passingHeader != null && passingScore != null)
@@ -442,6 +479,7 @@ public class SwipeManager : MonoBehaviour
         }
         else if (battleManager.playerHealth <= 0 || score <= 6)
         {
+            AudioManager.Instance.PlaySFX(failed);
             failingModal.SetActive(true);
 
             if ((failingHeader != null && failingScore != null))
@@ -650,8 +688,6 @@ public class SwipeManager : MonoBehaviour
 
         skillTimer = skillCooldown;
         skillButton.interactable = false;
-
-        StartCoroutine(DeactivateSkillAfterDelay());
     }
 
     private IEnumerator DeactivateSkillAfterDelay()
