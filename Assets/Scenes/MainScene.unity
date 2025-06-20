@@ -18225,7 +18225,7 @@ MonoBehaviour:
   skillButton: {fileID: 1850306584}
   doubleSwordIcon: {fileID: 265852433}
   skillCooldownFill: {fileID: 1011546180}
-  lessonToUnlock: 0
+  lessonToUnlock: 7
   categoryToUnlock: 0
   earnedGold: 0
   healthToAdd: 10
@@ -29082,7 +29082,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 69}
+  m_AnchoredPosition: {x: 0, y: 34}
   m_SizeDelta: {x: 388.3258, y: 75.2203}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &577451856
@@ -32514,11 +32514,11 @@ MonoBehaviour:
   failingNote: {fileID: 483291177}
   retryButton: {fileID: 770508350}
   enemyDamage: 20
-  lessonToUnlock: 4
-  categoryToUnlock: 0
+  lessonToUnlock: 8
+  categoryToUnlock: 3
   earnedGold: 0
   healthToAdd: 10
-  damageToAdd: 3
+  damageToAdd: 5
   enemyImage: {fileID: 2018169026}
   enemySoulSprite: {fileID: 21300000, guid: de716ccc0fc947941bacc45f3edf894b, type: 3}
   playerImage: {fileID: 20410618}
@@ -65670,7 +65670,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 548, y: -1305}
+  m_AnchoredPosition: {x: 548, y: -1306}
   m_SizeDelta: {x: 900, y: 650}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1437369548
@@ -70878,7 +70878,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.7
-  m_Text: Balance and Unbalance Forces
+  m_Text: Free Body Diagrams
 --- !u!222 &1559808971
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -74219,6 +74219,7 @@ GameObject:
   - component: {fileID: 1644843035}
   - component: {fileID: 1644843034}
   - component: {fileID: 1644843033}
+  - component: {fileID: 1644843036}
   m_Layer: 5
   m_Name: CloseBtn
   m_TagString: Untagged
@@ -74290,7 +74291,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1644843034}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1644843036}
+        m_TargetAssemblyTypeName: AppExit, Assembly-CSharp
+        m_MethodName: ExitGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1644843034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74329,6 +74342,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1644843031}
   m_CullTransparentMesh: 1
+--- !u!114 &1644843036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1644843031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7e4c3e08289fbb47b5e873fff9a2708, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1649707052
 GameObject:
   m_ObjectHideFlags: 0
