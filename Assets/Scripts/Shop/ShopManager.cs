@@ -21,6 +21,11 @@ public class ShopManager : MonoBehaviour
     private int coins;
     private DatabaseManager db;
 
+    public MainSceneUI mainmenu;
+
+    public AudioClip purchase;
+    public AudioClip click;
+
     void Start()
     {
         buyPanel.SetShopManager(this);
@@ -62,9 +67,13 @@ public class ShopManager : MonoBehaviour
         if (coins >= cost && !IsItemOwned(item))
         {
             coins -= cost;
-            coinsText.text = "Coins: " + coins;
+            coinsText.text = coins.ToString();
 
             db.SavePlayerStats(coins);
+
+            AudioManager.Instance.PlaySFX(purchase);
+
+            mainmenu.UpdateUI();
 
             PlayerPrefs.SetInt("item_" + item.itemID, 1);
             PlayerPrefs.Save();
@@ -94,24 +103,28 @@ public class ShopManager : MonoBehaviour
     {
         PopulateShop();
         SetActiveButton(textAll);
+        AudioManager.Instance.PlaySFX(click);
     }
 
     public void OnClickHats()
     {
         PopulateShop(ItemType.Hat);
         SetActiveButton(textHats);
+        AudioManager.Instance.PlaySFX(click);
     }
 
     public void OnClickShades()
     {
         PopulateShop(ItemType.Shades);
         SetActiveButton(textShades);
+        AudioManager.Instance.PlaySFX(click);
     }
 
     public void OnClickShoes()
     {
         PopulateShop(ItemType.Shoes);
         SetActiveButton(textShoes);
+        AudioManager.Instance.PlaySFX(click);
     }   
 
 }

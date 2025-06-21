@@ -17,14 +17,23 @@ public class MainSceneUI : MonoBehaviour
 
     public int userID = 1;
 
-    void Start()
+    void Awake()
     {
-        // Fetch user data from the database
-        var (firstName, middleName, lastName, coin) = dbManager.GetUser();
-        var(name, baseHealth, baseDamage) = dbManager.GetPetStats(userID);
-
         AudioManager.Instance.RegisterBgmSlider(bgmSlider);
         AudioManager.Instance.RegisterSfxSlider(sfxSlider);
+    }
+
+
+    private void OnEnable()
+    {
+
+        UpdateUI();
+    }
+
+    public void UpdateUI()
+    {
+        var (firstName, middleName, lastName, coin) = dbManager.GetUser();
+        var (name, baseHealth, baseDamage) = dbManager.GetPetStats(userID);
 
         if (healthSlider != null)
         {
@@ -36,15 +45,21 @@ public class MainSceneUI : MonoBehaviour
         if (damageSlider != null)
         {
             damageSlider.minValue = 0;
-            damageSlider.maxValue = 200;
+            damageSlider.maxValue = 50;
             damageSlider.value = baseDamage;
         }
 
-        // Display the user's full name in the welcome text
-        welcomeText.text = $"{firstName}!";
-        petName.text = $"{name}";
-        petBaseHealth.text = $"{baseHealth}/200";
-        petBaseDamage.text = $"{baseDamage}/50";
-        playerCoinCount.text = $"{coin}";
+        if (welcomeText != null)
+            welcomeText.text = $"{firstName}!";
+        if (petName != null)
+            petName.text = name;
+        if (petBaseHealth != null)
+            petBaseHealth.text = $"{baseHealth}/200";
+        if (petBaseDamage != null)
+            petBaseDamage.text = $"{baseDamage}/50";
+        if (playerCoinCount != null)
+            playerCoinCount.text = $"{coin}";
+
     }
+
 }

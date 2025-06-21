@@ -16,6 +16,10 @@ public class BadgeUIManager : MonoBehaviour
 
     public DatabaseManager databaseManager;
 
+    public MainSceneUI mainmenu;
+    public AudioClip coin;
+
+
     void Start()
     {
         LoadBadgesFromDatabase();
@@ -88,7 +92,9 @@ public class BadgeUIManager : MonoBehaviour
     {
         int rewardGold = 50; // Or make it dynamic per badge
         databaseManager.ClaimBadge(currentUserId, badgeID, rewardGold);
+        AudioManager.Instance.PlaySFX(coin);
         LoadBadgesFromDatabase();
         ShowDone();
+        mainmenu.UpdateUI();
     }
 }

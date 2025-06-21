@@ -563,7 +563,7 @@ public class DatabaseManager : MonoBehaviour
                     cmd.Transaction = transaction;
                     cmd.CommandText = @"UPDATE User_Badges 
                                     SET Is_Claimed = 1 
-                                    WHERE User_ID = @userId AND Badges_ID = @badgeId";
+                                    WHERE User_ID = @userId AND Badge_ID = @badgeId";
 
                     var param1 = cmd.CreateParameter();
                     param1.ParameterName = "@userId";
