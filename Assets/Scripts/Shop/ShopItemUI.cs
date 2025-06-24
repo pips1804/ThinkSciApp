@@ -15,6 +15,8 @@ public class ShopItemUI : MonoBehaviour
     private GameObject confirmPanel;
     private GameObject insufficientPanel;
 
+    public AudioClip click;
+
     public void Setup(Item newItem, ShopManager manager, GameObject confirm, GameObject insufficient)
     {
         item = newItem;
@@ -49,6 +51,8 @@ public class ShopItemUI : MonoBehaviour
         {
             insufficientPanel.SetActive(true);
         }
+
+        AudioManager.Instance.PlaySFX(click);
     }
 
     private void ShowConfirmPanel()

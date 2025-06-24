@@ -10,6 +10,8 @@ public class ItemUI : MonoBehaviour
     private InventoryUI inventoryUI;
     private bool isUnlocked;
 
+    public AudioClip click;
+
     public void Setup(Item newItem, InventoryUI ui)
     {
         item = newItem;
@@ -33,5 +35,7 @@ public class ItemUI : MonoBehaviour
         {
             inventoryUI.ShowEquipPanel(item);
         }
+
+        AudioManager.Instance.PlaySFX(click);
     }
 }

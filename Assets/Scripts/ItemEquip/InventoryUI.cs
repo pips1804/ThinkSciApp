@@ -24,6 +24,8 @@ public class InventoryUI : MonoBehaviour
 
     private Item selectedItem;
 
+    public AudioClip click;
+
     void Start()
     {
         SetActiveFilterText(textAll);
@@ -64,6 +66,7 @@ public class InventoryUI : MonoBehaviour
         if (isEquipped)
         {
             equipButton.onClick.AddListener(() => {
+                AudioManager.Instance.PlaySFX(click);
                 PetEquipment.Instance.UnequipItem(item);
                 equipPanel.SetActive(false);
             });
@@ -71,6 +74,7 @@ public class InventoryUI : MonoBehaviour
         else
         {
             equipButton.onClick.AddListener(() => {
+                AudioManager.Instance.PlaySFX(click);
                 PetEquipment.Instance.EquipItem(item);
                 equipPanel.SetActive(false);
             });

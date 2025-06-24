@@ -27,7 +27,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5914199904465383238}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -148,6 +148,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   iconImage: {fileID: 1256322722519231336}
   lockOverlay: {fileID: 7836014127136682560}
+  click: {fileID: 8300000, guid: dcb70dab37732b84cbadba0525d8129a, type: 3}
 --- !u!1 &7836014127136682560
 GameObject:
   m_ObjectHideFlags: 0
