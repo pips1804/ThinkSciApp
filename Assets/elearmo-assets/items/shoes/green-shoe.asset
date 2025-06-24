@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Green Shoe
   icon: {fileID: 9121352115429386624, guid: fff63a95809ebe74daa24ce937ad0a71, type: 3}
   type: 2
+  description: "Earthy and balanced\u2014connects you with nature."
+  rarity: Rare
   itemPrefab: {fileID: 0}
   leftShoePrefab: {fileID: 2719430360580023327, guid: 935d45d6419d8174fa19513ba1639dea, type: 3}
   rightShoePrefab: {fileID: 2984376476080287409, guid: f072c7fd3ff03694690133366d2968bc, type: 3}

@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Circle (Red)
   icon: {fileID: 928631969550631516, guid: 5e17a759ebaf6ec49898f4a9e4a5afc2, type: 3}
   type: 1
+  description: "Bold and fiery\u2014perfect for standing out."
+  rarity: Common
   itemPrefab: {fileID: 2923348246771230422, guid: a1284f968936e664f84c07f25e36c042, type: 3}
   leftShoePrefab: {fileID: 0}
   rightShoePrefab: {fileID: 0}

@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Bonnet (Red)
   icon: {fileID: 217859442557980477, guid: ef9eac20120819f4ab21bad0c34b4e7c, type: 3}
   type: 0
+  description: A cozy knitted hat for casual days.
+  rarity: Common
   itemPrefab: {fileID: 5157580135674136555, guid: 4a8d1ba553bf54943a2e7cbe53fc0a91, type: 3}
   leftShoePrefab: {fileID: 0}
   rightShoePrefab: {fileID: 0}

@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Orange Shoe
   icon: {fileID: 6272937036041271917, guid: 72caf39056f1b1f42978c39c8bd60e15, type: 3}
   type: 2
+  description: Vibrant kicks that blaze across the track.
+  rarity: Rare
   itemPrefab: {fileID: 0}
   leftShoePrefab: {fileID: 8112581990087777099, guid: 30e1bfacd20e68a4183dcfeed0ca2b64, type: 3}
   rightShoePrefab: {fileID: 4859939596379837621, guid: 734e7275d9f44b84695cdf7d22ea541b, type: 3}

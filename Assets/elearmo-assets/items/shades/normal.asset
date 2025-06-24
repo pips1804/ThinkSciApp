@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Normal
   icon: {fileID: 2102054557489826955, guid: 240e9fc062474eb4bb8f318296b0cdbd, type: 3}
   type: 1
+  description: Simple shades for sunny days.
+  rarity: Common
   itemPrefab: {fileID: 5200260618864306174, guid: d7b2e80717838b648ab62d9a7bac8ab9, type: 3}
   leftShoePrefab: {fileID: 0}
   rightShoePrefab: {fileID: 0}

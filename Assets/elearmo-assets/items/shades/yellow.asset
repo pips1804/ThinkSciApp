@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Yellow
   icon: {fileID: -8743440119797074169, guid: 48984c0d0783e684eab1c63d4f6fb49e, type: 3}
   type: 1
+  description: Bright yellow shades to light up your look.
+  rarity: Rare
   itemPrefab: {fileID: 4627972210072766226, guid: 4198e7905f18fc5498bcb4d111c1b7b3, type: 3}
   leftShoePrefab: {fileID: 0}
   rightShoePrefab: {fileID: 0}

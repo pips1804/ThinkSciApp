@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Violet Shoe
   icon: {fileID: -6934114611386797908, guid: 4ed2bf28a3ffabe44ae37fad5bdf775d, type: 3}
   type: 2
+  description: Mystical and cool, with a touch of elegance.
+  rarity: Rare
   itemPrefab: {fileID: 0}
   leftShoePrefab: {fileID: 2000415945074973363, guid: cc61acfbc0031e74f9c94839bddd6708, type: 3}
   rightShoePrefab: {fileID: 2407041867940693277, guid: c5761c14f5b14704688a04ce2a59c534, type: 3}

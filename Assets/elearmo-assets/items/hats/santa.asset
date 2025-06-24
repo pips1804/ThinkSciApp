@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Santa
   icon: {fileID: 4242309475464582328, guid: bd7b3409f2b4e8c41b274efb0ce0c037, type: 3}
   type: 0
+  description: Full of cheer and festive magic.
+  rarity: Rare
   itemPrefab: {fileID: 3724176922162497456, guid: 1b0beb18e7e76b44d96207b17c5e586f, type: 3}
   leftShoePrefab: {fileID: 0}
   rightShoePrefab: {fileID: 0}

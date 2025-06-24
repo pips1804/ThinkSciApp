@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Bonnet (Yellow)
   icon: {fileID: -2827414643024721878, guid: 398abcfe2775312408030bdd57903c85, type: 3}
   type: 0
+  description: "Bright and cheerful\u2014adds sunshine to your look."
+  rarity: Common
   itemPrefab: {fileID: 1494700720954160864, guid: c83acc936a638c3468bb243dd762e4e5, type: 3}
   leftShoePrefab: {fileID: 0}
   rightShoePrefab: {fileID: 0}

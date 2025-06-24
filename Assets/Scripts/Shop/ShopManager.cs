@@ -28,6 +28,13 @@ public class ShopManager : MonoBehaviour
     public GameObject confirmPanel;
     public GameObject insufficientPanel;
 
+    public GameObject itemDetailModal;
+    public Text detailDescriptionText;
+    public Text detailRarityText;
+    public Button detailBuyButton;
+    public Button detailCloseButton;
+
+
     void Start()
     {
         db = FindObjectOfType<DatabaseManager>();
@@ -38,7 +45,7 @@ public class ShopManager : MonoBehaviour
         }
 
         coins = db.LoadPlayerStats();
-        coinsText.text = "" +coins;
+        coinsText.text = "" + coins;
         textAll.color = activeTextColor;
         PopulateShop();
     }
@@ -57,6 +64,11 @@ public class ShopManager : MonoBehaviour
                 GameObject go = Instantiate(shopItemPrefab, shopContentParent);
                 ShopItemUI shopItemUI = go.GetComponent<ShopItemUI>();
                 shopItemUI.Setup(item, this, confirmPanel, insufficientPanel);
+                shopItemUI.itemDetailModal = itemDetailModal;
+                shopItemUI.detailDescriptionText = detailDescriptionText;
+                shopItemUI.detailRarityText = detailRarityText;
+                shopItemUI.detailBuyButton = detailBuyButton;
+                shopItemUI.detailCloseButton = detailCloseButton;
             }
         }
     }

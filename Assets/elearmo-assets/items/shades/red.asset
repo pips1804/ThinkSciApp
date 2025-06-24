@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Red
   icon: {fileID: 8080913895440392153, guid: ff87464082d549344bc51e90e9d1c696, type: 3}
   type: 1
+  description: Classic red-tinted lenses for a confident vibe.
+  rarity: Rare
   itemPrefab: {fileID: 4831504387288797367, guid: e1bceeb9203f58a4a8e9c6bed3a0a092, type: 3}
   leftShoePrefab: {fileID: 0}
   rightShoePrefab: {fileID: 0}

@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Soldier
   icon: {fileID: 6246832655069406539, guid: 939446577804d3541a903b2cbee7038c, type: 3}
   type: 0
+  description: Built for battle, worn with pride.
+  rarity: Common
   itemPrefab: {fileID: 5342684077453903292, guid: a5f329a4eff9bb446a18c0f2096524e6, type: 3}
   leftShoePrefab: {fileID: 0}
   rightShoePrefab: {fileID: 0}

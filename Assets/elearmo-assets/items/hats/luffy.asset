@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Luffy
   icon: {fileID: 9009513955766500904, guid: 6872222ac7964814cbeb67bcfb8c8059, type: 3}
   type: 0
+  description: A legendary straw hat for adventurous spirits.
+  rarity: Epic
   itemPrefab: {fileID: 7156890092162145132, guid: 0c27c1baf624f2d4d946c472e8c47d01, type: 3}
   leftShoePrefab: {fileID: 0}
   rightShoePrefab: {fileID: 0}

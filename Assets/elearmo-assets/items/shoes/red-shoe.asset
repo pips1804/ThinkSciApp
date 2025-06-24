@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Red Shoe
   icon: {fileID: 8001320615131898944, guid: 637f8d6c4b1feba4c9c7a2be65ec0629, type: 3}
   type: 2
+  description: "Stylish and bold\u2014run fast, stand out."
+  rarity: Rare
   itemPrefab: {fileID: 0}
   leftShoePrefab: {fileID: 5584487006182916516, guid: 974552f0e9439154f9574ea0e8fe0ea1, type: 3}
   rightShoePrefab: {fileID: 3288007718455710662, guid: b0f809999561fa14b955ce81679197b3, type: 3}

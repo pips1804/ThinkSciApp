@@ -294,8 +294,12 @@ MonoBehaviour:
   nameText: {fileID: 3712143434119219462}
   priceText: {fileID: 3162221705777531822}
   ownedText: {fileID: 5524485605754358332}
-  buyButton: {fileID: 8799575519881561249}
-  click: {fileID: 8300000, guid: dcb70dab37732b84cbadba0525d8129a, type: 3}
+  viewButton: {fileID: 8799575519881561249}
+  itemDetailModal: {fileID: 0}
+  detailDescriptionText: {fileID: 0}
+  detailRarityText: {fileID: 0}
+  detailBuyButton: {fileID: 0}
+  detailCloseButton: {fileID: 0}
 --- !u!114 &9158532886498206897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -339,19 +343,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 0}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8160489997877183932}
-        m_TargetAssemblyTypeName: ShopItemUI, Assembly-CSharp
-        m_MethodName: OnClick
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!222 &8213852270985351589
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -592,9 +584,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'BUY
-
-'
+  m_Text: VIEW
 --- !u!1 &7736523354796992381
 GameObject:
   m_ObjectHideFlags: 0
@@ -608,7 +598,7 @@ GameObject:
   - component: {fileID: 7757885255718480454}
   - component: {fileID: 8339292821566356217}
   m_Layer: 5
-  m_Name: BuyButton
+  m_Name: ViewButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

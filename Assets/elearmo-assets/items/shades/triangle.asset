@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Triangle
   icon: {fileID: 306765325567764461, guid: beb1477e5c5b2514583e94002accc420, type: 3}
   type: 1
+  description: Futuristic design for trendsetters and rebels.
+  rarity: Epic
   itemPrefab: {fileID: 2938699649142218034, guid: b07d3b728720b664fbb8b554081643cb, type: 3}
   leftShoePrefab: {fileID: 0}
   rightShoePrefab: {fileID: 0}

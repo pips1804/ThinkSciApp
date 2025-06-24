@@ -11,6 +11,9 @@ public class Item : ScriptableObject
     public Sprite icon;
     public ItemType type;
 
+    public string description;
+    public string rarity;
+
     [Header("Regular Use")]
     public GameObject itemPrefab;              
     public GameObject leftShoePrefab;           

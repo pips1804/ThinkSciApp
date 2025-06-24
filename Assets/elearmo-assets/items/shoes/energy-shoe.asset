@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Energy Shoe
   icon: {fileID: -4872427577772430376, guid: 561fcdd311e9aa54eb5b20b13386896a, type: 3}
   type: 2
+  description: "Pulsing with energy\u2014boosts every step you take."
+  rarity: Epic
   itemPrefab: {fileID: 0}
   leftShoePrefab: {fileID: 6570692598961677508, guid: bad6a05d5c6e65c439d5d7bff1fc3de1, type: 3}
   rightShoePrefab: {fileID: 2586839623840469896, guid: f620580ee78b6e342a42ca298daf6d2f, type: 3}

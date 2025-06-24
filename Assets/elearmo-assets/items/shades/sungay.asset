@@ -17,6 +17,8 @@ MonoBehaviour:
   itemName: Sungay
   icon: {fileID: 5655961887739523553, guid: a87d1962d2025e141804c18f2189cb2d, type: 3}
   type: 1
+  description: Edgy and stylish, with a devilish touch.
+  rarity: Epic
   itemPrefab: {fileID: 3753563535636550320, guid: f9b297cf4251ccf4299b20adbebedf7a, type: 3}
   leftShoePrefab: {fileID: 0}
   rightShoePrefab: {fileID: 0}
