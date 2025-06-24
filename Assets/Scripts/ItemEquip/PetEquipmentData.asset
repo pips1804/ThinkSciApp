@@ -12,4 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a947bbc463056c489e61f7a3142a80e, type: 3}
   m_Name: PetEquipmentData
   m_EditorClassIdentifier: 
-  equippedItems: []
+  equippedItems:
+  - {fileID: 11400000, guid: b34d6a46606fee641856c2901dc631bf, type: 2}
+  - {fileID: 11400000, guid: 267d7573d91615341870612d3571bee2, type: 2}
+  - {fileID: 11400000, guid: b52e3e35b7838ba4d805eb0940643206, type: 2}

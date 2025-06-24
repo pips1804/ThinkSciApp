@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: bonnet-normal
   m_EditorClassIdentifier: 
   itemID: hat001
-  price: 100
+  price: 180
   itemName: Bonnet (Red)
   icon: {fileID: 217859442557980477, guid: ef9eac20120819f4ab21bad0c34b4e7c, type: 3}
   type: 0

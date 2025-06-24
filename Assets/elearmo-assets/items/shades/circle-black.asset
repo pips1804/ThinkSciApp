@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: circle-black
   m_EditorClassIdentifier: 
   itemID: shades001
-  price: 100
+  price: 150
   itemName: Circle (Black)
   icon: {fileID: -9007621414634168424, guid: c73a1cb82be3e5b45bc18a5f2161c9c9, type: 3}
   type: 1

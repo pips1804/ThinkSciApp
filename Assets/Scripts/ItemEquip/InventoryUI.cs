@@ -66,7 +66,6 @@ public class InventoryUI : MonoBehaviour
             equipButton.onClick.AddListener(() => {
                 PetEquipment.Instance.UnequipItem(item);
                 equipPanel.SetActive(false);
-                PopulateInventory(); // Refresh UI
             });
         }
         else
@@ -74,7 +73,6 @@ public class InventoryUI : MonoBehaviour
             equipButton.onClick.AddListener(() => {
                 PetEquipment.Instance.EquipItem(item);
                 equipPanel.SetActive(false);
-                PopulateInventory();
             });
         }
     }

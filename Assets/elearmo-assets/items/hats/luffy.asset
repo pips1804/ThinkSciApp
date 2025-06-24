@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: luffy
   m_EditorClassIdentifier: 
   itemID: hat004
-  price: 100
+  price: 320
   itemName: Luffy
   icon: {fileID: 9009513955766500904, guid: 6872222ac7964814cbeb67bcfb8c8059, type: 3}
   type: 0

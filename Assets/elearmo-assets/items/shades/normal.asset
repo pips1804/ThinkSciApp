@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: normal
   m_EditorClassIdentifier: 
   itemID: shades003
-  price: 100
+  price: 150
   itemName: Normal
   icon: {fileID: 2102054557489826955, guid: 240e9fc062474eb4bb8f318296b0cdbd, type: 3}
   type: 1

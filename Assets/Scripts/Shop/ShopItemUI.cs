@@ -4,23 +4,73 @@ using UnityEngine.UI;
 public class ShopItemUI : MonoBehaviour
 {
     public Image iconImage;
+    public Text nameText;
+    public Text priceText;
+    public Text ownedText;
+    public Button buyButton;
 
     private Item item;
-    private ShopBuyPanel buyPanel;
+    private ShopManager shopManager;
 
-    public void Setup(Item newItem, ShopBuyPanel panel)
+    private GameObject confirmPanel;
+    private GameObject insufficientPanel;
+
+    public void Setup(Item newItem, ShopManager manager, GameObject confirm, GameObject insufficient)
     {
         item = newItem;
-        buyPanel = panel;
+        shopManager = manager;
+        confirmPanel = confirm;
+        insufficientPanel = insufficient;
 
         iconImage.sprite = item.icon;
+        nameText.text = item.itemName;
+        priceText.text = item.price + " coins";
 
-        GetComponent<Button>().onClick.RemoveAllListeners();
-        GetComponent<Button>().onClick.AddListener(OnClick);
+        RefreshOwnershipUI();
+
+        buyButton.onClick.RemoveAllListeners();
+        buyButton.onClick.AddListener(OnBuyClick);
     }
 
-    public void OnClick()
+    private void RefreshOwnershipUI()
     {
-        buyPanel.Show(item);
+        bool isOwned = PlayerPrefs.GetInt("item_" + item.itemID, 0) == 1;
+        ownedText.text = isOwned ? "Owned" : "Not Owned";
+        buyButton.interactable = !isOwned;
+    }
+
+    private void OnBuyClick()
+    {
+        if (shopManager.HasEnoughCoins(item.price))
+        {
+            ShowConfirmPanel();
+        }
+        else
+        {
+            insufficientPanel.SetActive(true);
+        }
+    }
+
+    private void ShowConfirmPanel()
+    {
+        confirmPanel.SetActive(true);
+
+        Button confirmBtn = confirmPanel.GetComponentInChildren<Button>();
+        if (confirmBtn != null)
+        {
+            confirmBtn.onClick.RemoveAllListeners();
+            confirmBtn.onClick.AddListener(() =>
+            {
+                if (shopManager.TryPurchase(item, item.price))
+                {
+                    PlayerPrefs.SetInt("item_" + item.itemID, 1);
+                    PlayerPrefs.Save();
+
+                    RefreshOwnershipUI();
+                    shopManager.RefreshCoinsUI();
+                    confirmPanel.SetActive(false);
+                }
+            });
+        }
     }
 }

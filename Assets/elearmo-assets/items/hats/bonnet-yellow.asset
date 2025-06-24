@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: bonnet-yellow
   m_EditorClassIdentifier: 
   itemID: hat002
-  price: 100
+  price: 180
   itemName: Bonnet (Yellow)
   icon: {fileID: -2827414643024721878, guid: 398abcfe2775312408030bdd57903c85, type: 3}
   type: 0

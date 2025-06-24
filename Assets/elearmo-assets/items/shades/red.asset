@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: red
   m_EditorClassIdentifier: 
   itemID: shades004
-  price: 100
+  price: 200
   itemName: Red
   icon: {fileID: 8080913895440392153, guid: ff87464082d549344bc51e90e9d1c696, type: 3}
   type: 1

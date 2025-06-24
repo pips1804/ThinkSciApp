@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: circle-red
   m_EditorClassIdentifier: 
   itemID: shades002
-  price: 100
+  price: 150
   itemName: Circle (Red)
   icon: {fileID: 928631969550631516, guid: 5e17a759ebaf6ec49898f4a9e4a5afc2, type: 3}
   type: 1

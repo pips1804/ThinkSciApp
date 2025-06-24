@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: violet-shoe
   m_EditorClassIdentifier: 
   itemID: shoes007
-  price: 100
+  price: 200
   itemName: Violet Shoe
   icon: {fileID: -6934114611386797908, guid: 4ed2bf28a3ffabe44ae37fad5bdf775d, type: 3}
   type: 2

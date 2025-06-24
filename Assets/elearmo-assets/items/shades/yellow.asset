@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: yellow
   m_EditorClassIdentifier: 
   itemID: shades007
-  price: 100
+  price: 200
   itemName: Yellow
   icon: {fileID: -8743440119797074169, guid: 48984c0d0783e684eab1c63d4f6fb49e, type: 3}
   type: 1

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: santa
   m_EditorClassIdentifier: 
   itemID: hat006
-  price: 100
+  price: 250
   itemName: Santa
   icon: {fileID: 4242309475464582328, guid: bd7b3409f2b4e8c41b274efb0ce0c037, type: 3}
   type: 0

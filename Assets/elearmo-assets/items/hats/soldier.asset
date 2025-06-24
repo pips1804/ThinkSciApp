@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: soldier
   m_EditorClassIdentifier: 
   itemID: hat007
-  price: 100
+  price: 180
   itemName: Soldier
   icon: {fileID: 6246832655069406539, guid: 939446577804d3541a903b2cbee7038c, type: 3}
   type: 0

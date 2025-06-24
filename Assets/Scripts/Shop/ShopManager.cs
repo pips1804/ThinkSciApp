@@ -8,7 +8,6 @@ public class ShopManager : MonoBehaviour
     public Transform shopContentParent;
     public List<Item> allShopItems;
     public Text coinsText;
-    public ShopBuyPanel buyPanel;
 
     public Text textAll;
     public Text textHats;
@@ -26,10 +25,11 @@ public class ShopManager : MonoBehaviour
     public AudioClip purchase;
     public AudioClip click;
 
+    public GameObject confirmPanel;
+    public GameObject insufficientPanel;
+
     void Start()
     {
-        buyPanel.SetShopManager(this);
-
         db = FindObjectOfType<DatabaseManager>();
         if (db == null)
         {
@@ -56,7 +56,7 @@ public class ShopManager : MonoBehaviour
             {
                 GameObject go = Instantiate(shopItemPrefab, shopContentParent);
                 ShopItemUI shopItemUI = go.GetComponent<ShopItemUI>();
-                shopItemUI.Setup(item, buyPanel);
+                shopItemUI.Setup(item, this, confirmPanel, insufficientPanel);
             }
         }
     }
@@ -125,6 +125,16 @@ public class ShopManager : MonoBehaviour
         PopulateShop(ItemType.Shoes);
         SetActiveButton(textShoes);
         AudioManager.Instance.PlaySFX(click);
-    }   
+    }
+
+    public bool HasEnoughCoins(int cost)
+    {
+        return coins >= cost;
+    }
+
+    public void RefreshCoinsUI()
+    {
+        coinsText.text = coins.ToString();
+    }
 
 }

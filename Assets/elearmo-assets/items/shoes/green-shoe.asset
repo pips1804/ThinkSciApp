@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: green-shoe
   m_EditorClassIdentifier: 
   itemID: shoes003
-  price: 100
+  price: 200
   itemName: Green Shoe
   icon: {fileID: 9121352115429386624, guid: fff63a95809ebe74daa24ce937ad0a71, type: 3}
   type: 2

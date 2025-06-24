@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: heat-shoe
   m_EditorClassIdentifier: 
   itemID: shoes005
-  price: 100
+  price: 350
   itemName: Heat Shoe
   icon: {fileID: -4837778420356752168, guid: 07b9ca1fc0b7a814ab0c1a212fa76620, type: 3}
   type: 2

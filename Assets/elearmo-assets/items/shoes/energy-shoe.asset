@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: energy-shoe
   m_EditorClassIdentifier: 
   itemID: shoes001
-  price: 100
+  price: 350
   itemName: Energy Shoe
   icon: {fileID: -4872427577772430376, guid: 561fcdd311e9aa54eb5b20b13386896a, type: 3}
   type: 2

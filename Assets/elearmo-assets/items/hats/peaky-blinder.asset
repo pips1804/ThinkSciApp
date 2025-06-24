@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: peaky-blinder
   m_EditorClassIdentifier: 
   itemID: hat005
-  price: 100
+  price: 320
   itemName: Peaky Blinder
   icon: {fileID: 6116127258512270764, guid: 75d53f9d90b705643b9b2ad9f1751e43, type: 3}
   type: 0

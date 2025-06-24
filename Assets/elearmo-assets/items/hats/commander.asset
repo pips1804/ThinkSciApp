@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: commander
   m_EditorClassIdentifier: 
   itemID: hat003
-  price: 100
+  price: 250
   itemName: Commander
   icon: {fileID: -8098417938083492448, guid: eb90eeede7370354c878d7baede8aac0, type: 3}
   type: 0

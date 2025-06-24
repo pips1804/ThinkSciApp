@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: sungay
   m_EditorClassIdentifier: 
   itemID: shades005
-  price: 100
+  price: 300
   itemName: Sungay
   icon: {fileID: 5655961887739523553, guid: a87d1962d2025e141804c18f2189cb2d, type: 3}
   type: 1
