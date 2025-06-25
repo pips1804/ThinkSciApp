@@ -112,6 +112,11 @@ public class SwipeManager : MonoBehaviour
     public AudioClip correct;
     public AudioClip wrong;
 
+    public GameObject hatslot;
+    public GameObject shadeslot;
+    public GameObject shoeslotleft;
+    public GameObject shoeslotright;
+
     void Start()
     {
         enemyDefeated = false;
@@ -412,6 +417,10 @@ public class SwipeManager : MonoBehaviour
 
         if (battleManager.playerHealth <= 0)
         {
+            hatslot.SetActive(false);
+            shadeslot.SetActive(false);
+            shoeslotleft.SetActive(false);
+            shoeslotright.SetActive(false);
             battleAnim.StartCoroutine(battleAnim.PlayerFadeToSoul());
             EndQuiz();
         }
@@ -742,6 +751,11 @@ public class SwipeManager : MonoBehaviour
         // Reset shadows and any UI effects
         playerShadow.SetActive(true);
         enemyShadow.SetActive(true);
+
+        hatslot.SetActive(true);
+        shadeslot.SetActive(true);
+        shoeslotleft.SetActive(true);
+        shoeslotright.SetActive(true);
 
         // Reset player/enemy positions
         playerStartPos = playerIcon.anchoredPosition;
