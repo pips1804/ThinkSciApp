@@ -14,6 +14,9 @@ public class CreateAccountUI : MonoBehaviour
     public GameObject WarningPanel;
     public GameObject SuccessModal;
 
+    public GameObject PetIntroPanel;
+    public PetIntroManager petIntroManager;
+
 
     private void Start()
     {
@@ -85,7 +88,10 @@ public class CreateAccountUI : MonoBehaviour
     public void CloseSuccessModal()
     {
         SuccessModal.SetActive(false);
-        StartCoroutine(LoadSceneAsync("MainScene")); // Only load after modal closes
+        SuccessModal.SetActive(false);
+        CreateAccountPanel.SetActive(false);
+        PetIntroPanel.SetActive(true);
+        petIntroManager.StartIntro(); // Custom function to start dialog
     }
 
 

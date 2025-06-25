@@ -734,4 +734,33 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
+    public bool IsPetNameDefault()
+    {
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT Pet_Name FROM Pet_Table WHERE Pet_ID = 1";
+                var result = command.ExecuteScalar()?.ToString();
+                return result == "Iglot";
+            }
+        }
+    }
+
+    public void SavePetName(string newName)
+    {
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "UPDATE Pet_Table SET Pet_Name = @name WHERE Pet_ID = 1";
+                command.Parameters.AddWithValue("@name", newName);
+                command.ExecuteNonQuery();
+            }
+        }
+    }
 }
