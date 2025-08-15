@@ -28,7 +28,6 @@ public class DragHeater : MonoBehaviour, IDragHandler, IEndDragHandler
         }
     }
 
-    // Optional method to reset position and unlock
     public void ResetHeater(Vector3 startPosition)
     {
         transform.position = startPosition;
