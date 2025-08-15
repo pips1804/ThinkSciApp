@@ -1,0 +1,533 @@
+fileFormatVersion: 2
+guid: b7dc07b32021f154aa21ea33aacc38e9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 405151656157777527
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_0
+  - first:
+      213: 1451234934028352574
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_1
+  - first:
+      213: -6937427286889099466
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_2
+  - first:
+      213: 4482517605997126363
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_3
+  - first:
+      213: 2049302462907362255
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_4
+  - first:
+      213: 5807942777870635570
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_5
+  - first:
+      213: -5269655933997320906
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_6
+  - first:
+      213: 3920437042455404958
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_7
+  - first:
+      213: 3418960831862714362
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_8
+  - first:
+      213: 8237984176927306945
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_9
+  - first:
+      213: 8243379209819498390
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_10
+  - first:
+      213: -5569581871733519210
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_11
+  - first:
+      213: -7855541980398550304
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_12
+  - first:
+      213: 4897490781461242060
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_13
+  - first:
+      213: -207507503207531988
+    second: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_14
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_0
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 309
+        width: 113
+        height: 143
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77e0271e8436f9500800000000000000
+      internalID: 405151656157777527
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_1
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 361
+        width: 54
+        height: 94
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3cb568cb72d32410800000000000000
+      internalID: 1451234934028352574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_2
+      rect:
+        serializedVersion: 2
+        x: 188
+        y: 393
+        width: 48
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63f8fdd73ae49bf90800000000000000
+      internalID: -6937427286889099466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_3
+      rect:
+        serializedVersion: 2
+        x: 262
+        y: 397
+        width: 57
+        height: 84
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd2a4e4630a153e30800000000000000
+      internalID: 4482517605997126363
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_4
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 349
+        width: 158
+        height: 127
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcb2dea7bb5907c10800000000000000
+      internalID: 2049302462907362255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_5
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 220
+        width: 89
+        height: 74
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23256c64f25f99050800000000000000
+      internalID: 5807942777870635570
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_6
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 88
+        width: 282
+        height: 308
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6357f8d09db6ed6b0800000000000000
+      internalID: -5269655933997320906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_7
+      rect:
+        serializedVersion: 2
+        x: 390
+        y: 292
+        width: 83
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e9166dff7b0386630800000000000000
+      internalID: 3920437042455404958
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_8
+      rect:
+        serializedVersion: 2
+        x: 396
+        y: 210
+        width: 92
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: affa62c13c6927f20800000000000000
+      internalID: 3418960831862714362
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_9
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 133
+        width: 114
+        height: 72
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c47a0356f2335270800000000000000
+      internalID: 8237984176927306945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_10
+      rect:
+        serializedVersion: 2
+        x: 50
+        y: 3
+        width: 116
+        height: 136
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 697a12e47bd566270800000000000000
+      internalID: 8243379209819498390
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_11
+      rect:
+        serializedVersion: 2
+        x: 327
+        y: 9
+        width: 173
+        height: 134
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69c4edbebced4b2b0800000000000000
+      internalID: -5569581871733519210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_12
+      rect:
+        serializedVersion: 2
+        x: 379
+        y: 143
+        width: 89
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e20d2470328bf290800000000000000
+      internalID: -7855541980398550304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_13
+      rect:
+        serializedVersion: 2
+        x: 187
+        y: 17
+        width: 58
+        height: 92
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc06fbfeae167f340800000000000000
+      internalID: 4897490781461242060
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_14
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 18
+        width: 58
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2a36177609ce1df0800000000000000
+      internalID: -207507503207531988
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_0: 405151656157777527
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_1: 1451234934028352574
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_10: 8243379209819498390
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_11: -5569581871733519210
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_12: -7855541980398550304
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_13: 4897490781461242060
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_14: -207507503207531988
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_2: -6937427286889099466
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_3: 4482517605997126363
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_4: 2049302462907362255
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_5: 5807942777870635570
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_6: -5269655933997320906
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_7: 3920437042455404958
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_8: 3418960831862714362
+      download-yellow-sun-illustration-icon-png-701751694973584fguxalwija-removebg-preview_9: 8237984176927306945
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
