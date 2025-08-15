@@ -62,7 +62,7 @@ public class DatabaseManager : MonoBehaviour
                     first_name TEXT,
                     middle_name TEXT,
                     last_name TEXT,
-                    coins INTEGER DEFAULT 200,
+                    coins INTEGER DEFAULT 1500,
                     Pet_ID INTEGER,
                     FOREIGN KEY(Pet_ID) REFERENCES Pet_Table(Pet_ID)
                 );
@@ -139,7 +139,7 @@ public class DatabaseManager : MonoBehaviour
 
                 -- Insert User
                 INSERT INTO users (id, first_name, middle_name, last_name, coins, Pet_ID)
-                SELECT 1, 'Juan', 'Dela', 'Cruz', 1000, 1
+                SELECT 1, 'Juan', 'Dela', 'Cruz', 1500, 1
                 WHERE NOT EXISTS (SELECT 1 FROM users WHERE id = 1);
 
                 -- Insert Categories

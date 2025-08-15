@@ -144,6 +144,10 @@ public class MultipleChoice : MonoBehaviour
     public AudioClip correct;
     public AudioClip wrong;
 
+    public GameObject hatslot;
+    public GameObject shadeslot;
+    public GameObject shoeslotleft;
+    public GameObject shoeslotright;
 
     private void Awake()
     {
@@ -539,6 +543,10 @@ public class MultipleChoice : MonoBehaviour
 
         if (battleManager.playerHealth <= 0)
         {
+            hatslot.SetActive(false);
+            shadeslot.SetActive(false);
+            shoeslotleft.SetActive(false);
+            shoeslotright.SetActive(false);
             battleAnim.StartCoroutine(battleAnim.PlayerFadeToSoul());
             ShowResult();
         }
@@ -759,6 +767,11 @@ public class MultipleChoice : MonoBehaviour
         passingModal.SetActive(false);
         failingModal.SetActive(false);
         feedbackPanel.SetActive(false);
+
+        hatslot.SetActive(true);
+        shadeslot.SetActive(true);
+        shoeslotleft.SetActive(true);
+        shoeslotright.SetActive(true);
 
         // Reset shadows and any UI effects
         playerShadow.SetActive(true);

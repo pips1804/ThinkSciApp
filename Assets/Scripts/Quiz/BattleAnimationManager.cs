@@ -22,6 +22,10 @@ public class BattleAnimationManager : MonoBehaviour
     public Image playerImage; // Drag the Image component in Inspector
     public Sprite playerSoulSprite; // Drag the soul sprite in Inspector
 
+    public GameObject hatslot;
+    public GameObject shadeslot;
+    public GameObject shoeslotleft;
+    public GameObject shoeslotright;
 
     void Start()
     {
@@ -353,6 +357,11 @@ public class BattleAnimationManager : MonoBehaviour
 
     public IEnumerator FadeToSoul()
     {
+        hatslot.SetActive(false);
+        shadeslot.SetActive(false);
+        shoeslotleft.SetActive(false);
+        shoeslotright.SetActive(false);
+
         float duration = 0.5f;
         float elapsed = 0f;
 

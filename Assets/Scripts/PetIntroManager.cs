@@ -12,6 +12,9 @@ public class PetIntroManager : MonoBehaviour
     public Text clickToContinueHint;
     public DatabaseManager dbManager;
 
+    public GameObject loadingScreen;
+    public Slider loadingSlider;
+
     private Coroutine typingCoroutine;
     private Coroutine blinkCoroutine;
     private bool isTyping = false;
@@ -33,10 +36,7 @@ public class PetIntroManager : MonoBehaviour
             nameInputField.gameObject.SetActive(false);
             clickToContinueHint.gameObject.SetActive(true);
 
-            (string fname, string _, string _, int _) = dbManager.GetUser();
-            dialogLines[0] = $"Hello there, {fname}!";
-
-            typingCoroutine = StartCoroutine(TypeLine(dialogLines[0]));
+            StartIntro();
             blinkCoroutine = StartCoroutine(BlinkHint());
         }
         else
@@ -60,17 +60,21 @@ public class PetIntroManager : MonoBehaviour
             StopCoroutine(typingCoroutine);
             dialogueText.text = dialogLines[currentLine];
             isTyping = false;
-            currentLine++;
             return;
         }
 
         if (currentLine < dialogLines.Length)
         {
+            if (typingCoroutine != null)
+                StopCoroutine(typingCoroutine);
+
             typingCoroutine = StartCoroutine(TypeLine(dialogLines[currentLine]));
-            currentLine++;
         }
         else if (!isAwaitingName)
         {
+            if (typingCoroutine != null)
+                StopCoroutine(typingCoroutine);
+
             typingCoroutine = StartCoroutine(TypeLine("Please enter a name for me:"));
             nameInputField.gameObject.SetActive(true);
             clickToContinueHint.gameObject.SetActive(false);
@@ -80,7 +84,6 @@ public class PetIntroManager : MonoBehaviour
             nameInputField.ActivateInputField();
         }
     }
-
 
     public void OnNameEntered()
     {
@@ -99,6 +102,13 @@ public class PetIntroManager : MonoBehaviour
         nameInputField.gameObject.SetActive(false);
         clickToContinueHint.gameObject.SetActive(true);
         introPanel.SetActive(true);
+
+        (string fname, string _, string _, int _) = dbManager.GetUser();
+        dialogLines[0] = $"Hello there, {fname}!";
+
+        if (typingCoroutine != null)
+            StopCoroutine(typingCoroutine);
+
         typingCoroutine = StartCoroutine(TypeLine(dialogLines[currentLine]));
     }
 
@@ -110,23 +120,55 @@ public class PetIntroManager : MonoBehaviour
     private IEnumerator DelayedCloseAndLoad()
     {
         nameInputField.interactable = false;
+
+        if (typingCoroutine != null)
+            StopCoroutine(typingCoroutine);
+
         yield return StartCoroutine(TypeLine("Nice name! Let's go..."));
         yield return new WaitForSeconds(1f);
-        SceneManager.LoadScene("MainScene");
+
+        //  Step 1: Show loading screen
+        loadingScreen.SetActive(true);
+        loadingSlider.value = 0f;
+
+        //  Step 2: Force Unity to render the UI
+        yield return new WaitForEndOfFrame(); // This is critical
+
+        //  Step 3: Start loading scene
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("MainScene");
+        asyncLoad.allowSceneActivation = false;
+
+        while (!asyncLoad.isDone)
+        {
+            float progress = Mathf.Clamp01(asyncLoad.progress / 0.9f);
+            loadingSlider.value = Mathf.Lerp(loadingSlider.value, progress, Time.deltaTime * 10f);
+
+            if (asyncLoad.progress >= 0.9f)
+            {
+                yield return new WaitForSeconds(0.5f);
+                asyncLoad.allowSceneActivation = true;
+            }
+
+            yield return null;
+        }
     }
+
+
 
     private IEnumerator TypeLine(string line)
     {
         isTyping = true;
         dialogueText.text = "";
+
         foreach (char c in line)
         {
             dialogueText.text += c;
             yield return new WaitForSeconds(0.03f);
         }
-        isTyping = false;
-    }
 
+        isTyping = false;
+        currentLine++;
+    }
 
     private IEnumerator BlinkHint()
     {
@@ -138,5 +180,4 @@ public class PetIntroManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
     }
-
 }

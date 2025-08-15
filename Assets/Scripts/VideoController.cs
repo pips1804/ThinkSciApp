@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using System.Collections;
 
 public class VideoController : MonoBehaviour
 {
@@ -24,6 +25,8 @@ public class VideoController : MonoBehaviour
     private bool isDragging = false;
 
     public Button takeQuizButton;
+
+    public AudioSource bgMusic;
 
     void Start()
     {
@@ -63,12 +66,20 @@ public class VideoController : MonoBehaviour
     void TogglePlayPause()
     {
         if (videoPlayer.isPlaying)
+        {
             videoPlayer.Pause();
+            StartCoroutine(FadeAudio(bgMusic, 1f, 1f)); // Fade in over 1 sec
+        }
         else
+        {
             videoPlayer.Play();
+            StartCoroutine(FadeAudio(bgMusic, 0f, 1f)); // Fade out over 1 sec
+        }
 
         UpdatePlayPauseIcon();
     }
+
+
 
     void UpdatePlayPauseIcon()
     {
@@ -103,15 +114,16 @@ public class VideoController : MonoBehaviour
     void OnCenterPlayClicked()
     {
         videoPlayer.Play();
-        UpdatePlayPauseIcon(); // Sync bottom button if you're using it too
-        centerPlayButton.gameObject.SetActive(false); // Hide the overlay button
+        StartCoroutine(FadeAudio(bgMusic, 0f, 1f)); // Fade out
+        UpdatePlayPauseIcon();
+        centerPlayButton.gameObject.SetActive(false);
     }
 
     void OnVideoFinished(VideoPlayer vp)
     {
         centerPlayButton.gameObject.SetActive(true);
-
         takeQuizButton.interactable = true;
+        StartCoroutine(FadeAudio(bgMusic, 1f, 1f)); // Fade in
     }
 
     void OnVideoPrepared(VideoPlayer vp) => UpdateTimeUI();
@@ -146,4 +158,29 @@ public class VideoController : MonoBehaviour
             Screen.orientation = ScreenOrientation.Portrait; // Optional
         }
     }
+
+    IEnumerator FadeAudio(AudioSource audioSource, float targetVolume, float duration)
+    {
+        float currentTime = 0f;
+        float startVolume = audioSource.volume;
+
+        while (currentTime < duration)
+        {
+            currentTime += Time.deltaTime;
+            audioSource.volume = Mathf.Lerp(startVolume, targetVolume, currentTime / duration);
+            yield return null;
+        }
+
+        audioSource.volume = targetVolume;
+
+        if (Mathf.Approximately(targetVolume, 0f))
+        {
+            audioSource.Pause(); // Pause fully when volume is 0
+        }
+        else if (!audioSource.isPlaying)
+        {
+            audioSource.Play(); // Resume only if not already playing
+        }
+    }
+
 }
