@@ -18,6 +18,12 @@ public class ParticleManager : MonoBehaviour
     public float hotSpeed = 5f;
     public float transitionTime = 1.5f; // seconds
 
+    [Header("Flame Settings")]
+    public Image[] flameImages; // Drag your 6 flame UI Images here
+    public float flamePulseSpeed = 2f;
+    public float flameScaleAmount = 0.1f;
+    public float flameFlickerStrength = 0.3f; // brightness flicker range
+
     private Rigidbody2D[] particles;
     private Image[] particleImages;
     private Vector2[] gridPositions;
@@ -51,7 +57,7 @@ public class ParticleManager : MonoBehaviour
 
                 Rigidbody2D rb = p.GetComponent<Rigidbody2D>();
                 rb.gravityScale = 0;
-                rb.linearVelocity = Vector2.zero; // stay still at start
+                rb.linearVelocity = Vector2.zero;
 
                 Image img = p.GetComponent<Image>();
                 img.color = Color.blue;
@@ -61,11 +67,35 @@ public class ParticleManager : MonoBehaviour
                 index++;
             }
         }
+
+        // Hide flames at start
+        foreach (var flame in flameImages)
+        {
+            var c = flame.color;
+            flame.color = new Color(c.r, c.g, c.b, 0f);
+        }
     }
 
     void Update()
     {
         HandleBounds();
+
+        // 🔥 Animate flames only when hot
+        if (isHot && flameImages != null)
+        {
+            float scale = 1f + Mathf.Sin(Time.time * flamePulseSpeed) * flameScaleAmount;
+
+            foreach (var flame in flameImages)
+            {
+                // Pulse size
+                flame.transform.localScale = Vector3.one * scale;
+
+                // Flicker brightness
+                float flicker = 1f - Random.Range(0f, flameFlickerStrength);
+                Color baseColor = Color.red; // you can also use gradient here
+                flame.color = new Color(baseColor.r * flicker, baseColor.g * flicker * 0.8f, baseColor.b * flicker * 0.5f, flame.color.a);
+            }
+        }
     }
 
     void HandleBounds()
@@ -97,6 +127,7 @@ public class ParticleManager : MonoBehaviour
 
         StopAllCoroutines();
         StartCoroutine(HeatUpRoutine());
+        StartCoroutine(FadeFlamesIn());
     }
 
     public void CoolDown()
@@ -107,6 +138,7 @@ public class ParticleManager : MonoBehaviour
 
         StopAllCoroutines();
         StartCoroutine(CoolDownRoutine());
+        StartCoroutine(FadeFlamesOut());
     }
 
     IEnumerator HeatUpRoutine()
@@ -122,15 +154,12 @@ public class ParticleManager : MonoBehaviour
             for (int i = 0; i < particles.Length; i++)
             {
                 particleImages[i].color = Color.Lerp(particleImages[i].color, Color.red, t);
-
-                // Always set a new random direction at the current speed
                 particles[i].linearVelocity = Random.insideUnitCircle.normalized * currentSpeed;
             }
 
             yield return null;
         }
 
-        // After transition, keep them moving at max hot speed
         while (isHot)
         {
             for (int i = 0; i < particles.Length; i++)
@@ -140,7 +169,6 @@ public class ParticleManager : MonoBehaviour
             yield return null;
         }
     }
-
 
     IEnumerator CoolDownRoutine()
     {
@@ -162,12 +190,41 @@ public class ParticleManager : MonoBehaviour
             {
                 particleImages[i].color = Color.Lerp(particleImages[i].color, Color.blue, t);
 
-                // Move back to grid slowly
                 Vector2 targetPos = Vector2.Lerp(startPositions[i], gridPositions[i], t);
                 particles[i].MovePosition(container.TransformPoint(targetPos));
                 particles[i].linearVelocity = Vector2.zero;
             }
 
+            yield return null;
+        }
+    }
+
+    IEnumerator FadeFlamesIn()
+    {
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / 0.8f;
+            foreach (var flame in flameImages)
+            {
+                var c = flame.color;
+                flame.color = new Color(c.r, c.g, c.b, Mathf.Lerp(c.a, 1f, t));
+            }
+            yield return null;
+        }
+    }
+
+    IEnumerator FadeFlamesOut()
+    {
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / 0.8f;
+            foreach (var flame in flameImages)
+            {
+                var c = flame.color;
+                flame.color = new Color(c.r, c.g, c.b, Mathf.Lerp(c.a, 0f, t));
+            }
             yield return null;
         }
     }
