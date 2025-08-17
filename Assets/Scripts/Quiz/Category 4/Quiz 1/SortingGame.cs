@@ -8,58 +8,82 @@ public class SortingGame : MonoBehaviour
     public Image earthImage;             // The UI Image for Earth health
     public Sprite[] earthStates;         // 5 sprites from healthy to polluted
     public Text scoreText;               // UI text for score display
+    public Text iconNameText;            // UI text to show current icon name
+    public Button switchBinButton;       // Button to switch bin mode
+    public Text binModeText;             // UI text to show current bin mode
 
     [Header("Game Settings")]
-    public Transform spawnPoint;         // Where icons start
+    public RectTransform spawnArea;      // Parent canvas/area for spawning
     public GameObject[] energyIcons;     // Prefabs for energy sources
-    public Transform greenBin;           // Target bin for renewable
-    public Transform fossilBin;          // Target bin for fossil fuels
-    public float fallSpeed = 2f;         // Speed of falling icons
+    public string[] iconNames;           // Names for each icon (match index with energyIcons)
+    public bool[] isRenewableIcon;       // True if icon at index is renewable, false if fossil
+
+    [Header("Bin Settings")]
+    public Image binImage;                 // UI Image for the bin
+    public Sprite renewableBinSprite;      // Sprite when in Renewable mode
+    public Sprite fossilBinSprite;         // Sprite when in Fossil mode
+    public float catchRange = 100f;        // Distance allowed for catching
+    public float binMoveSpeed = 600f;           // Single bin (player controlled)
+    public float fallDuration = 3f;       // Time for icon to fall from top to bottom
     public int maxIcons = 10;            // Limit number of icons
 
+    [Header("Game State")]
     private int currentEarthState = 0;
     private int score = 0;
     private GameObject currentIcon;
     private int iconsSpawned = 0;
     private int consecutiveCorrect = 0;
+    private bool binIsRenewable = true;  // Current bin mode
+    private Coroutine fallingCoroutine;  // Track the falling animation
 
     void Start()
     {
         UpdateScore();
+        switchBinButton.onClick.AddListener(SwitchBinMode);
+        UpdateBinModeUI();
         SpawnNewIcon();
     }
 
     void Update()
     {
-        if (currentIcon != null)
+        HandleBinMovement();
+    }
+
+    void HandleBinMovement()
+    {
+        float move = 0;
+
+        // Keyboard input (for testing on PC)
+        move = Input.GetAxis("Horizontal"); // -1 = left, +1 = right
+
+        // Touch input (for mobile)
+        if (Input.touchCount > 0)
         {
-            // Move the icon downward
-            currentIcon.transform.Translate(Vector2.down * fallSpeed * Time.deltaTime);
+            Touch touch = Input.GetTouch(0);
+            Vector2 touchPos = touch.position;
 
-            // Touch input (mobile)
-            if (Input.touchCount > 0)
-            {
-                Touch touch = Input.GetTouch(0);
-                Vector2 localPos;
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    spawnPoint.parent as RectTransform,
-                    touch.position,
-                    null, // null means screen space overlay canvas
-                    out localPos
-                );
+            // Convert screen touch to local UI position
+            Vector2 localPos;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                spawnArea, touchPos, null, out localPos);
 
-                // Move icon with finger
-                if (touch.phase == TouchPhase.Moved)
-                {
-                    currentIcon.GetComponent<RectTransform>().anchoredPosition = localPos;
-                }
+            // Move bin directly towards touch X
+            binImage.rectTransform.anchoredPosition = new Vector2(localPos.x, binImage.rectTransform.anchoredPosition.y);
+            return;
+        }
 
-                // Drop icon and check if it hits a bin
-                if (touch.phase == TouchPhase.Ended)
-                {
-                    CheckIconPlacement();
-                }
-            }
+        // Apply movement (keyboard / joystick)
+        if (move != 0)
+        {
+            Vector2 pos = binImage.rectTransform.anchoredPosition;
+            pos.x += move * binMoveSpeed * Time.deltaTime;
+
+            // Clamp inside spawn area
+            float halfWidth = spawnArea.rect.width / 2f;
+            float binHalf = binImage.rectTransform.rect.width / 2f;
+            pos.x = Mathf.Clamp(pos.x, -halfWidth + binHalf, halfWidth - binHalf);
+
+            binImage.rectTransform.anchoredPosition = pos;
         }
     }
 
@@ -72,45 +96,165 @@ public class SortingGame : MonoBehaviour
         }
 
         int randIndex = Random.Range(0, energyIcons.Length);
-        currentIcon = Instantiate(energyIcons[randIndex]);
-        currentIcon.transform.SetParent(spawnPoint.parent, false);
+        currentIcon = Instantiate(energyIcons[randIndex], spawnArea);
 
-        // Set anchored position so it spawns exactly at the spawn point in UI space
+        // Random X spawn at top of screen
+        float randomX = Random.Range(-spawnArea.rect.width / 2, spawnArea.rect.width / 2);
         RectTransform iconRect = currentIcon.GetComponent<RectTransform>();
-        RectTransform spawnRect = spawnPoint.GetComponent<RectTransform>();
-        iconRect.anchoredPosition = spawnRect.anchoredPosition;
+        iconRect.anchoredPosition = new Vector2(randomX, spawnArea.rect.height / 2);
+
+        // Show icon name
+        iconNameText.text = iconNames[randIndex];
 
         iconsSpawned++;
+
+        // Start the falling animation
+        fallingCoroutine = StartCoroutine(AnimateIconFalling(iconRect, randIndex));
     }
 
-    void CheckIconPlacement()
+    IEnumerator AnimateIconFalling(RectTransform iconRect, int iconIndex)
     {
-        RectTransform iconRect = currentIcon.GetComponent<RectTransform>();
-        RectTransform greenRect = greenBin.GetComponent<RectTransform>();
-        RectTransform fossilRect = fossilBin.GetComponent<RectTransform>();
+        float startY = spawnArea.rect.height / 2;
+        float endY = -spawnArea.rect.height / 2; // Bottom of screen
+        float binY = binImage.rectTransform.anchoredPosition.y;
 
-        // Compare in anchoredPosition (UI local space)
-        float distanceToGreen = Vector2.Distance(iconRect.anchoredPosition, greenRect.anchoredPosition);
-        float distanceToFossil = Vector2.Distance(iconRect.anchoredPosition, fossilRect.anchoredPosition);
+        float elapsedTime = 0f;
+        Vector2 startPos = iconRect.anchoredPosition;
+        Vector2 endPos = new Vector2(startPos.x, endY);
 
-        // Identify if icon is renewable or fossil
-        bool isRenewable = currentIcon.CompareTag("Renewable");
+        bool hasCheckedBin = false;
 
-        if (distanceToGreen < 100f && isRenewable)
+        while (elapsedTime < fallDuration)
         {
-            CorrectAnswer();
+            // Calculate current position using smooth animation
+            float t = elapsedTime / fallDuration;
+            // Use ease-in curve for more realistic falling
+            float easedT = t * t;
+
+            Vector2 currentPos = Vector2.Lerp(startPos, endPos, easedT);
+            iconRect.anchoredPosition = currentPos;
+
+            // Check if icon has reached bin level and hasn't been checked yet
+            if (!hasCheckedBin && currentPos.y <= binY + 50f)
+            {
+                hasCheckedBin = true;
+                CheckIconPlacement(iconIndex);
+                // Don't break here - let the icon continue falling for visual effect
+            }
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
         }
-        else if (distanceToFossil < 100f && !isRenewable)
+
+        // If somehow we missed the bin check, do it now
+        if (!hasCheckedBin)
         {
-            CorrectAnswer();
+            CheckIconPlacement(iconIndex);
+        }
+
+        // Clean up and spawn next icon
+        if (currentIcon != null)
+        {
+            Destroy(currentIcon);
+            currentIcon = null;
+        }
+
+        SpawnNewIcon();
+    }
+
+    void SwitchBinMode()
+    {
+        binIsRenewable = !binIsRenewable;
+        UpdateBinModeUI();
+    }
+
+    void UpdateBinModeUI()
+    {
+        binModeText.text = binIsRenewable ? "Bin Mode: Renewable 🌱" : "Bin Mode: Fossil ⛽";
+
+        // Remember current position before changing sprite
+        Vector2 currentPos = binImage.rectTransform.anchoredPosition;
+
+        // Change the sprite
+        binImage.sprite = binIsRenewable ? renewableBinSprite : fossilBinSprite;
+
+        // Restore the position (in case sprite change affected it)
+        binImage.rectTransform.anchoredPosition = currentPos;
+    }
+
+    void CheckIconPlacement(int iconIndex)
+    {
+        if (currentIcon == null) return;
+
+        RectTransform iconRect = currentIcon.GetComponent<RectTransform>();
+        Vector2 iconPos = iconRect.anchoredPosition;
+        Vector2 binPos = binImage.rectTransform.anchoredPosition;
+        float distanceToBin = Vector2.Distance(iconPos, binPos);
+
+        // Check if the icon is renewable based on the array
+        bool isRenewable = isRenewableIcon[iconIndex];
+
+        Debug.Log($"Icon {iconNames[iconIndex]} position: {iconPos}");
+        Debug.Log($"Bin position: {binPos}");
+        Debug.Log($"Distance: {distanceToBin}, CatchRange: {catchRange}");
+        Debug.Log($"Icon renewable: {isRenewable}, Bin renewable: {binIsRenewable}");
+
+        // Use a more generous catch range - check both distance and X overlap
+        float horizontalDistance = Mathf.Abs(iconPos.x - binPos.x);
+        float binWidth = binImage.rectTransform.rect.width;
+        bool isInHorizontalRange = horizontalDistance < (binWidth / 2 + 50f); // Bin width + 50 pixels extra
+
+        Debug.Log($"Horizontal distance: {horizontalDistance}, Bin width: {binWidth}, In range: {isInHorizontalRange}");
+
+        if (isInHorizontalRange)
+        {
+            // Correct if: renewable icon in renewable bin OR fossil icon in fossil bin
+            if ((binIsRenewable && isRenewable) || (!binIsRenewable && !isRenewable))
+            {
+                Debug.Log("CORRECT ANSWER!");
+                CorrectAnswer();
+                StartCoroutine(ShowCorrectFeedback());
+            }
+            else
+            {
+                Debug.Log("WRONG TYPE!");
+                WrongAnswer();
+                StartCoroutine(ShowWrongFeedback());
+            }
         }
         else
         {
+            Debug.Log("MISSED BIN!");
             WrongAnswer();
+            StartCoroutine(ShowMissedFeedback());
         }
+    }
 
-        Destroy(currentIcon);
-        SpawnNewIcon();
+    IEnumerator ShowCorrectFeedback()
+    {
+        // Flash bin green
+        Color originalColor = binImage.color;
+        binImage.color = Color.green;
+        yield return new WaitForSeconds(0.2f);
+        binImage.color = originalColor;
+    }
+
+    IEnumerator ShowWrongFeedback()
+    {
+        // Flash bin red
+        Color originalColor = binImage.color;
+        binImage.color = Color.red;
+        yield return new WaitForSeconds(0.2f);
+        binImage.color = originalColor;
+    }
+
+    IEnumerator ShowMissedFeedback()
+    {
+        // Flash bin yellow (missed)
+        Color originalColor = binImage.color;
+        binImage.color = Color.yellow;
+        yield return new WaitForSeconds(0.2f);
+        binImage.color = originalColor;
     }
 
     void CorrectAnswer()
@@ -118,7 +262,6 @@ public class SortingGame : MonoBehaviour
         score += 10;
         consecutiveCorrect++;
 
-        // Recover earth state after 2 consecutive correct answers
         if (consecutiveCorrect >= 2 && currentEarthState > 0)
         {
             currentEarthState--;
@@ -131,34 +274,25 @@ public class SortingGame : MonoBehaviour
 
     void WrongAnswer()
     {
-        consecutiveCorrect = 0; // reset streak
-
+        consecutiveCorrect = 0;
         currentEarthState++;
 
         if (currentEarthState < earthStates.Length)
-        {
             StartCoroutine(AnimateEarthChange(earthStates[currentEarthState], true));
-        }
         else
-        {
             GameOver();
-        }
     }
 
     IEnumerator AnimateEarthChange(Sprite newSprite, bool isWrong)
     {
         if (isWrong)
         {
-            // Shake + fade effect
             float shakeDuration = 0.3f;
             float shakeMagnitude = 10f;
             Vector3 originalPos = earthImage.rectTransform.anchoredPosition;
             Image img = earthImage;
-
-            // Store the original sprite for fade blending
             Sprite oldSprite = img.sprite;
 
-            // Create a temporary overlay image for the fade
             GameObject overlayObj = new GameObject("EarthOverlay");
             overlayObj.transform.SetParent(img.transform.parent, false);
             Image overlayImg = overlayObj.AddComponent<Image>();
@@ -168,36 +302,31 @@ public class SortingGame : MonoBehaviour
             overlayImg.preserveAspect = true;
             overlayImg.raycastTarget = false;
 
-            // Set base image to the new sprite but invisible
             img.sprite = newSprite;
             img.color = new Color(1, 1, 1, 0);
 
             float elapsed = 0f;
             while (elapsed < shakeDuration)
             {
-                // Shake position
                 float x = Random.Range(-1f, 1f) * shakeMagnitude;
                 float y = Random.Range(-1f, 1f) * shakeMagnitude;
                 img.rectTransform.anchoredPosition = originalPos + new Vector3(x, y, 0);
                 overlayImg.rectTransform.anchoredPosition = img.rectTransform.anchoredPosition;
 
-                // Fade between old and new
                 float fadeT = elapsed / shakeDuration;
-                overlayImg.color = new Color(1, 1, 1, 1f - fadeT); // old fades out
-                img.color = new Color(1, 1, 1, fadeT);             // new fades in
+                overlayImg.color = new Color(1, 1, 1, 1f - fadeT);
+                img.color = new Color(1, 1, 1, fadeT);
 
                 elapsed += Time.deltaTime;
                 yield return null;
             }
 
-            // Reset position & remove overlay
             img.rectTransform.anchoredPosition = originalPos;
             Destroy(overlayObj);
             img.color = Color.white;
         }
         else
         {
-            // Smooth pop transition
             float duration = 0.2f;
             Vector3 originalScale = earthImage.rectTransform.localScale;
             Vector3 enlargedScale = originalScale * 1.2f;
@@ -226,16 +355,26 @@ public class SortingGame : MonoBehaviour
         }
     }
 
-
-
     void UpdateScore()
     {
-        scoreText.text =  score.ToString();
+        scoreText.text = score.ToString();
     }
 
     void GameOver()
     {
         Debug.Log("Game Over! The Earth is fully polluted or all icons used.");
-        // Show Game Over panel if desired
+
+        // Stop any current falling animation
+        if (fallingCoroutine != null)
+        {
+            StopCoroutine(fallingCoroutine);
+        }
+
+        // Clean up current icon
+        if (currentIcon != null)
+        {
+            Destroy(currentIcon);
+            currentIcon = null;
+        }
     }
 }
