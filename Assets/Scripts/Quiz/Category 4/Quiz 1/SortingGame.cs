@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
@@ -9,8 +9,7 @@ public class SortingGame : MonoBehaviour
     public Sprite[] earthStates;         // 5 sprites from healthy to polluted
     public Text scoreText;               // UI text for score display
     public Text iconNameText;            // UI text to show current icon name
-    public Button switchBinButton;       // Button to switch bin mode
-    public Text binModeText;             // UI text to show current bin mode
+    public Slider progressSlider; // UI Slider to track progress
 
     [Header("Game Settings")]
     public RectTransform spawnArea;      // Parent canvas/area for spawning
@@ -27,6 +26,9 @@ public class SortingGame : MonoBehaviour
     public float fallDuration = 3f;       // Time for icon to fall from top to bottom
     public int maxIcons = 10;            // Limit number of icons
 
+    [Header("Double Tap Settings")]
+    public float doubleTapTimeWindow = 0.5f;  // Time window for double tap detection
+
     [Header("Game State")]
     private int currentEarthState = 0;
     private int score = 0;
@@ -36,17 +38,31 @@ public class SortingGame : MonoBehaviour
     private bool binIsRenewable = true;  // Current bin mode
     private Coroutine fallingCoroutine;  // Track the falling animation
 
+    // Double tap detection variables
+    private float lastTapTime = 0f;
+    private int tapCount = 0;
+    private bool isDragging = false;
+    private Vector2 lastTouchPosition;
+
     void Start()
     {
         UpdateScore();
-        switchBinButton.onClick.AddListener(SwitchBinMode);
         UpdateBinModeUI();
+
+        if (progressSlider != null)
+        {
+            progressSlider.minValue = 0;
+            progressSlider.maxValue = maxIcons;
+            progressSlider.value = 0;
+        }
+
         SpawnNewIcon();
     }
 
     void Update()
     {
         HandleBinMovement();
+        HandleDoubleTap();
     }
 
     void HandleBinMovement()
@@ -62,13 +78,32 @@ public class SortingGame : MonoBehaviour
             Touch touch = Input.GetTouch(0);
             Vector2 touchPos = touch.position;
 
-            // Convert screen touch to local UI position
-            Vector2 localPos;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                spawnArea, touchPos, null, out localPos);
+            if (touch.phase == TouchPhase.Began)
+            {
+                isDragging = false;
+                lastTouchPosition = touchPos;
+            }
+            else if (touch.phase == TouchPhase.Moved)
+            {
+                // Check if touch moved enough to be considered a drag
+                float dragDistance = Vector2.Distance(touchPos, lastTouchPosition);
+                if (dragDistance > 10f) // 10 pixel threshold for drag detection
+                {
+                    isDragging = true;
+                }
 
-            // Move bin directly towards touch X
-            binImage.rectTransform.anchoredPosition = new Vector2(localPos.x, binImage.rectTransform.anchoredPosition.y);
+                if (isDragging)
+                {
+                    // Convert screen touch to local UI position
+                    Vector2 localPos;
+                    RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                        spawnArea, touchPos, null, out localPos);
+
+                    // Move bin directly towards touch X
+                    Vector2 currentBinPos = binImage.rectTransform.anchoredPosition;
+                    binImage.rectTransform.anchoredPosition = new Vector2(localPos.x, currentBinPos.y);
+                }
+            }
             return;
         }
 
@@ -85,6 +120,100 @@ public class SortingGame : MonoBehaviour
 
             binImage.rectTransform.anchoredPosition = pos;
         }
+    }
+
+    void HandleDoubleTap()
+    {
+        // Handle mouse clicks (for testing on PC)
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector2 mousePos = Input.mousePosition;
+            if (IsTouchingBin(mousePos))
+            {
+                RegisterTap();
+            }
+        }
+
+        // Handle touch input (for mobile) - only register taps, not drags
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Ended && !isDragging)
+            {
+                if (IsTouchingBin(touch.position))
+                {
+                    RegisterTap();
+                }
+            }
+        }
+
+        // Reset tap count after time window
+        if (Time.time - lastTapTime > doubleTapTimeWindow)
+        {
+            tapCount = 0;
+        }
+    }
+
+    bool IsTouchingBin(Vector2 screenPosition)
+    {
+        // Convert screen position to local position relative to the bin
+        Vector2 localPos;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            binImage.rectTransform, screenPosition, null, out localPos);
+
+        // Check if the touch is within the bin's bounds
+        Rect binRect = binImage.rectTransform.rect;
+        return binRect.Contains(localPos);
+    }
+
+    void RegisterTap()
+    {
+        float currentTime = Time.time;
+
+        if (currentTime - lastTapTime <= doubleTapTimeWindow)
+        {
+            tapCount++;
+            if (tapCount >= 2)
+            {
+                // Double tap detected!
+                SwitchBinMode();
+                tapCount = 0; // Reset
+            }
+        }
+        else
+        {
+            tapCount = 1; // First tap
+        }
+
+        lastTapTime = currentTime;
+    }
+
+    void SwitchBinMode()
+    {
+        binIsRenewable = !binIsRenewable;
+        UpdateBinModeUI();
+    }
+
+    void UpdateBinModeUI()
+    {
+        // Store current position and scale before changing sprite
+        Vector2 currentPos = binImage.rectTransform.anchoredPosition;
+        Vector3 currentScale = binImage.rectTransform.localScale;
+        Quaternion currentRotation = binImage.rectTransform.rotation;
+
+        // Change the sprite
+        binImage.sprite = binIsRenewable ? renewableBinSprite : fossilBinSprite;
+
+        // Explicitly restore all transform properties to prevent any shifts
+        binImage.rectTransform.anchoredPosition = currentPos;
+        binImage.rectTransform.localScale = currentScale;
+        binImage.rectTransform.rotation = currentRotation;
+
+        // Force layout rebuild to ensure position stays exactly where it was
+        LayoutRebuilder.ForceRebuildLayoutImmediate(binImage.rectTransform);
+
+        // Additional safety measure - set position again after layout rebuild
+        binImage.rectTransform.anchoredPosition = currentPos;
     }
 
     void SpawnNewIcon()
@@ -107,6 +236,10 @@ public class SortingGame : MonoBehaviour
         iconNameText.text = iconNames[randIndex];
 
         iconsSpawned++;
+
+        if (progressSlider != null)
+            progressSlider.value = iconsSpawned;
+
 
         // Start the falling animation
         fallingCoroutine = StartCoroutine(AnimateIconFalling(iconRect, randIndex));
@@ -160,26 +293,6 @@ public class SortingGame : MonoBehaviour
         }
 
         SpawnNewIcon();
-    }
-
-    void SwitchBinMode()
-    {
-        binIsRenewable = !binIsRenewable;
-        UpdateBinModeUI();
-    }
-
-    void UpdateBinModeUI()
-    {
-        binModeText.text = binIsRenewable ? "Bin Mode: Renewable 🌱" : "Bin Mode: Fossil ⛽";
-
-        // Remember current position before changing sprite
-        Vector2 currentPos = binImage.rectTransform.anchoredPosition;
-
-        // Change the sprite
-        binImage.sprite = binIsRenewable ? renewableBinSprite : fossilBinSprite;
-
-        // Restore the position (in case sprite change affected it)
-        binImage.rectTransform.anchoredPosition = currentPos;
     }
 
     void CheckIconPlacement(int iconIndex)
