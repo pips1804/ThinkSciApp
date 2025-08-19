@@ -53,6 +53,9 @@ public class HeatTheMetal : MonoBehaviour
     public Question[] questionsScenario2;
     public Question[] questionsScenario3;
 
+    [Header("Dialogue Reference")]
+    public Dialogues dialogueManager; // <-- Reference to Dialogue script
+
     private int currentQuestionIndex = 0;
     private bool isHeating = false;
     private float heatProgress = 0f;
@@ -85,10 +88,26 @@ public class HeatTheMetal : MonoBehaviour
     public void StartGame()
     {
         introPanel.SetActive(false);
-        gamePanel.SetActive(true);
-        isHeating = false;
-        heatProgress = 0f;
-        heatTheMetalPanel.SetActive(true);
+
+        dialogueManager.StartDialogue(1);
+
+        // When dialogue finishes, continue to scenario 1 gameplay
+        StartCoroutine(WaitForDialogueThen(() =>
+        {
+            gamePanel.SetActive(true);
+            isHeating = false;
+            heatProgress = 0f;
+            heatTheMetalPanel.SetActive(true);
+        }));
+    }
+
+    IEnumerator WaitForDialogueThen(System.Action onFinish)
+    {
+        // Wait until dialogue panel is closed
+        while (dialogueManager.dialoguePanel.activeSelf)
+            yield return null;
+
+        onFinish?.Invoke();
     }
 
     void Update()
@@ -150,21 +169,15 @@ public class HeatTheMetal : MonoBehaviour
         quizPanel.SetActive(false);
         resultPanel.SetActive(true);
         gamePanel.SetActive(false);
-        messagePanel.SetActive(true);
-        messageText.text = "Great job helping your pet!";
-        StartCoroutine(WaitAndStartScenario2());
-    }
 
-    IEnumerator WaitAndStartScenario2()
-    {
-        yield return new WaitForSeconds(messageDisplayTime);
-        resultPanel.SetActive(false);
-        messagePanel.SetActive(true);
-        messageText.text = "Help your pet warm the room!";
-        yield return new WaitForSeconds(messageDisplayTime);
-        messagePanel.SetActive(false);
-        heatTheMetalPanel.SetActive(false);
-        StartScenario2();
+        // 🔹 Show Dialogue before Scenario 2
+        dialogueManager.StartDialogue(2);
+        StartCoroutine(WaitForDialogueThen(() =>
+        {
+            resultPanel.SetActive(false);
+            heatTheMetalPanel.SetActive(false);
+            StartScenario2();
+        }));
     }
 
     void StartScenario2()
@@ -176,13 +189,11 @@ public class HeatTheMetal : MonoBehaviour
         coolAirArrows.SetActive(false);
     }
 
-    // Called by FireDragHandler
     public void FirePlacedSuccess()
     {
         isHeating = true;
     }
 
-    // Called by HeaterDragHandler
     public void HeaterPlacedSuccess()
     {
         warmAirArrows.SetActive(true);
@@ -199,24 +210,11 @@ public class HeatTheMetal : MonoBehaviour
 
         while (true)
         {
-            // PingPong value from 0 to 1
             float t = Mathf.PingPong(Time.time * moveSpeed, 1f);
-
-            // Move warm arrow up
             warmAirArrows.transform.localPosition = warmStart + Vector3.up * Mathf.Lerp(0, moveDistance, t);
-
-            // Move cool arrow down
             coolAirArrows.transform.localPosition = coolStart + Vector3.down * Mathf.Lerp(0, moveDistance, t);
-
             yield return null;
         }
-    }
-
-    public void ResetArrows()
-    {
-        if (arrowAnim != null) StopCoroutine(arrowAnim);
-        warmAirArrows.SetActive(false);
-        coolAirArrows.SetActive(false);
     }
 
     void StartQuizScenario2()
@@ -241,8 +239,6 @@ public class HeatTheMetal : MonoBehaviour
 
     public void SelectAnswerScenario2(int index)
     {
-        Question q = questionsScenario2[currentQuestionIndex];
-        Debug.Log(index == q.correctAnswerIndex ? "Correct!" : "Wrong!");
         currentQuestionIndex++;
         if (currentQuestionIndex < questionsScenario2.Length)
             ShowQuestionScenario2();
@@ -254,21 +250,14 @@ public class HeatTheMetal : MonoBehaviour
     {
         quizPanel.SetActive(false);
         gamePanel.SetActive(false);
-        messagePanel.SetActive(true);
-        messageText.text = "Great job warming the room!\nYour pet is happy!";
-        StartCoroutine(WaitAndStartScenario3());
-        warmRoomPanel.SetActive(false);
-    }
 
-    IEnumerator WaitAndStartScenario3()
-    {
-        yield return new WaitForSeconds(messageDisplayTime);
-        messagePanel.SetActive(true);
-        messageText.text = "Help your pet adjust the solar panel!";
-
-        yield return new WaitForSeconds(messageDisplayTime);
-        messagePanel.SetActive(false);
-        StartScenario3();
+        // 🔹 Show Dialogue before Scenario 3
+        dialogueManager.StartDialogue(3);
+        StartCoroutine(WaitForDialogueThen(() =>
+        {
+            warmRoomPanel.SetActive(false);
+            StartScenario3();
+        }));
     }
 
     void StartScenario3()
@@ -286,7 +275,7 @@ public class HeatTheMetal : MonoBehaviour
 
     void OnSliderChanged(float value)
     {
-        float rotation = Mathf.Lerp(0f, 90f, value); // map slider 0-1 to 0-90 degrees
+        float rotation = Mathf.Lerp(0f, 90f, value);
         solarPanelImage.localEulerAngles = new Vector3(0, 0, rotation);
     }
 
@@ -305,10 +294,7 @@ public class HeatTheMetal : MonoBehaviour
             {
                 scenario3Completed = true;
                 scenario3Active = false;
-
-                // Disable the slider so the player can't move it anymore
                 rotationSlider.interactable = false;
-
                 StartQuizScenario3();
             }
         }
