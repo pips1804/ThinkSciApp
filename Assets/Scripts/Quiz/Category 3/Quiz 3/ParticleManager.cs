@@ -24,6 +24,22 @@ public class ParticleManager : MonoBehaviour
     public float flameScaleAmount = 0.1f;
     public float flameFlickerStrength = 0.3f; // brightness flicker range
 
+    [Header("UI Panels")]
+    public GameObject messagePanel;   // drag a simple panel with text + button
+    public Text messageText;
+    public Button messageButton;
+
+    [Header("Panel")]
+    public GameObject potBackground;
+    public GameObject controllerBackground;
+    public GameObject quizPanel;
+
+    [Header("Timer")]
+    public float simulationDuration = 10f; // ⏳ set in inspector
+
+    [Header("Quiz Manager")]
+    public QuizManager quizManager;
+
     private Rigidbody2D[] particles;
     private Image[] particleImages;
     private Vector2[] gridPositions;
@@ -31,7 +47,68 @@ public class ParticleManager : MonoBehaviour
     private bool isHot = false;
     private float currentSpeed;
 
+    private Coroutine heatRoutine;
+    private Coroutine coolRoutine;
+    private Coroutine flameRoutine;
+
+    private bool initialized = false;
+
     void Start()
+    {
+        potBackground.SetActive(false);
+        controllerBackground.SetActive(false);
+
+        // Show intro message first
+        messagePanel.SetActive(true);
+        messageText.text = "Watch closely and take note of the changes";
+        messageButton.onClick.RemoveAllListeners();
+        messageButton.onClick.AddListener(OnMessageConfirmed);
+
+        // Hide flames at start
+        foreach (var flame in flameImages)
+        {
+            var c = flame.color;
+            flame.color = new Color(c.r, c.g, c.b, 0f);
+        }
+    }
+
+    void OnMessageConfirmed()
+    {
+        messagePanel.SetActive(false);
+        potBackground.SetActive(true);
+        controllerBackground.SetActive(true);
+
+        InitializeParticles();
+        initialized = true;
+
+        Debug.Log("Message confirmed → ParticleManager ready!");
+
+        // ⏳ Start simulation timer
+        StartCoroutine(SimulationTimer());
+    }
+
+    IEnumerator SimulationTimer()
+    {
+        yield return new WaitForSeconds(simulationDuration);
+
+        // After duration → hide backgrounds, show dialogue
+        potBackground.SetActive(false);
+        controllerBackground.SetActive(false);
+
+        messagePanel.SetActive(true);
+        messageText.text = "Experiment done! Let’s check your understanding";
+
+        messageButton.onClick.RemoveAllListeners();
+        messageButton.onClick.AddListener(() =>
+        {
+            messagePanel.SetActive(false);
+            Debug.Log("Dialogue finished → Next step can happen here.");
+            quizPanel.SetActive(true);
+            quizManager.StartQuiz();
+        });
+    }
+
+    void InitializeParticles()
     {
         int total = rows * cols;
         particles = new Rigidbody2D[total];
@@ -67,17 +144,12 @@ public class ParticleManager : MonoBehaviour
                 index++;
             }
         }
-
-        // Hide flames at start
-        foreach (var flame in flameImages)
-        {
-            var c = flame.color;
-            flame.color = new Color(c.r, c.g, c.b, 0f);
-        }
     }
 
     void Update()
     {
+        if (!initialized) return;
+
         HandleBounds();
 
         // 🔥 Animate flames only when hot
@@ -87,12 +159,10 @@ public class ParticleManager : MonoBehaviour
 
             foreach (var flame in flameImages)
             {
-                // Pulse size
                 flame.transform.localScale = Vector3.one * scale;
 
-                // Flicker brightness
                 float flicker = 1f - Random.Range(0f, flameFlickerStrength);
-                Color baseColor = Color.red; // you can also use gradient here
+                Color baseColor = Color.red;
                 flame.color = new Color(baseColor.r * flicker, baseColor.g * flicker * 0.8f, baseColor.b * flicker * 0.5f, flame.color.a);
             }
         }
@@ -121,24 +191,31 @@ public class ParticleManager : MonoBehaviour
 
     public void HeatUp()
     {
-        Debug.Log("Heating Up");
+        if (!initialized) return;
         if (isHot) return;
         isHot = true;
 
-        StopAllCoroutines();
-        StartCoroutine(HeatUpRoutine());
-        StartCoroutine(FadeFlamesIn());
+        if (heatRoutine != null) StopCoroutine(heatRoutine);
+        if (coolRoutine != null) StopCoroutine(coolRoutine);
+        if (flameRoutine != null) StopCoroutine(flameRoutine);
+
+        heatRoutine = StartCoroutine(HeatUpRoutine());
+        flameRoutine = StartCoroutine(FadeFlamesIn());
     }
+
 
     public void CoolDown()
     {
-        Debug.Log("Cooling Down");
+        if (!initialized) return;
         if (!isHot) return;
         isHot = false;
 
-        StopAllCoroutines();
-        StartCoroutine(CoolDownRoutine());
-        StartCoroutine(FadeFlamesOut());
+        if (heatRoutine != null) StopCoroutine(heatRoutine);
+        if (coolRoutine != null) StopCoroutine(coolRoutine);
+        if (flameRoutine != null) StopCoroutine(flameRoutine);
+
+        coolRoutine = StartCoroutine(CoolDownRoutine());
+        flameRoutine = StartCoroutine(FadeFlamesOut());
     }
 
     IEnumerator HeatUpRoutine()

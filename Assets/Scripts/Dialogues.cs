@@ -5,8 +5,8 @@ using System.Collections.Generic;
 [System.Serializable]
 public class Dialogue
 {
-    public int id;                      // Scenario number (e.g., 1, 2, 3)
-    [TextArea(2, 5)] public List<string> lines;  // Lines of dialogue for this scenario
+    public int id;
+    [TextArea(2, 5)] public List<string> lines;
 }
 
 public class Dialogues : MonoBehaviour
@@ -17,8 +17,10 @@ public class Dialogues : MonoBehaviour
     public Text buttonText;
     public Button nextButton;
 
-    [Header("Dialogue Scenarios")]
-    public List<Dialogue> scenarios = new List<Dialogue>();
+    [Header("Dialogue")]
+    public List<Dialogue> dialogue = new List<Dialogue>();
+
+    public bool dialogueFinished { get; private set; } = false; 
 
     private List<string> currentLines;
     private int currentLineIndex = 0;
@@ -27,15 +29,16 @@ public class Dialogues : MonoBehaviour
     {
         dialoguePanel.SetActive(false);
         nextButton.onClick.AddListener(OnNextButton);
+        StartDialogue(0);
     }
 
-    // Call this to start a scenario by ID
     public void StartDialogue(int scenarioId)
     {
-        Dialogue scenario = scenarios.Find(s => s.id == scenarioId);
+        Dialogue scenario = dialogue.Find(s => s.id == scenarioId);
 
         if (scenario != null)
         {
+            dialogueFinished = false; // reset flag
             currentLines = scenario.lines;
             currentLineIndex = 0;
             dialoguePanel.SetActive(true);
@@ -63,7 +66,8 @@ public class Dialogues : MonoBehaviour
         }
         else
         {
-            dialoguePanel.SetActive(false); // Close when finished
+            dialoguePanel.SetActive(false); 
+            dialogueFinished = true;
         }
     }
 }
