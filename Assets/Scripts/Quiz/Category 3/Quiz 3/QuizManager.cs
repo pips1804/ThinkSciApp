@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 [System.Serializable]
 public class QuizQuestion
@@ -14,20 +15,27 @@ public class QuizManager : MonoBehaviour
     [Header("UI References")]
     public Text questionText;
     public Button[] answerButtons; // drag your 4 buttons here
+    public Text[] answerTexts;     // drag 4 Text components (children of buttons)
+    public Image[] answerBackgrounds; // ✅ drag the background Image of each button
     public GameObject quizPanel;
 
     [Header("Quiz Data")]
     public QuizQuestion[] questions; // fill in Inspector
+
     private int currentQuestion = 0;
+    private Color defaultColor;
 
     void Start()
     {
         quizPanel.SetActive(false);
 
+        // Save default background color (from first button)
+        defaultColor = answerBackgrounds[0].color;
+
         // Attach button listeners dynamically
         for (int i = 0; i < answerButtons.Length; i++)
         {
-            int index = i; // local copy to avoid closure issue
+            int index = i;
             answerButtons[i].onClick.AddListener(() => OnAnswerSelected(index));
         }
     }
@@ -52,23 +60,38 @@ public class QuizManager : MonoBehaviour
 
         for (int i = 0; i < answerButtons.Length; i++)
         {
-            answerButtons[i].GetComponentInChildren<Text>().text = q.answers[i];
+            answerTexts[i].text = q.answers[i];
+            answerButtons[i].interactable = true;
+            answerBackgrounds[i].color = defaultColor; // ✅ reset background properly
         }
     }
 
     void OnAnswerSelected(int index)
     {
-        bool isCorrect = (index == questions[currentQuestion].correctAnswerIndex);
+        foreach (Button btn in answerButtons)
+            btn.interactable = false;
 
-        if (isCorrect)
+        QuizQuestion q = questions[currentQuestion];
+        int correctIndex = q.correctAnswerIndex;
+
+        if (index == correctIndex)
         {
             Debug.Log("✅ Correct!");
+            answerBackgrounds[index].color = Color.green;
         }
         else
         {
             Debug.Log("❌ Wrong!");
+            answerBackgrounds[index].color = Color.red;
+            answerBackgrounds[correctIndex].color = Color.green;
         }
 
+        StartCoroutine(NextQuestionDelay());
+    }
+
+    IEnumerator NextQuestionDelay()
+    {
+        yield return new WaitForSeconds(3f);
         currentQuestion++;
         ShowQuestion();
     }

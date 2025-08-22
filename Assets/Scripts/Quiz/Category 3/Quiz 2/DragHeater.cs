@@ -22,10 +22,14 @@ public class DragHeater : MonoBehaviour, IDragHandler, IEndDragHandler
         float distance = Vector2.Distance(transform.position, targetPoint.position);
         if (distance < snapDistance)
         {
-            transform.position = targetPoint.position;
+            // move it slightly higher (adjust 30f as needed)
+            Vector3 snapPos = targetPoint.position + new Vector3(0, 90f, 0);
+            transform.position = snapPos;
+
             isLocked = true; // Lock so it can't be moved again
             gameManager.HeaterPlacedSuccess();
         }
+
     }
 
     public void ResetHeater(Vector3 startPosition)

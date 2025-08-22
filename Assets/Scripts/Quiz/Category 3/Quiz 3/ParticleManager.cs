@@ -28,6 +28,7 @@ public class ParticleManager : MonoBehaviour
     public GameObject messagePanel;   // drag a simple panel with text + button
     public Text messageText;
     public Button messageButton;
+    public GameObject petImage;
 
     [Header("Panel")]
     public GameObject potBackground;
@@ -59,6 +60,7 @@ public class ParticleManager : MonoBehaviour
         controllerBackground.SetActive(false);
 
         // Show intro message first
+        petImage.SetActive(true);
         messagePanel.SetActive(true);
         messageText.text = "Watch closely and take note of the changes";
         messageButton.onClick.RemoveAllListeners();
@@ -74,6 +76,7 @@ public class ParticleManager : MonoBehaviour
 
     void OnMessageConfirmed()
     {
+        petImage.SetActive(false);
         messagePanel.SetActive(false);
         potBackground.SetActive(true);
         controllerBackground.SetActive(true);

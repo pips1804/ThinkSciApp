@@ -22,7 +22,10 @@ public class DragFire : MonoBehaviour, IDragHandler, IEndDragHandler
         float distance = Vector2.Distance(transform.position, targetPoint.position);
         if (distance < snapDistance)
         {
-            transform.position = targetPoint.position;
+            // Add offset so fire sits below the rod
+            Vector3 snapPos = targetPoint.position + new Vector3(0, -140f, 0);
+            transform.position = snapPos;
+
             isLocked = true; // Lock it so it can't be moved again
             gameManager.FirePlacedSuccess();
         }
