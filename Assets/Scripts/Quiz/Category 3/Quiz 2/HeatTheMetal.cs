@@ -22,7 +22,6 @@ public class HeatTheMetal : MonoBehaviour
     public GameObject warmRoomPanel;
     public GameObject messagePanel;
     public Text messageText;
-    public float messageDisplayTime = 2f;
 
     [Header("Scenario 1 Elements")]
     public GameObject heatTheMetalPanel;
@@ -89,7 +88,7 @@ public class HeatTheMetal : MonoBehaviour
     {
         introPanel.SetActive(false);
 
-        dialogueManager.StartDialogue(1);
+        dialogueManager.StartDialogue(0);
 
         // When dialogue finishes, continue to scenario 1 gameplay
         StartCoroutine(WaitForDialogueThen(() =>
@@ -171,7 +170,7 @@ public class HeatTheMetal : MonoBehaviour
         gamePanel.SetActive(false);
 
         // 🔹 Show Dialogue before Scenario 2
-        dialogueManager.StartDialogue(2);
+        dialogueManager.StartDialogue(1);
         StartCoroutine(WaitForDialogueThen(() =>
         {
             resultPanel.SetActive(false);
@@ -252,7 +251,7 @@ public class HeatTheMetal : MonoBehaviour
         gamePanel.SetActive(false);
 
         // 🔹 Show Dialogue before Scenario 3
-        dialogueManager.StartDialogue(3);
+        dialogueManager.StartDialogue(2);
         StartCoroutine(WaitForDialogueThen(() =>
         {
             warmRoomPanel.SetActive(false);
@@ -339,13 +338,6 @@ public class HeatTheMetal : MonoBehaviour
     {
         quizPanel.SetActive(false);
         messagePanel.SetActive(true);
-        messageText.text = "Excellent! You used solar radiation!";
-        StartCoroutine(ResetGame());
-    }
-
-    IEnumerator ResetGame()
-    {
-        yield return new WaitForSeconds(messageDisplayTime);
-        messagePanel.SetActive(false);
+        messageText.text = "Excellent! You you finished all tasks!";
     }
 }

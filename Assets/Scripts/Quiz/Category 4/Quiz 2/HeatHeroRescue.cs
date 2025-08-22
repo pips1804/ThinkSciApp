@@ -8,9 +8,9 @@ public class HeatHeroRescue : MonoBehaviour
     public Image petImage;
     public Image powerBarFill;
     public Text timerText;
-    public GameObject resultPanel;
-    public Text resultText;
     public RectTransform petPanel;
+    public GameObject gamePanel;
+    public GameObject petpanel;
 
     [Header("Settings")]
     public float maxPower = 10f;
@@ -22,20 +22,36 @@ public class HeatHeroRescue : MonoBehaviour
     public float slideDistance = 300f;
     public float slideDuration = 0.5f;
 
-    private  float currentPower;
+    public Dialogues dialogues;
+
+    private float currentPower;
     private float timeLeft;
     private bool isGameOver = false;
+    private bool gameStarted = false; // ✅ flag to check if game has begun
 
     void Start()
     {
+        gamePanel.SetActive(false);
+        petpanel.SetActive(false);
+
         currentPower = 0;
         timeLeft = gameTime;
-        resultPanel.SetActive(false);
+
+        // Start intro dialogue (index 0)
+        dialogues.StartDialogue(0);
     }
 
     void Update()
     {
-        if (isGameOver) return;
+        // ✅ Wait until intro dialogue finishes before starting
+        if (!gameStarted && dialogues.dialogueFinished)
+        {
+            gameStarted = true;
+            gamePanel.SetActive(true);
+            petpanel.SetActive(true);
+        }
+
+        if (isGameOver || !gameStarted) return;
 
         timeLeft -= Time.deltaTime;
         timerText.text = Mathf.CeilToInt(timeLeft).ToString();
@@ -52,6 +68,8 @@ public class HeatHeroRescue : MonoBehaviour
 
     public void Answer(bool isHeatDevice, bool correctAnswer)
     {
+        if (!gameStarted || isGameOver) return;
+
         if (isHeatDevice == correctAnswer)
         {
             currentPower += powerGain;
@@ -87,9 +105,13 @@ public class HeatHeroRescue : MonoBehaviour
 
         yield return new WaitForSeconds(1);
 
+        petpanel.SetActive(false);
+        gamePanel.SetActive(false);
 
-        resultPanel.SetActive(true);
-        resultText.text = win ? " Blast Off! You Won!" : " Time�s Up! Try Again.";
+        // ✅ Show end dialogue
+        if (win)
+            dialogues.StartDialogue(1);
+        else
+            dialogues.StartDialogue(2);
     }
-
 }

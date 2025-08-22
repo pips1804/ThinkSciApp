@@ -29,7 +29,6 @@ public class Dialogues : MonoBehaviour
     {
         dialoguePanel.SetActive(false);
         nextButton.onClick.AddListener(OnNextButton);
-        StartDialogue(0);
     }
 
     public void StartDialogue(int scenarioId)

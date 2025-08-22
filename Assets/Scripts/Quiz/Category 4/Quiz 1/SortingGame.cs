@@ -38,6 +38,20 @@ public class SortingGame : MonoBehaviour
     private bool binIsRenewable = true;  // Current bin mode
     private Coroutine fallingCoroutine;  // Track the falling animation
 
+    [Header("Dialogue System")]
+    public Dialogues dialogues;
+    private bool gameStarted = false;
+
+    [Header("Panel")]
+    public GameObject Earth;
+    public GameObject SpawnArea;
+    public GameObject MainBin;
+    public GameObject Score;
+    public GameObject IconName;
+    public GameObject Header;
+    public GameObject Settings;
+    public GameObject QuizProgress;
+
     // Double tap detection variables
     private float lastTapTime = 0f;
     private int tapCount = 0;
@@ -46,6 +60,46 @@ public class SortingGame : MonoBehaviour
 
     void Start()
     {
+        Earth.SetActive(false);
+        SpawnArea.SetActive(false);
+        MainBin.SetActive(false);
+        Score.SetActive(false); 
+        IconName.SetActive(false);
+        Header.SetActive(false);
+        Settings.SetActive(false);
+        QuizProgress.SetActive(false);
+
+        // Start the dialogue before the game
+        if (dialogues != null)
+        {
+            dialogues.StartDialogue(0);
+            StartCoroutine(WaitForDialogueThenStartGame());
+        }
+        else
+        {
+            // If no dialogue assigned, start game immediately
+            BeginGame();
+        }
+    }
+
+    IEnumerator WaitForDialogueThenStartGame()
+    {
+        // Wait until the player finishes the intro dialogue
+        yield return new WaitUntil(() => dialogues.dialogueFinished);
+        BeginGame();
+    }
+
+    void BeginGame()
+    {
+        Earth.SetActive(true);
+        SpawnArea.SetActive(true);
+        MainBin.SetActive(true);
+        Score.SetActive(true); 
+        IconName.SetActive(true);
+        Header.SetActive(true);
+        Settings.SetActive(true);
+        QuizProgress.SetActive(true);
+        gameStarted = true;
         UpdateScore();
         UpdateBinModeUI();
 
@@ -58,6 +112,7 @@ public class SortingGame : MonoBehaviour
 
         SpawnNewIcon();
     }
+
 
     void Update()
     {
@@ -475,6 +530,14 @@ public class SortingGame : MonoBehaviour
 
     void GameOver()
     {
+        Earth.SetActive(false);
+        SpawnArea.SetActive(false);
+        MainBin.SetActive(false);
+        Score.SetActive(false); 
+        IconName.SetActive(false);
+        Header.SetActive(false);
+        Settings.SetActive(false);
+        QuizProgress.SetActive(false);
         Debug.Log("Game Over! The Earth is fully polluted or all icons used.");
 
         // Stop any current falling animation
@@ -488,6 +551,12 @@ public class SortingGame : MonoBehaviour
         {
             Destroy(currentIcon);
             currentIcon = null;
+        }
+
+        // Trigger Game Over dialogue
+        if (dialogues != null)
+        {
+            dialogues.StartDialogue(1);
         }
     }
 }
