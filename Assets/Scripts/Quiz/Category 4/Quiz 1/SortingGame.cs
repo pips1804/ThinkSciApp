@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class SortingGame : MonoBehaviour
 {
@@ -8,35 +9,41 @@ public class SortingGame : MonoBehaviour
     public Image earthImage;             // The UI Image for Earth health
     public Sprite[] earthStates;         // 5 sprites from healthy to polluted
     public Text scoreText;               // UI text for score display
-    public Text iconNameText;            // UI text to show current icon name
-    public Slider progressSlider; // UI Slider to track progress
+    public Text waveText;                // UI text to show current wave
+    public Slider progressSlider;        // UI Slider to track progress
+
+    [Header("Target Icon Display")]
+    public Image targetIconImage;        // UI Image to show the current target icon
+    public Text targetIconNameText;      // Text to show target icon name
 
     [Header("Game Settings")]
     public RectTransform spawnArea;      // Parent canvas/area for spawning
-    public GameObject[] energyIcons;     // Prefabs for energy sources
-    public string[] iconNames;           // Names for each icon (match index with energyIcons)
-    public bool[] isRenewableIcon;       // True if icon at index is renewable, false if fossil
+    public GameObject[] renewableIcons;  // Array of 5 renewable icon prefabs
+    public string[] renewableIconNames;  // Names for renewable icons (match index)
+    public GameObject[] fossilIcons;     // Array of fossil fuel icon prefabs
+    public string[] fossilIconNames;     // Names for fossil icons
 
     [Header("Bin Settings")]
-    public Image binImage;                 // UI Image for the bin
-    public Sprite renewableBinSprite;      // Sprite when in Renewable mode
-    public Sprite fossilBinSprite;         // Sprite when in Fossil mode
-    public float catchRange = 100f;        // Distance allowed for catching
-    public float binMoveSpeed = 600f;           // Single bin (player controlled)
-    public float fallDuration = 3f;       // Time for icon to fall from top to bottom
-    public int maxIcons = 10;            // Limit number of icons
+    public Image binImage;               // UI Image for the bin
+    public RectTransform binCatchZone;   // Child GameObject representing the bin hole/catch area
+    public float binMoveSpeed = 600f;    // Bin movement speed
+    public float fallDuration = 3f;      // Time for icon to fall from top to bottom
 
-    [Header("Double Tap Settings")]
-    public float doubleTapTimeWindow = 0.5f;  // Time window for double tap detection
+    [Header("Wave Settings")]
+    public int iconsPerWave = 15;        // Total icons to spawn per wave
+    public float spawnInterval = 1f;     // Time between icon spawns
+    public int fossilIconsPerWave = 10;  // Number of fossil icons per wave
+    public int targetIconsPerWave = 5;   // Number of target icons per wave
 
     [Header("Game State")]
     private int currentEarthState = 0;
     private int score = 0;
-    private GameObject currentIcon;
-    private int iconsSpawned = 0;
-    private int consecutiveCorrect = 0;
-    private bool binIsRenewable = true;  // Current bin mode
-    private Coroutine fallingCoroutine;  // Track the falling animation
+    private int currentWave = 0;
+    private int targetIconIndex = 0;     // Index of current target renewable icon
+    private int iconsSpawnedThisWave = 0;
+    private int targetIconsCaughtThisWave = 0;
+    private List<GameObject> activeIcons = new List<GameObject>();
+    private bool isSpawning = false;
 
     [Header("Dialogue System")]
     public Dialogues dialogues;
@@ -47,85 +54,105 @@ public class SortingGame : MonoBehaviour
     public GameObject SpawnArea;
     public GameObject MainBin;
     public GameObject Score;
-    public GameObject IconName;
+    public GameObject WaveInfo;
+    public GameObject TargetDisplay;
     public GameObject Header;
     public GameObject Settings;
     public GameObject QuizProgress;
 
-    // Double tap detection variables
-    private float lastTapTime = 0f;
-    private int tapCount = 0;
-    private bool isDragging = false;
-    private Vector2 lastTouchPosition;
+    // Store the relative position of catch zone to bin for proper syncing
+    private Vector2 catchZoneOffset;
 
     void Start()
     {
+        Debug.Log("=== SORTING GAME STARTED ===");
+
+        // Calculate catch zone offset relative to bin
+        if (binCatchZone != null && binImage != null)
+        {
+            catchZoneOffset = binCatchZone.anchoredPosition - binImage.rectTransform.anchoredPosition;
+            Debug.Log($"Catch zone offset calculated: {catchZoneOffset}");
+        }
+
+        // Hide all UI elements initially
         Earth.SetActive(false);
         SpawnArea.SetActive(false);
         MainBin.SetActive(false);
-        Score.SetActive(false); 
-        IconName.SetActive(false);
-        Header.SetActive(false);
-        Settings.SetActive(false);
-        QuizProgress.SetActive(false);
+        Score.SetActive(false);
+        WaveInfo.SetActive(false);
+        TargetDisplay.SetActive(false);
 
         // Start the dialogue before the game
         if (dialogues != null)
         {
+            Debug.Log("Starting dialogue...");
             dialogues.StartDialogue(0);
             StartCoroutine(WaitForDialogueThenStartGame());
         }
         else
         {
-            // If no dialogue assigned, start game immediately
+            Debug.Log("No dialogue found, starting game immediately");
             BeginGame();
         }
     }
 
     IEnumerator WaitForDialogueThenStartGame()
     {
-        // Wait until the player finishes the intro dialogue
         yield return new WaitUntil(() => dialogues.dialogueFinished);
+        Debug.Log("Dialogue finished, beginning game");
         BeginGame();
     }
 
     void BeginGame()
     {
+        Debug.Log("=== BEGINNING GAME ===");
+
+        // Show all UI elements
         Earth.SetActive(true);
         SpawnArea.SetActive(true);
         MainBin.SetActive(true);
-        Score.SetActive(true); 
-        IconName.SetActive(true);
+        Score.SetActive(true);
+        WaveInfo.SetActive(true);
+        TargetDisplay.SetActive(true);
         Header.SetActive(true);
         Settings.SetActive(true);
         QuizProgress.SetActive(true);
-        gameStarted = true;
-        UpdateScore();
-        UpdateBinModeUI();
 
+        gameStarted = true;
+
+        // Debug array lengths
+        Debug.Log($"Renewable icons count: {renewableIcons.Length}");
+        Debug.Log($"Fossil icons count: {fossilIcons.Length}");
+        Debug.Log($"Renewable names count: {renewableIconNames.Length}");
+
+        // Initialize progress slider
         if (progressSlider != null)
         {
             progressSlider.minValue = 0;
-            progressSlider.maxValue = maxIcons;
+            progressSlider.maxValue = 5; // 5 waves total
             progressSlider.value = 0;
+            Debug.Log("Progress slider initialized");
         }
 
-        SpawnNewIcon();
+        UpdateScore();
+        StartNewWave();
     }
-
 
     void Update()
     {
+        if (!gameStarted) return;
+
         HandleBinMovement();
-        HandleDoubleTap();
+        CheckIconCollisions();
     }
 
     void HandleBinMovement()
     {
         float move = 0;
+        Vector2 newBinPos = binImage.rectTransform.anchoredPosition;
 
         // Keyboard input (for testing on PC)
-        move = Input.GetAxis("Horizontal"); // -1 = left, +1 = right
+        move = Input.GetAxis("Horizontal");
 
         // Touch input (for mobile)
         if (Input.touchCount > 0)
@@ -133,324 +160,479 @@ public class SortingGame : MonoBehaviour
             Touch touch = Input.GetTouch(0);
             Vector2 touchPos = touch.position;
 
-            if (touch.phase == TouchPhase.Began)
+            if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
             {
-                isDragging = false;
-                lastTouchPosition = touchPos;
-            }
-            else if (touch.phase == TouchPhase.Moved)
-            {
-                // Check if touch moved enough to be considered a drag
-                float dragDistance = Vector2.Distance(touchPos, lastTouchPosition);
-                if (dragDistance > 10f) // 10 pixel threshold for drag detection
-                {
-                    isDragging = true;
-                }
+                // Convert screen touch to local UI position
+                Vector2 localPos;
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    spawnArea, touchPos, null, out localPos);
 
-                if (isDragging)
-                {
-                    // Convert screen touch to local UI position
-                    Vector2 localPos;
-                    RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                        spawnArea, touchPos, null, out localPos);
-
-                    // Move bin directly towards touch X
-                    Vector2 currentBinPos = binImage.rectTransform.anchoredPosition;
-                    binImage.rectTransform.anchoredPosition = new Vector2(localPos.x, currentBinPos.y);
-                }
+                // Move bin directly towards touch X
+                newBinPos = new Vector2(localPos.x, newBinPos.y);
             }
-            return;
+        }
+        else if (move != 0)
+        {
+            // Apply keyboard movement
+            newBinPos.x += move * binMoveSpeed * Time.deltaTime;
         }
 
-        // Apply movement (keyboard / joystick)
-        if (move != 0)
+        // Clamp inside spawn area
+        if (move != 0 || Input.touchCount > 0)
         {
-            Vector2 pos = binImage.rectTransform.anchoredPosition;
-            pos.x += move * binMoveSpeed * Time.deltaTime;
-
-            // Clamp inside spawn area
             float halfWidth = spawnArea.rect.width / 2f;
             float binHalf = binImage.rectTransform.rect.width / 2f;
-            pos.x = Mathf.Clamp(pos.x, -halfWidth + binHalf, halfWidth - binHalf);
+            newBinPos.x = Mathf.Clamp(newBinPos.x, -halfWidth + binHalf, halfWidth - binHalf);
 
-            binImage.rectTransform.anchoredPosition = pos;
+            binImage.rectTransform.anchoredPosition = newBinPos;
+
+            // FIXED: Immediately update catch zone position with proper offset
+            if (binCatchZone != null)
+            {
+                binCatchZone.anchoredPosition = newBinPos + catchZoneOffset;
+            }
         }
     }
 
-    void HandleDoubleTap()
+    void CheckIconCollisions()
     {
-        // Handle mouse clicks (for testing on PC)
-        if (Input.GetMouseButtonDown(0))
+        if (activeIcons.Count == 0) return;
+
+        // Use catch zone if available, otherwise fall back to bin
+        Vector2 catchPos;
+        float catchWidth;
+
+        if (binCatchZone != null)
         {
-            Vector2 mousePos = Input.mousePosition;
-            if (IsTouchingBin(mousePos))
-            {
-                RegisterTap();
-            }
-        }
-
-        // Handle touch input (for mobile) - only register taps, not drags
-        if (Input.touchCount > 0)
-        {
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Ended && !isDragging)
-            {
-                if (IsTouchingBin(touch.position))
-                {
-                    RegisterTap();
-                }
-            }
-        }
-
-        // Reset tap count after time window
-        if (Time.time - lastTapTime > doubleTapTimeWindow)
-        {
-            tapCount = 0;
-        }
-    }
-
-    bool IsTouchingBin(Vector2 screenPosition)
-    {
-        // Convert screen position to local position relative to the bin
-        Vector2 localPos;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            binImage.rectTransform, screenPosition, null, out localPos);
-
-        // Check if the touch is within the bin's bounds
-        Rect binRect = binImage.rectTransform.rect;
-        return binRect.Contains(localPos);
-    }
-
-    void RegisterTap()
-    {
-        float currentTime = Time.time;
-
-        if (currentTime - lastTapTime <= doubleTapTimeWindow)
-        {
-            tapCount++;
-            if (tapCount >= 2)
-            {
-                // Double tap detected!
-                SwitchBinMode();
-                tapCount = 0; // Reset
-            }
+            catchPos = binCatchZone.anchoredPosition;
+            catchWidth = binCatchZone.rect.width;
         }
         else
         {
-            tapCount = 1; // First tap
+            catchPos = binImage.rectTransform.anchoredPosition;
+            catchWidth = binImage.rectTransform.rect.width;
+            Debug.LogWarning("No catch zone assigned! Using bin image instead.");
         }
 
-        lastTapTime = currentTime;
-    }
-
-    void SwitchBinMode()
-    {
-        binIsRenewable = !binIsRenewable;
-        UpdateBinModeUI();
-    }
-
-    void UpdateBinModeUI()
-    {
-        // Store current position and scale before changing sprite
-        Vector2 currentPos = binImage.rectTransform.anchoredPosition;
-        Vector3 currentScale = binImage.rectTransform.localScale;
-        Quaternion currentRotation = binImage.rectTransform.rotation;
-
-        // Change the sprite
-        binImage.sprite = binIsRenewable ? renewableBinSprite : fossilBinSprite;
-
-        // Explicitly restore all transform properties to prevent any shifts
-        binImage.rectTransform.anchoredPosition = currentPos;
-        binImage.rectTransform.localScale = currentScale;
-        binImage.rectTransform.rotation = currentRotation;
-
-        // Force layout rebuild to ensure position stays exactly where it was
-        LayoutRebuilder.ForceRebuildLayoutImmediate(binImage.rectTransform);
-
-        // Additional safety measure - set position again after layout rebuild
-        binImage.rectTransform.anchoredPosition = currentPos;
-    }
-
-    void SpawnNewIcon()
-    {
-        if (iconsSpawned >= maxIcons)
+        // Check all active icons for collision with catch zone
+        for (int i = activeIcons.Count - 1; i >= 0; i--)
         {
-            GameOver();
+            if (activeIcons[i] == null)
+            {
+                activeIcons.RemoveAt(i);
+                continue;
+            }
+
+            RectTransform iconRect = activeIcons[i].GetComponent<RectTransform>();
+            if (iconRect == null)
+            {
+                Debug.LogError($"Icon at index {i} has no RectTransform!");
+                activeIcons.RemoveAt(i);
+                continue;
+            }
+
+            Vector2 iconPos = iconRect.anchoredPosition;
+
+            // FIXED: More lenient vertical catch range and better horizontal detection
+            float catchY = catchPos.y;
+            float verticalTolerance = 30f; // Increased tolerance for easier catching
+            bool isAtCatchLevel = iconPos.y <= catchY + verticalTolerance && iconPos.y >= catchY - verticalTolerance;
+
+            if (isAtCatchLevel)
+            {
+                // FIXED: More generous horizontal catch range
+                float horizontalDistance = Mathf.Abs(iconPos.x - catchPos.x);
+                float horizontalTolerance = (catchWidth / 2) + 20f; // Added extra margin
+                bool isInHorizontalRange = horizontalDistance <= horizontalTolerance;
+
+                if (isInHorizontalRange)
+                {
+                    // Get the icon component to check its type
+                    IconType iconType = activeIcons[i].GetComponent<IconType>();
+                    if (iconType != null)
+                    {
+                        Debug.Log($"COLLISION DETECTED! Icon type: {(iconType.isRenewable ? "Renewable" : "Fossil")}, Index: {iconType.iconIndex}");
+                        ProcessIconCatch(iconType, i);
+                        return; // Exit early after processing one catch to avoid multiple detections
+                    }
+                    else
+                    {
+                        Debug.LogError("Icon has no IconType component!");
+                        activeIcons.RemoveAt(i);
+                    }
+                }
+            }
+        }
+    }
+
+    void ProcessIconCatch(IconType iconType, int iconListIndex)
+    {
+        Debug.Log($"=== PROCESSING ICON CATCH ===");
+        Debug.Log($"Icon isRenewable: {iconType.isRenewable}");
+        Debug.Log($"Icon index: {iconType.iconIndex}");
+        Debug.Log($"Target index: {targetIconIndex}");
+        Debug.Log($"Current wave: {currentWave}");
+
+        bool isCorrectCatch = false;
+
+        // FIXED: More precise matching logic
+        if (iconType.isRenewable && iconType.iconIndex == targetIconIndex)
+        {
+            // Correct! Caught the target renewable icon
+            Debug.Log("✓ CORRECT CATCH!");
+            isCorrectCatch = true;
+            CorrectAnswer();
+            targetIconsCaughtThisWave++;
+            StartCoroutine(ShowCorrectFeedback());
+        }
+        else if (iconType.isRenewable && iconType.iconIndex != targetIconIndex)
+        {
+            // Wrong renewable type
+            Debug.Log("✗ WRONG RENEWABLE TYPE!");
+            WrongAnswer();
+            StartCoroutine(ShowWrongTypeFeedback());
+        }
+        else
+        {
+            // Fossil fuel caught
+            Debug.Log("✗ FOSSIL FUEL CAUGHT!");
+            WrongAnswer();
+            StartCoroutine(ShowFossilFeedback());
+        }
+
+        // Remove the caught icon safely
+        if (iconListIndex >= 0 && iconListIndex < activeIcons.Count)
+        {
+            GameObject iconToDestroy = activeIcons[iconListIndex];
+            activeIcons.RemoveAt(iconListIndex);
+
+            if (iconToDestroy != null)
+            {
+                Destroy(iconToDestroy);
+            }
+
+            Debug.Log($"Icon removed. Remaining active icons: {activeIcons.Count}");
+        }
+
+        // Check if wave is complete
+        CheckWaveCompletion();
+    }
+
+    void StartNewWave()
+    {
+        Debug.Log($"=== STARTING WAVE {currentWave + 1} ===");
+
+        if (currentWave >= 5)
+        {
+            GameComplete();
             return;
         }
 
-        int randIndex = Random.Range(0, energyIcons.Length);
-        currentIcon = Instantiate(energyIcons[randIndex], spawnArea);
+        // Reset wave variables
+        iconsSpawnedThisWave = 0;
+        targetIconsCaughtThisWave = 0;
+        targetIconIndex = currentWave; // Use wave number as target icon index
 
-        // Random X spawn at top of screen
-        float randomX = Random.Range(-spawnArea.rect.width / 2, spawnArea.rect.width / 2);
-        RectTransform iconRect = currentIcon.GetComponent<RectTransform>();
-        iconRect.anchoredPosition = new Vector2(randomX, spawnArea.rect.height / 2);
+        Debug.Log($"Target icon index: {targetIconIndex}");
+        if (targetIconIndex < renewableIconNames.Length)
+        {
+            Debug.Log($"Target icon name: {renewableIconNames[targetIconIndex]}");
+        }
 
-        // Show icon name
-        iconNameText.text = iconNames[randIndex];
+        // Update UI
+        UpdateWaveDisplay();
+        UpdateTargetDisplay();
 
-        iconsSpawned++;
-
-        if (progressSlider != null)
-            progressSlider.value = iconsSpawned;
-
-
-        // Start the falling animation
-        fallingCoroutine = StartCoroutine(AnimateIconFalling(iconRect, randIndex));
+        // Start spawning icons for this wave
+        StartCoroutine(SpawnWaveIcons());
     }
 
-    IEnumerator AnimateIconFalling(RectTransform iconRect, int iconIndex)
+    IEnumerator SpawnWaveIcons()
+    {
+        Debug.Log("Starting to spawn wave icons...");
+        isSpawning = true;
+
+        // Create a list of spawn data instead of GameObjects
+        List<SpawnData> iconsToSpawn = new List<SpawnData>();
+
+        // Add target renewable icons
+        if (targetIconIndex < renewableIcons.Length && renewableIcons[targetIconIndex] != null)
+        {
+            for (int i = 0; i < targetIconsPerWave; i++)
+            {
+                iconsToSpawn.Add(new SpawnData
+                {
+                    prefab = renewableIcons[targetIconIndex],
+                    isRenewable = true,
+                    iconIndex = targetIconIndex
+                });
+            }
+            Debug.Log($"Added {targetIconsPerWave} target renewable icons");
+        }
+        else
+        {
+            Debug.LogError($"Target renewable icon at index {targetIconIndex} is null or out of bounds!");
+        }
+
+        // Add random fossil fuel icons
+        if (fossilIcons.Length > 0)
+        {
+            for (int i = 0; i < fossilIconsPerWave; i++)
+            {
+                int randomFossilIndex = Random.Range(0, fossilIcons.Length);
+                if (fossilIcons[randomFossilIndex] != null)
+                {
+                    iconsToSpawn.Add(new SpawnData
+                    {
+                        prefab = fossilIcons[randomFossilIndex],
+                        isRenewable = false,
+                        iconIndex = randomFossilIndex
+                    });
+                }
+            }
+            Debug.Log($"Added {fossilIconsPerWave} fossil fuel icons");
+        }
+        else
+        {
+            Debug.LogError("No fossil icons available!");
+        }
+
+        Debug.Log($"Total icons to spawn: {iconsToSpawn.Count}");
+
+        // Shuffle the list for random spawn order
+        for (int i = 0; i < iconsToSpawn.Count; i++)
+        {
+            SpawnData temp = iconsToSpawn[i];
+            int randomIndex = Random.Range(i, iconsToSpawn.Count);
+            iconsToSpawn[i] = iconsToSpawn[randomIndex];
+            iconsToSpawn[randomIndex] = temp;
+        }
+
+        // Spawn icons with intervals
+        foreach (SpawnData spawnData in iconsToSpawn)
+        {
+            if (spawnData.prefab != null)
+            {
+                SpawnIconWithData(spawnData);
+                iconsSpawnedThisWave++;
+                Debug.Log($"Spawned icon {iconsSpawnedThisWave}/{iconsToSpawn.Count}");
+            }
+            yield return new WaitForSeconds(spawnInterval);
+        }
+
+        Debug.Log("Finished spawning all icons for this wave");
+        isSpawning = false;
+    }
+
+    // NEW METHOD: Spawn icon with explicit data
+    void SpawnIconWithData(SpawnData spawnData)
+    {
+        Debug.Log($"Spawning icon: {spawnData.prefab.name} - Renewable: {spawnData.isRenewable}, Index: {spawnData.iconIndex}");
+        GameObject newIcon = Instantiate(spawnData.prefab, spawnArea);
+
+        // Get or add IconType component
+        IconType iconType = newIcon.GetComponent<IconType>();
+        if (iconType == null)
+        {
+            iconType = newIcon.AddComponent<IconType>();
+            Debug.Log("Added IconType component to spawned icon");
+        }
+
+        // Set the icon properties directly from spawn data
+        iconType.isRenewable = spawnData.isRenewable;
+        iconType.iconIndex = spawnData.iconIndex;
+
+        Debug.Log($"Icon configured - Renewable: {iconType.isRenewable}, Index: {iconType.iconIndex}");
+
+        // Position at random X, top of screen
+        float randomX = Random.Range(-spawnArea.rect.width / 2 + 50f, spawnArea.rect.width / 2 - 50f);
+        RectTransform iconRect = newIcon.GetComponent<RectTransform>();
+
+        if (iconRect == null)
+        {
+            Debug.LogError("Spawned icon has no RectTransform component!");
+            Destroy(newIcon);
+            return;
+        }
+
+        iconRect.anchoredPosition = new Vector2(randomX, spawnArea.rect.height / 2);
+        Debug.Log($"Icon positioned at: {iconRect.anchoredPosition}");
+
+        // Add to active icons list
+        activeIcons.Add(newIcon);
+        Debug.Log($"Total active icons: {activeIcons.Count}");
+
+        // Start falling animation
+        StartCoroutine(AnimateIconFalling(iconRect, newIcon));
+    }
+
+    // REMOVED: Old SpawnIcon method - replaced with SpawnIconWithData
+
+    IEnumerator AnimateIconFalling(RectTransform iconRect, GameObject iconObj)
     {
         float startY = spawnArea.rect.height / 2;
-        float endY = -spawnArea.rect.height / 2; // Bottom of screen
-        float binY = binImage.rectTransform.anchoredPosition.y;
+        // FIXED: Better end position calculation for more predictable falling
+        float endY = binCatchZone != null ? binCatchZone.anchoredPosition.y - 100f : binImage.rectTransform.anchoredPosition.y - 100f;
 
         float elapsedTime = 0f;
         Vector2 startPos = iconRect.anchoredPosition;
         Vector2 endPos = new Vector2(startPos.x, endY);
 
-        bool hasCheckedBin = false;
+        Debug.Log($"Icon falling from {startPos.y} to {endPos.y} over {fallDuration} seconds");
 
-        while (elapsedTime < fallDuration)
+        while (elapsedTime < fallDuration && iconObj != null && iconRect != null)
         {
-            // Calculate current position using smooth animation
             float t = elapsedTime / fallDuration;
-            // Use ease-in curve for more realistic falling
-            float easedT = t * t;
+            float easedT = t * t; // Ease-in for gravity effect
 
             Vector2 currentPos = Vector2.Lerp(startPos, endPos, easedT);
             iconRect.anchoredPosition = currentPos;
-
-            // Check if icon has reached bin level and hasn't been checked yet
-            if (!hasCheckedBin && currentPos.y <= binY + 50f)
-            {
-                hasCheckedBin = true;
-                CheckIconPlacement(iconIndex);
-                // Don't break here - let the icon continue falling for visual effect
-            }
 
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        // If somehow we missed the bin check, do it now
-        if (!hasCheckedBin)
+        // Remove icon if it reached the bottom without being caught
+        if (iconObj != null)
         {
-            CheckIconPlacement(iconIndex);
+            Debug.Log("Icon reached bottom without being caught");
+            activeIcons.Remove(iconObj);
+            Destroy(iconObj);
+            CheckWaveCompletion();
         }
-
-        // Clean up and spawn next icon
-        if (currentIcon != null)
-        {
-            Destroy(currentIcon);
-            currentIcon = null;
-        }
-
-        SpawnNewIcon();
     }
 
-    void CheckIconPlacement(int iconIndex)
+    void CheckWaveCompletion()
     {
-        if (currentIcon == null) return;
+        Debug.Log($"Checking wave completion. IsSpawning: {isSpawning}, Active icons: {activeIcons.Count}");
 
-        RectTransform iconRect = currentIcon.GetComponent<RectTransform>();
-        Vector2 iconPos = iconRect.anchoredPosition;
-        Vector2 binPos = binImage.rectTransform.anchoredPosition;
-        float distanceToBin = Vector2.Distance(iconPos, binPos);
-
-        // Check if the icon is renewable based on the array
-        bool isRenewable = isRenewableIcon[iconIndex];
-
-        Debug.Log($"Icon {iconNames[iconIndex]} position: {iconPos}");
-        Debug.Log($"Bin position: {binPos}");
-        Debug.Log($"Distance: {distanceToBin}, CatchRange: {catchRange}");
-        Debug.Log($"Icon renewable: {isRenewable}, Bin renewable: {binIsRenewable}");
-
-        // Use a more generous catch range - check both distance and X overlap
-        float horizontalDistance = Mathf.Abs(iconPos.x - binPos.x);
-        float binWidth = binImage.rectTransform.rect.width;
-        bool isInHorizontalRange = horizontalDistance < (binWidth / 2 + 50f); // Bin width + 50 pixels extra
-
-        Debug.Log($"Horizontal distance: {horizontalDistance}, Bin width: {binWidth}, In range: {isInHorizontalRange}");
-
-        if (isInHorizontalRange)
+        // Wave is complete when all icons have been spawned and no more icons are active
+        if (!isSpawning && activeIcons.Count == 0)
         {
-            // Correct if: renewable icon in renewable bin OR fossil icon in fossil bin
-            if ((binIsRenewable && isRenewable) || (!binIsRenewable && !isRenewable))
-            {
-                Debug.Log("CORRECT ANSWER!");
-                CorrectAnswer();
-                StartCoroutine(ShowCorrectFeedback());
-            }
-            else
-            {
-                Debug.Log("WRONG TYPE!");
-                WrongAnswer();
-                StartCoroutine(ShowWrongFeedback());
-            }
+            Debug.Log($"Wave {currentWave + 1} completed!");
+            currentWave++;
+            if (progressSlider != null)
+                progressSlider.value = currentWave;
+
+            // Small delay before next wave
+            StartCoroutine(WaveTransition());
+        }
+    }
+
+    IEnumerator WaveTransition()
+    {
+        Debug.Log("Starting wave transition...");
+        yield return new WaitForSeconds(1f);
+
+        if (currentWave < 5)
+        {
+            StartNewWave();
         }
         else
         {
-            Debug.Log("MISSED BIN!");
-            WrongAnswer();
-            StartCoroutine(ShowMissedFeedback());
+            GameComplete();
         }
     }
 
+    void UpdateWaveDisplay()
+    {
+        if (waveText != null)
+        {
+            waveText.text = "" + (currentWave + 1) + "/5";
+            Debug.Log($"Updated wave display: {waveText.text}");
+        }
+    }
+
+    void UpdateTargetDisplay()
+    {
+        Debug.Log("Updating target display...");
+
+        if (targetIconImage != null && targetIconIndex < renewableIcons.Length)
+        {
+            // Get the sprite from the renewable icon prefab
+            Image iconImage = renewableIcons[targetIconIndex].GetComponent<Image>();
+            if (iconImage != null)
+            {
+                targetIconImage.sprite = iconImage.sprite;
+                Debug.Log($"Updated target icon image with sprite: {iconImage.sprite.name}");
+            }
+            else
+            {
+                Debug.LogError($"Renewable icon at index {targetIconIndex} has no Image component!");
+            }
+        }
+
+        if (targetIconNameText != null && targetIconIndex < renewableIconNames.Length)
+        {
+            targetIconNameText.text = "" + renewableIconNames[targetIconIndex];
+            Debug.Log($"Updated target name text: {targetIconNameText.text}");
+        }
+    }
+
+    // Feedback coroutines
     IEnumerator ShowCorrectFeedback()
     {
-        // Flash bin green
+        Debug.Log("Showing correct feedback (green flash)");
         Color originalColor = binImage.color;
         binImage.color = Color.green;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.3f);
         binImage.color = originalColor;
     }
 
-    IEnumerator ShowWrongFeedback()
+    IEnumerator ShowWrongTypeFeedback()
     {
-        // Flash bin red
+        Debug.Log("Showing wrong type feedback (yellow flash)");
         Color originalColor = binImage.color;
-        binImage.color = Color.red;
-        yield return new WaitForSeconds(0.2f);
+        binImage.color = Color.yellow; // Yellow for wrong renewable type
+        yield return new WaitForSeconds(0.3f);
         binImage.color = originalColor;
     }
 
-    IEnumerator ShowMissedFeedback()
+    IEnumerator ShowFossilFeedback()
     {
-        // Flash bin yellow (missed)
+        Debug.Log("Showing fossil feedback (red flash)");
         Color originalColor = binImage.color;
-        binImage.color = Color.yellow;
-        yield return new WaitForSeconds(0.2f);
+        binImage.color = Color.red; // Red for fossil fuel
+        yield return new WaitForSeconds(0.3f);
         binImage.color = originalColor;
     }
 
     void CorrectAnswer()
     {
-        score += 10;
-        consecutiveCorrect++;
+        Debug.Log("=== CORRECT ANSWER! ===");
+        score += 20; // Higher score for correct catches
 
-        if (consecutiveCorrect >= 2 && currentEarthState > 0)
+        // Heal Earth occasionally for good performance
+        if (score % 100 == 0 && currentEarthState > 0)
         {
+            Debug.Log("Healing Earth due to good performance");
             currentEarthState--;
             StartCoroutine(AnimateEarthChange(earthStates[currentEarthState], false));
-            consecutiveCorrect = 0;
         }
 
         UpdateScore();
+        Debug.Log($"New score: {score}");
     }
 
     void WrongAnswer()
     {
-        consecutiveCorrect = 0;
+        Debug.Log("=== WRONG ANSWER! ===");
+        // Damage Earth for wrong catches
         currentEarthState++;
+        Debug.Log($"Earth state increased to: {currentEarthState}");
 
         if (currentEarthState < earthStates.Length)
+        {
             StartCoroutine(AnimateEarthChange(earthStates[currentEarthState], true));
+        }
         else
+        {
+            Debug.Log("Earth fully polluted - triggering game over");
             GameOver();
+        }
     }
 
+    // Keep your existing AnimateEarthChange method
     IEnumerator AnimateEarthChange(Sprite newSprite, bool isWrong)
     {
         if (isWrong)
@@ -526,32 +708,62 @@ public class SortingGame : MonoBehaviour
     void UpdateScore()
     {
         scoreText.text = score.ToString();
+        Debug.Log($"Score updated to: {score}");
+    }
+
+    void GameComplete()
+    {
+        Debug.Log("=== GAME COMPLETE! ===");
+
+        // Hide game UI
+        Earth.SetActive(false);
+        SpawnArea.SetActive(false);
+        MainBin.SetActive(false);
+        Score.SetActive(false);
+        WaveInfo.SetActive(false);
+        TargetDisplay.SetActive(false);
+        Header.SetActive(false);
+        Settings.SetActive(false);
+        QuizProgress.SetActive(false);
+
+        // Clean up any remaining icons
+        foreach (GameObject icon in activeIcons)
+        {
+            if (icon != null)
+                Destroy(icon);
+        }
+        activeIcons.Clear();
+
+        // Trigger completion dialogue
+        if (dialogues != null)
+        {
+            dialogues.StartDialogue(2); // Assuming index 2 is for game completion
+        }
     }
 
     void GameOver()
     {
-        Earth.SetActive(false);
-        SpawnArea.SetActive(false);
-        MainBin.SetActive(false);
-        Score.SetActive(false); 
-        IconName.SetActive(false);
-        Header.SetActive(false);
-        Settings.SetActive(false);
-        QuizProgress.SetActive(false);
-        Debug.Log("Game Over! The Earth is fully polluted or all icons used.");
+        Debug.Log("=== GAME OVER! ===");
 
-        // Stop any current falling animation
-        if (fallingCoroutine != null)
-        {
-            StopCoroutine(fallingCoroutine);
-        }
+        // Hide game UI
+        Earth.SetActive(true);
+        SpawnArea.SetActive(true);
+        MainBin.SetActive(true);
+        Score.SetActive(true);
+        WaveInfo.SetActive(true);
+        TargetDisplay.SetActive(true);
+        Header.SetActive(true);
+        Settings.SetActive(true);
+        QuizProgress.SetActive(true);
+        TargetDisplay.SetActive(false);
 
-        // Clean up current icon
-        if (currentIcon != null)
+        // Clean up any remaining icons
+        foreach (GameObject icon in activeIcons)
         {
-            Destroy(currentIcon);
-            currentIcon = null;
+            if (icon != null)
+                Destroy(icon);
         }
+        activeIcons.Clear();
 
         // Trigger Game Over dialogue
         if (dialogues != null)
@@ -559,4 +771,21 @@ public class SortingGame : MonoBehaviour
             dialogues.StartDialogue(1);
         }
     }
+}
+
+// Helper component to identify icon types
+[System.Serializable]
+public class IconType : MonoBehaviour
+{
+    public bool isRenewable;
+    public int iconIndex;
+}
+
+// NEW: Helper class for spawn data
+[System.Serializable]
+public class SpawnData
+{
+    public GameObject prefab;
+    public bool isRenewable;
+    public int iconIndex;
 }

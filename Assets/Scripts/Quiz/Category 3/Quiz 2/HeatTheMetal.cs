@@ -56,6 +56,7 @@ public class HeatTheMetal : MonoBehaviour
     public Image petImage;
     public Sprite thinkingPetSprite;
     public Sprite ideaPetSprite;
+    public Image[] buttonVisualImages;
 
     [Header("Animation Settings")]
     public float fadeDuration = 0.5f;
@@ -92,38 +93,6 @@ public class HeatTheMetal : MonoBehaviour
 
         // Store original button colors
         StoreOriginalButtonColors();
-    }
-
-    void StoreOriginalButtonColors()
-    {
-        if (answerButtons == null || answerButtons.Length == 0)
-        {
-            Debug.LogWarning("Answer buttons array is null or empty!");
-            return;
-        }
-
-        originalButtonColors = new Color[answerButtons.Length];
-        for (int i = 0; i < answerButtons.Length; i++)
-        {
-            if (answerButtons[i] != null)
-            {
-                Image buttonImage = answerButtons[i].GetComponent<Image>();
-                if (buttonImage != null)
-                {
-                    originalButtonColors[i] = buttonImage.color;
-                }
-                else
-                {
-                    Debug.LogWarning($"Button {i} doesn't have an Image component!");
-                    originalButtonColors[i] = Color.white; // Default fallback
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"Button {i} is null!");
-                originalButtonColors[i] = Color.white; // Default fallback
-            }
-        }
     }
 
     void ShowIntro()
@@ -270,9 +239,15 @@ public class HeatTheMetal : MonoBehaviour
     {
         if (!buttonsInteractable) return;
 
+        Debug.Log($"SelectAnswerScenario1 called with index: {index}");
         buttonsInteractable = false;
         Question q = questionsScenario1[currentQuestionIndex];
         bool isCorrect = index == q.correctAnswerIndex;
+
+        Debug.Log($"Question: {q.questionText}");
+        Debug.Log($"Selected answer: {q.choices[index]}");
+        Debug.Log($"Correct answer index: {q.correctAnswerIndex}");
+        Debug.Log($"Is correct: {isCorrect}");
 
         StartCoroutine(HandleAnswerFeedback(index, q.correctAnswerIndex, isCorrect, () =>
         {
@@ -660,7 +635,7 @@ public class HeatTheMetal : MonoBehaviour
     {
         Debug.Log($"HandleAnswerFeedback called - Selected: {selectedIndex}, Correct: {correctIndex}, IsCorrect: {isCorrect}");
 
-        // Disable all buttons
+        // Disable all buttons to prevent multiple clicks
         for (int i = 0; i < answerButtons.Length; i++)
         {
             if (answerButtons[i] != null)
@@ -669,69 +644,24 @@ public class HeatTheMetal : MonoBehaviour
             }
         }
 
+        yield return new WaitForSeconds(0.1f); // Small delay before showing color feedback
+
         if (isCorrect)
         {
-            // Color selected button green, others red
-            if (selectedIndex < answerButtons.Length && answerButtons[selectedIndex] != null)
-            {
-                Image selectedImage = answerButtons[selectedIndex].GetComponent<Image>();
-                if (selectedImage != null)
-                {
-                    selectedImage.color = correctButtonColor;
-                    Debug.Log($"Set button {selectedIndex} to green (correct)");
-                }
-            }
+            // Only color the selected (correct) button green
+            SetButtonColor(selectedIndex, correctButtonColor, "green (correct)");
 
-            for (int i = 0; i < answerButtons.Length; i++)
-            {
-                if (i != selectedIndex && answerButtons[i] != null && answerButtons[i].gameObject.activeInHierarchy)
-                {
-                    Image buttonImage = answerButtons[i].GetComponent<Image>();
-                    if (buttonImage != null)
-                    {
-                        buttonImage.color = incorrectButtonColor;
-                        Debug.Log($"Set button {i} to red (not selected)");
-                    }
-                }
-            }
+            // All other buttons stay their original color - no changes needed
         }
         else
         {
-            // Color selected button red
-            if (selectedIndex < answerButtons.Length && answerButtons[selectedIndex] != null)
-            {
-                Image selectedImage = answerButtons[selectedIndex].GetComponent<Image>();
-                if (selectedImage != null)
-                {
-                    selectedImage.color = incorrectButtonColor;
-                    Debug.Log($"Set button {selectedIndex} to red (wrong choice)");
-                }
-            }
+            // Color selected button red (wrong choice)
+            SetButtonColor(selectedIndex, incorrectButtonColor, "red (wrong choice)");
 
             // Color correct answer green
-            if (correctIndex < answerButtons.Length && answerButtons[correctIndex] != null)
-            {
-                Image correctImage = answerButtons[correctIndex].GetComponent<Image>();
-                if (correctImage != null)
-                {
-                    correctImage.color = correctButtonColor;
-                    Debug.Log($"Set button {correctIndex} to green (correct answer)");
-                }
-            }
+            SetButtonColor(correctIndex, correctButtonColor, "green (correct answer)");
 
-            // Color remaining buttons red
-            for (int i = 0; i < answerButtons.Length; i++)
-            {
-                if (i != selectedIndex && i != correctIndex && answerButtons[i] != null && answerButtons[i].gameObject.activeInHierarchy)
-                {
-                    Image buttonImage = answerButtons[i].GetComponent<Image>();
-                    if (buttonImage != null)
-                    {
-                        buttonImage.color = incorrectButtonColor;
-                        Debug.Log($"Set button {i} to red (other option)");
-                    }
-                }
-            }
+            // All other buttons stay their original color - no changes needed
         }
 
         // Wait for 2 seconds to show the feedback
@@ -740,28 +670,74 @@ public class HeatTheMetal : MonoBehaviour
         onComplete?.Invoke();
     }
 
+    void SetButtonColor(int buttonIndex, Color color, string description)
+    {
+        if (buttonIndex < 0 || buttonIndex >= answerButtons.Length || answerButtons[buttonIndex] == null)
+        {
+            Debug.LogWarning($"Cannot set color for button {buttonIndex} - invalid or null");
+            return;
+        }
+
+        if (buttonVisualImages == null || buttonIndex >= buttonVisualImages.Length || buttonVisualImages[buttonIndex] == null)
+        {
+            Debug.LogError($"Button visual image {buttonIndex} is not assigned! Please assign it in the inspector.");
+            return;
+        }
+
+        Image buttonImage = buttonVisualImages[buttonIndex];
+
+        // Apply the color directly to the Image
+        buttonImage.color = color;
+        Debug.Log($"Set button {buttonIndex} to {description} - Color applied: {color}");
+    }
+
+    // Updated ResetButtonColors method
     void ResetButtonColors()
     {
-        for (int i = 0; i < answerButtons.Length; i++)
+        if (buttonVisualImages == null)
         {
-            if (answerButtons[i] != null && i < originalButtonColors.Length)
+            Debug.LogError("Button visual images array is not assigned!");
+            return;
+        }
+
+        for (int i = 0; i < answerButtons.Length && i < buttonVisualImages.Length; i++)
+        {
+            if (answerButtons[i] != null && buttonVisualImages[i] != null && i < originalButtonColors.Length)
             {
-                SetButtonColor(answerButtons[i], originalButtonColors[i]);
+                // Reset to original color
+                buttonVisualImages[i].color = originalButtonColors[i];
+                Debug.Log($"Reset button {i} to original color: {originalButtonColors[i]}");
             }
         }
     }
 
-
-    void SetButtonColor(Button btn, Color color)
+    // Updated StoreOriginalButtonColors method
+    void StoreOriginalButtonColors()
     {
-        if (btn == null) return;
+        if (answerButtons == null || answerButtons.Length == 0)
+        {
+            Debug.LogWarning("Answer buttons array is null or empty!");
+            return;
+        }
 
-        var colors = btn.colors;
-        colors.normalColor = color;
-        colors.highlightedColor = color;
-        colors.pressedColor = color;
-        colors.selectedColor = color;
-        colors.disabledColor = color;
-        btn.colors = colors;
+        if (buttonVisualImages == null || buttonVisualImages.Length == 0)
+        {
+            Debug.LogWarning("Button visual images array is null or empty!");
+            return;
+        }
+
+        originalButtonColors = new Color[answerButtons.Length];
+        for (int i = 0; i < answerButtons.Length && i < buttonVisualImages.Length; i++)
+        {
+            if (answerButtons[i] != null && buttonVisualImages[i] != null)
+            {
+                originalButtonColors[i] = buttonVisualImages[i].color;
+            }
+            else
+            {
+                Debug.LogWarning($"Button {i} or its visual image is null!");
+                originalButtonColors[i] = Color.white; // Default fallback
+            }
+        }
     }
 }

@@ -20,15 +20,18 @@ public class Dialogues : MonoBehaviour
     [Header("Dialogue")]
     public List<Dialogue> dialogue = new List<Dialogue>();
 
-    public bool dialogueFinished { get; private set; } = false; 
+    public bool dialogueFinished { get; private set; } = false;
 
     private List<string> currentLines;
     private int currentLineIndex = 0;
 
     void Start()
     {
-        dialoguePanel.SetActive(false);
+        dialoguePanel.SetActive(true);
         nextButton.onClick.AddListener(OnNextButton);
+
+        // Example: Start the first dialogue with id = 0
+        StartDialogue(0);
     }
 
     public void StartDialogue(int scenarioId)
@@ -58,6 +61,8 @@ public class Dialogues : MonoBehaviour
 
     private void OnNextButton()
     {
+        if (currentLines == null || currentLines.Count == 0) return;
+
         if (currentLineIndex < currentLines.Count - 1)
         {
             currentLineIndex++;
@@ -65,7 +70,7 @@ public class Dialogues : MonoBehaviour
         }
         else
         {
-            dialoguePanel.SetActive(false); 
+            dialoguePanel.SetActive(false);
             dialogueFinished = true;
         }
     }
