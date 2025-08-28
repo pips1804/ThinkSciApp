@@ -133,6 +133,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -347,7 +360,16 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      pet-emotions_0: 9148256257422754441
+      pet-emotions_1: 7857247700952698946
+      pet-emotions_2: -7514049076535619224
+      pet-emotions_3: 4938785860516715469
+      pet-emotions_4: 8696847012581691612
+      pet-emotions_5: -8560143769879123713
+      pet-emotions_6: -4545132018939778295
+      pet-emotions_7: -6037036552596521428
+      pet-emotions_8: 6821712332480980420
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
