@@ -13,6 +13,8 @@ public class HeatEscape : MonoBehaviour
     public List<Text> optionButtonTexts;
     public List<Image> optionButtonImages;
     public Dialogues dialogues;
+    public Image insulatorImage;
+    public Sprite[] insulators;
 
     private int currentQuestionIndex = 0;
 
@@ -51,6 +53,8 @@ public class HeatEscape : MonoBehaviour
         HousePanel.SetActive(false);
         ButtonsPanel.SetActive(false);
         StartCoroutine(GameFlow());
+
+        insulatorImage.color = new Color(1, 1, 1, 0);
     }
 
     private IEnumerator GameFlow()
@@ -138,8 +142,28 @@ public class HeatEscape : MonoBehaviour
             quizPanel.SetActive(false);
     }
 
-    public void SetGlass() => HeatParticle.SetMaterial("Glass");
-    public void SetBrick() => HeatParticle.SetMaterial("Brick");
-    public void SetFoam() => HeatParticle.SetMaterial("Foam");
-    public void SetMetal() => HeatParticle.SetMaterial("Metal");
+    public void SetGlass()
+    {
+        HeatParticle.SetMaterial("Glass");
+        insulatorImage.sprite = insulators[0];
+        insulatorImage.color = new Color(1, 1, 1, 1);
+    }
+    public void SetBrick()
+    {
+        HeatParticle.SetMaterial("Brick");
+        insulatorImage.sprite = insulators[1];
+        insulatorImage.color = new Color(1, 1, 1, 1);
+    }
+    public void SetFoam()
+    {
+        HeatParticle.SetMaterial("Foam");
+        insulatorImage.sprite = insulators[2];
+        insulatorImage.color = new Color(1, 1, 1, 1);
+    }
+    public void SetMetal()
+    {
+        HeatParticle.SetMaterial("Metal");
+        insulatorImage.sprite = insulators[3];
+        insulatorImage.color = new Color(1, 1, 1, 1);
+    }
 }

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 713e4eb635132964a8bc3982e3872fdc
+guid: 34fcdb4603bae2840b47b0094c7de5ab
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4541879742928458435
-    second: depositphotos_398276312-stock-illustration-new-cute-single-house-brown-removebg-preview_0
+      213: -1923994175756728024
+    second: house_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -109,30 +109,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: depositphotos_398276312-stock-illustration-new-cute-single-house-brown-removebg-preview_0
+      name: house_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 581
-        height: 419
+        x: 58
+        y: 62
+        width: 385
+        height: 391
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3c21bc1ff8ff70f30800000000000000
-      internalID: 4541879742928458435
+      spriteID: 829891cad799c45e0800000000000000
+      internalID: -1923994175756728024
       vertices: []
       indices: 
       edges: []
@@ -151,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      depositphotos_398276312-stock-illustration-new-cute-single-house-brown-removebg-preview_0: 4541879742928458435
+      house_0: -1923994175756728024
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

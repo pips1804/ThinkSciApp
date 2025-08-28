@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      stainless-steel-768x512_0: -165741229815504680
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
