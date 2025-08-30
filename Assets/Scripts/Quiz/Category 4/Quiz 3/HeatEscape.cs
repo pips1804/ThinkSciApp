@@ -16,38 +16,11 @@ public class HeatEscape : MonoBehaviour
     public Image insulatorImage;
     public Sprite[] insulators;
 
+    [Header("Database Manager")]
+    public DatabaseManager dbManager;   // drag your DBManager here in Inspector
+
     private int currentQuestionIndex = 0;
-
-    private List<string> questions = new List<string>()
-    {
-        "Which material lets heat escape the fastest?",
-        "Which material bounces heat the most?",
-        "Which material slows down heat the most?",
-        "Which material is the least effective at heat insulation?",
-        "Which material absorbs the most heat?",
-        "Which material reflects heat the best?",
-        "Which material allows heat to pass through easily?",
-        "Which material is strongest against heat impact?",
-        "Which material reduces heat transfer the most?",
-        "Which material causes particles to disappear the fastest?"
-    };
-
-    private List<string[]> options = new List<string[]>()
-    {
-        new string[] { "Glass", "Brick", "Foam", "Metal" },
-        new string[] { "Brick", "Metal", "Foam", "Glass" },
-        new string[] { "Foam", "Glass", "Brick", "Metal" },
-        new string[] { "Foam", "Glass", "Brick", "Metal" },
-        new string[] { "Metal", "Foam", "Glass", "Brick" },
-        new string[] { "Metal", "Brick", "Foam", "Glass" },
-        new string[] { "Glass", "Metal", "Brick", "Foam" },
-        new string[] { "Metal", "Glass", "Foam", "Brick" },
-        new string[] { "Foam", "Brick", "Glass", "Metal" },
-        new string[] { "Glass", "Brick", "Foam", "Metal" }
-    };
-
-    private int[] correctAnswers = { 0, 1, 0, 1, 2, 0, 0, 0, 0, 0 };
-
+    private List<Question> dbQuestions;
     void Start()
     {
         HousePanel.SetActive(false);
@@ -89,13 +62,18 @@ public class HeatEscape : MonoBehaviour
         HousePanel.SetActive(false);
         ButtonsPanel.SetActive(false);
         quizPanel.SetActive(true);
+
+        // Load 10 random multiple choice questions for Quiz_ID = 13
+        dbQuestions = dbManager.LoadRandomQuestions(13, "Multiple Choice", 10);
+
         currentQuestionIndex = 0;
         ShowQuestion();
     }
 
     private void ShowQuestion()
     {
-        questionText.text = questions[currentQuestionIndex];
+        var q = dbQuestions[currentQuestionIndex];
+        questionText.text = q.questionText;
 
         foreach (Button btn in optionButtons)
         {
@@ -106,7 +84,7 @@ public class HeatEscape : MonoBehaviour
         for (int i = 0; i < optionButtons.Count; i++)
         {
             int index = i;
-            optionButtonTexts[i].text = options[currentQuestionIndex][i];
+            optionButtonTexts[i].text = q.choices[i];
             optionButtons[i].onClick.RemoveAllListeners();
             optionButtons[i].onClick.AddListener(() => OnOptionSelected(index));
         }
@@ -119,7 +97,7 @@ public class HeatEscape : MonoBehaviour
 
     private IEnumerator HandleAnswer(int selectedIndex)
     {
-        int correctIndex = correctAnswers[currentQuestionIndex];
+        int correctIndex = dbQuestions[currentQuestionIndex].correctAnswerIndex;
 
         for (int i = 0; i < optionButtons.Count; i++)
         {
@@ -136,12 +114,13 @@ public class HeatEscape : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
 
         currentQuestionIndex++;
-        if (currentQuestionIndex < questions.Count)
+        if (currentQuestionIndex < dbQuestions.Count)
             ShowQuestion();
         else
             quizPanel.SetActive(false);
     }
 
+    #region Material Buttons
     public void SetGlass()
     {
         HeatParticle.SetMaterial("Glass");
@@ -166,4 +145,5 @@ public class HeatEscape : MonoBehaviour
         insulatorImage.sprite = insulators[3];
         insulatorImage.color = new Color(1, 1, 1, 1);
     }
+    #endregion
 }

@@ -5,6 +5,7 @@ using System.Collections;
 [System.Serializable]
 public class Question
 {
+    public int id;
     public string questionText;
     public string[] choices;
     public int correctAnswerIndex;
@@ -80,12 +81,17 @@ public class HeatTheMetal : MonoBehaviour
     private bool scenario3Active = false;
     private bool scenario3Completed = false;
 
-    // Store original button colors
+    [SerializeField] private DatabaseManager dbManager;
+
+    
     private Color[] originalButtonColors;
     private bool buttonsInteractable = true;
 
     void Start()
     {
+        questionsScenario1 = dbManager.LoadRandomQuestions(9, "Multiple Choice Scene 1", 4).ToArray();
+        questionsScenario2 = dbManager.LoadRandomQuestions(9, "Multiple Choice Scene 2", 3).ToArray();
+        questionsScenario3 = dbManager.LoadRandomQuestions(9, "Multiple Choice Scene 3", 3).ToArray();
         ShowIntro();
         warmRoomPanel.SetActive(false);
         warmAirArrows.SetActive(false);

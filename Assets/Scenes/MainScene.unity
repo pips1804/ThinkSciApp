@@ -2748,7 +2748,7 @@ RectTransform:
   m_Father: {fileID: 1984449355}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -7348,79 +7348,9 @@ MonoBehaviour:
   - {fileID: 1681468729}
   - {fileID: 896254659}
   - {fileID: 1167229503}
-  questionsScenario1:
-  - questionText: Why does the heat spread from one end of the rod to the other?
-    choices:
-    - Because the fire moves along the rod
-    - Because particles in the rod pass energy to nearby particles
-    - Because air carries the heat along the rod
-    - Because the rod pulls heat from the fire
-    correctAnswerIndex: 1
-  - questionText: What property of metals makes conduction faster?
-    choices:
-    - They are shiny
-    - They are hard
-    - They have free-moving electrons
-    - They are heavy
-    correctAnswerIndex: 2
-  - questionText: If the rod were made of wood instead of metal, what would happen?
-    choices:
-    - Heat would travel more quickly
-    - Heat would travel more slowly
-    - Heat would not travel at all
-    - The rod would turn into metal
-    correctAnswerIndex: 1
-  - questionText: Which daily example best shows conduction?
-    choices:
-    - Feeling heat when standing near a bonfire
-    - A metal spoon getting hot in a cup of soup
-    - A heater warming the air in a room
-    - Sunlight shining on your skin
-    correctAnswerIndex: 1
-  questionsScenario2:
-  - questionText: Why does the heater need to be placed at the bottom of the room?
-    choices:
-    - Because hot air sinks
-    - Because cold air sinks and hot air rises
-    - Because the heater is heavy
-    - Because walls block the heat
-    correctAnswerIndex: 1
-  - questionText: In the animation, why do the arrows move upward?
-    choices:
-    - Cold air pushes hot air down
-    - Hot air becomes lighter and rises
-    - Gravity pulls hot air up
-    - Air is pulled upward by the ceiling
-    correctAnswerIndex: 1
-  - questionText: Which everyday example shows convection?
-    choices:
-    - A frying pan heating up
-    - Warm air circulating from an air conditioner
-    - Feeling the warmth of the sun
-    - A candle melting
-    correctAnswerIndex: 1
-  questionsScenario3:
-  - questionText: How does heat from the Sun reach the Earth?
-    choices:
-    - By conduction through space
-    - By convection in air
-    - By radiation
-    - By reflection from other planets
-    correctAnswerIndex: 2
-  - questionText: Why does the sunlight beam brighten when the panel is aligned correctly?
-    choices:
-    - Because the panel is heavier
-    - Because more sunlight energy is absorbed
-    - Because the panel is closer to the Sun
-    - Because the Sun produces more heat
-    correctAnswerIndex: 1
-  - questionText: Which of these is an example of radiation?
-    choices:
-    - Touching a hot iron rod
-    - Feeling warmth from a campfire without touching it
-    - Warm air moving inside a room
-    - Hot water rising in a pot
-    correctAnswerIndex: 1
+  questionsScenario1: []
+  questionsScenario2: []
+  questionsScenario3: []
   petImage: {fileID: 1041207206}
   thinkingPetSprite: {fileID: 9148256257422754441, guid: 8cd9b2ba5bfcda741a38b0bd36dadeb0, type: 3}
   ideaPetSprite: {fileID: 7857247700952698946, guid: 8cd9b2ba5bfcda741a38b0bd36dadeb0, type: 3}
@@ -7458,6 +7388,7 @@ MonoBehaviour:
   incorrectButtonColor: {r: 1, g: 0, b: 0, a: 0.5882353}
   defaultButtonColor: {r: 1, g: 1, b: 1, a: 1}
   dialogueManager: {fileID: 108842322}
+  dbManager: {fileID: 1473477790}
 --- !u!114 &108842322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44136,7 +44067,7 @@ RectTransform:
   m_Father: {fileID: 1987343819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -70089,82 +70020,10 @@ MonoBehaviour:
   - {fileID: 1817161434}
   - {fileID: 2038073689}
   quizPanel: {fileID: 319136410}
-  questions:
-  - question: What happens to the speed of the particles when the system is heated?
-    answers:
-    - A. They stop moving
-    - B. They move faster
-    - C. They move slower
-    - D. They disappear
-    correctAnswerIndex: 1
-  - question: How does the color of the particles change as they transition from
-      cold to hot?
-    answers:
-    - A. Green to yellow
-    - B. Black to red
-    - C. Red to blue
-    - D. White to black
-    correctAnswerIndex: 1
-  - question: When the particles are cooled down, what arrangement do they return
-      to?
-    answers:
-    - ' A. Random scattered positions'
-    - ' B. Clustered in the middle'
-    - C. Grid-like positions
-    - D. Form a single circle
-    correctAnswerIndex: 2
-  - question: What is the difference in movement between hot and cold particles?
-    answers:
-    - A. Cold particles move in random fast directions
-    - B. Hot particles move slowly
-    - C. Hot particles move quickly and randomly
-    - D. Cold particles bounce with high speed
-    correctAnswerIndex: 2
-  - question: What visual effect appears on the screen when the particles are heated?
-    answers:
-    - A. Raindrops
-    - B. Flames
-    - C. Snowflakes
-    - D. Smoke
-    correctAnswerIndex: 1
-  - question: How do the particles behave when they collide with each other while
-      hot?
-    answers:
-    - A. They freeze in place
-    - B. They bounce off with extra shaking
-    - C. They pass through each other
-    - D. They disappear
-    correctAnswerIndex: 1
-  - question: What causes the flame images to become visible in the simulation?
-    answers:
-    - A. Cooling down the system
-    - B. Starting the game
-    - C. Heating up the system
-    - . When particles stop moving
-    correctAnswerIndex: 2
-  - question: What happens to the direction of particle movement when they hit the
-      container walls?
-    answers:
-    - A. They pass through the wall
-    - B. They bounce back (reverse direction)
-    - C. They stop moving
-    - D. They vanish
-    correctAnswerIndex: 1
-  - question: When cooling, what color do the particles gradually transition to?
-    answers:
-    - A. Yellow
-    - B. Green
-    - C. Blue
-    - D. Purple
-    correctAnswerIndex: 2
-  - question: Based on your observation, what scientific principle does the game
-      demonstrate?
-    answers:
-    - A. Energy conservation
-    - B. Particle model of matter
-    - "C. Newton\u2019s laws of gravity"
-    - D. Photosynthesis
-    correctAnswerIndex: 1
+  dbManager: {fileID: 1473477790}
+  quizID: 10
+  questionType: Multiple Choice
+  numberOfQuestions: 10
 --- !u!114 &1173353539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74465,7 +74324,7 @@ RectTransform:
   m_Father: {fileID: 144855415}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -0.000038146973}
   m_SizeDelta: {x: 130, y: 27.9059}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -97987,7 +97846,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1706624724
 RectTransform:
   m_ObjectHideFlags: 0
@@ -98053,6 +97912,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 38ecc1b8e008d8e48bcbbd4eae8fb5a8, type: 3}
   - {fileID: 21300000, guid: 42322b65b1a8d38479e217fdea53350b, type: 3}
   - {fileID: 21300000, guid: 7ca1b8aee4935ed4cbbf0176e7b278bc, type: 3}
+  dbManager: {fileID: 1473477790}
 --- !u!114 &1706624726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -116888,7 +116748,7 @@ RectTransform:
   m_Father: {fileID: 877045209}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: -0.000038146973}
   m_SizeDelta: {x: 130, y: 27.9059}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -122268,7 +122128,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2086081856
 RectTransform:
   m_ObjectHideFlags: 0

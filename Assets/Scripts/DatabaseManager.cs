@@ -5,6 +5,7 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 
+
 public class LessonUnlockData
 {
     public int LessonID;
@@ -27,227 +28,65 @@ public class Badge
     public bool IsDone => IsUnlocked && IsClaimed;
 }
 
-
 public class DatabaseManager : MonoBehaviour
 {
     private string dbPath;
     void Awake()
     {
         dbPath = "URI=file:" + Path.Combine(Application.persistentDataPath, "UserDatabase.db");
+        Debug.Log("Awake: Initial DB path set to " + dbPath);
         CreateDBIfNotExists();
     }
 
     void CreateDBIfNotExists()
     {
-        using (var connection = new SqliteConnection(dbPath))
+        string fileName = "UserDatabase.db";
+        string sourcePath = Path.Combine(Application.streamingAssetsPath, fileName);
+        string targetPath = Path.Combine(Application.persistentDataPath, fileName);
+
+        Debug.Log("StreamingAssets DB path: " + sourcePath);
+        Debug.Log("PersistentDataPath DB path: " + targetPath);
+
+        // Copy the DB from StreamingAssets to persistentDataPath if it doesn't exist yet
+        if (!File.Exists(targetPath))
         {
-            connection.Open();
+            Debug.Log("Database not found in persistentDataPath, copying from StreamingAssets...");
+            File.Copy(sourcePath, targetPath);
+            Debug.Log("Database copy complete!");
+        }
+        else
+        {
+            Debug.Log("Database already exists in persistentDataPath, not copying.");
+        }
 
-            using (var command = connection.CreateCommand())
+        // Set connection string
+        dbPath = "URI=file:" + targetPath;
+        Debug.Log("Final database connection string: " + dbPath);
+
+        // 🔍 Optional: quick sanity check
+        try
+        {
+            using (var connection = new SqliteConnection(dbPath))
             {
-                command.CommandText = @"
-                PRAGMA foreign_keys = ON;
-
-                -- === Create Tables ===
-
-                CREATE TABLE IF NOT EXISTS Pet_Table (
-                    Pet_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Pet_Name TEXT DEFAULT 'Iglot',
-                    Base_Health INTEGER DEFAULT 100,
-                    Base_Damage INTEGER DEFAULT 10
-                );
-
-                CREATE TABLE IF NOT EXISTS users (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    first_name TEXT,
-                    middle_name TEXT,
-                    last_name TEXT,
-                    coins INTEGER DEFAULT 1500,
-                    Pet_ID INTEGER,
-                    FOREIGN KEY(Pet_ID) REFERENCES Pet_Table(Pet_ID)
-                );
-
-                CREATE TABLE IF NOT EXISTS Category_Table (
-                    Category_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Category_Name TEXT
-                );
-
-                CREATE TABLE IF NOT EXISTS User_Category_Unlocks (
-                    User_ID INTEGER,
-                    Category_ID INTEGER,
-                    Is_Unlocked INTEGER DEFAULT 0,
-                    PRIMARY KEY(User_ID, Category_ID),
-                    FOREIGN KEY(User_ID) REFERENCES users(id),
-                    FOREIGN KEY(Category_ID) REFERENCES Category_Table(Category_ID)
-                );
-
-                CREATE TABLE IF NOT EXISTS Lessons_Table (
-                    Lesson_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Category_ID INTEGER,
-                    Lesson_Name TEXT,
-                    FOREIGN KEY(Category_ID) REFERENCES Category_Table(Category_ID)
-                );
-
-                CREATE TABLE IF NOT EXISTS User_Lesson_Unlocks (
-                    User_ID INTEGER,
-                    Lesson_ID INTEGER,
-                    Is_Unlocked INTEGER DEFAULT 0,
-                    PRIMARY KEY(User_ID, Lesson_ID),
-                    FOREIGN KEY(User_ID) REFERENCES users(id),
-                    FOREIGN KEY(Lesson_ID) REFERENCES Lessons_Table(Lesson_ID)
-                );
-
-                CREATE TABLE IF NOT EXISTS Quiz_Table (
-                    Quiz_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Lesson_ID INTEGER,
-                    Quiz_Name TEXT,
-                    FOREIGN KEY(Lesson_ID) REFERENCES Lessons_Table(Lesson_ID)
-                );
-
-                CREATE TABLE IF NOT EXISTS User_Quiz_Scores (
-                    ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                    User_ID INTEGER,
-                    Quiz_ID INTEGER,
-                    Score INTEGER,
-                    Completed_At TEXT,
-                    Stats_Given INTEGER DEFAULT 0,
-                    FOREIGN KEY(User_ID) REFERENCES users(id),
-                    FOREIGN KEY(Quiz_ID) REFERENCES Quiz_Table(Quiz_ID)
-                );
-
-                CREATE TABLE IF NOT EXISTS Badge_Table (
-                    Badges_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Badges_Name TEXT,
-                    Badges_Description TEXT
-                );
-
-                CREATE TABLE IF NOT EXISTS User_Badges (
-                    User_ID INTEGER,
-                    Badge_ID INTEGER,
-                    Is_Unlocked INTEGER DEFAULT 0,
-                    Is_Claimed INTEGER DEFAULT 0,
-                    PRIMARY KEY(User_ID, Badge_ID),
-                    FOREIGN KEY(User_ID) REFERENCES users(id),
-                    FOREIGN KEY(Badge_ID) REFERENCES Badge_Table(Badges_ID)
-                );
-
-                -- === Seed Static Tables ===
-
-                -- Insert Pet
-                INSERT OR IGNORE INTO Pet_Table (Pet_ID, Pet_Name, Base_Health, Base_Damage) VALUES
-                (1, 'Iglot', 100, 10);
-
-                -- Insert User
-                INSERT INTO users (id, first_name, middle_name, last_name, coins, Pet_ID)
-                SELECT 1, 'Juan', 'Dela', 'Cruz', 1500, 1
-                WHERE NOT EXISTS (SELECT 1 FROM users WHERE id = 1);
-
-                -- Insert Categories
-                INSERT OR IGNORE INTO Category_Table (Category_ID, Category_Name) VALUES
-                (1, 'Understanding Forces and Motion'),
-                (2, 'Describing Motion'),
-                (3, 'Thermal Energy and Heat Transfer'),
-                (4, 'Energy Sources and Innovation');
-
-                -- Insert Lessons
-                INSERT OR IGNORE INTO Lessons_Table (Lesson_ID, Category_ID, Lesson_Name) VALUES
-                (1, 1, 'What Are Forces?'),
-                (2, 1, 'Balanced vs. Unbalanced Forces'),
-                (3, 1, 'Free-Body Diagrams'),
-                (4, 1, 'Effects of Unbalanced Forces'),
-                (5, 2, 'Distance vs. Displacement'),
-                (6, 2, 'Speed vs. Velocity'),
-                (7, 2, 'Uniform Velocity and Distance-Time Graphs'),
-                (8, 3, 'Heat vs. Temperature'),
-                (9, 3, 'Modes of Heat Transfer'),
-                (10, 3, 'Heat Transfer and the Particle Model'),
-                (11, 4, 'Modern Renewable Energy Sources'),
-                (12, 4, 'Technological Devices Transforming Heat Energy'),
-                (13, 4, 'Particle Model in Energy Innovations'),
-                (14, 4, 'Local and Global Solutions to the Energy Crisis');
-
-                -- Insert Quizzes
-                INSERT OR IGNORE INTO Quiz_Table (Quiz_ID, Lesson_ID, Quiz_Name) VALUES
-                (1, 1, 'What Are Forces?'),
-                (2, 2, 'Balanced vs. Unbalanced Forces'),
-                (3, 3, 'Free-Body Diagrams'),
-                (4, 4, 'Effects of Unbalanced Forces'),
-                (5, 5, 'Distance vs. Displacement'),
-                (6, 6, 'Speed vs. Velocity'),
-                (7, 7, 'Uniform Velocity and Distance-Time'),
-                (8, 8, 'Heat vs. Temperature'),
-                (9, 9, 'Modes of Heat Transfer'),
-                (10, 10, 'Heat Transfer and the Particle Model'),
-                (11, 11, 'Modern Renewable Energy Sources'),
-                (12, 12, 'Technological Devices Transforming Heat Energy'),
-                (13, 13, 'Particle Model in Energy Innovations'),
-                (14, 14, 'Local and Global Solutions to the Energy Crisis');
-
-                -- Insert Badges
-                INSERT OR IGNORE INTO Badge_Table (Badges_ID, Badges_Name, Badges_Description) VALUES
-                (1, 'First Step', 'Finish your first lesson'),
-                (2, 'Lesson Explorer', 'Complete 5 lessons in total'),
-                (3, 'Correct Machine', 'Answer 100 total questions correctly across all quizzes'),
-                (4, 'All-Rounder', 'Finish at least one lesson in all 4 categories'),
-                (5, 'Full Completionist', 'Finish all lessons in all categories'),
-                (6, 'Quiz Champion', 'Score 90% or higher on any quiz'),
-                (7, 'Flawless Victory', 'Score 100% on any quiz'),
-                (8, 'Quiz Veteran', 'Finished 10 quizzes'),
-                (9, 'Category One Finisher', 'Finish all lessons in category one'),
-                (10, 'Category Two Finisher', 'Finish all lessons in category two'),
-                (11, 'Category Three Finisher', 'Finish all lessons in category three'),
-                (12, 'Category Four Finisher', 'Finish all lessons in category four');
-
-                -- === Insert/Update User Progress ===
-
-                -- User Category Unlocks
-                INSERT INTO User_Category_Unlocks (User_ID, Category_ID, Is_Unlocked) VALUES
-                (1, 1, 1),
-                (1, 2, 1),
-                (1, 3, 0),
-                (1, 4, 0)
-                ON CONFLICT(User_ID, Category_ID) DO UPDATE SET Is_Unlocked = excluded.Is_Unlocked;
-
-                -- User Lesson Unlocks
-                INSERT INTO User_Lesson_Unlocks (User_ID, Lesson_ID, Is_Unlocked) VALUES
-                (1, 1, 1),
-                (1, 2, 1),
-                (1, 3, 1),
-                (1, 4, 1),
-                (1, 5, 1),
-                (1, 6, 1),
-                (1, 7, 1),
-                (1, 8, 0),
-                (1, 9, 0),
-                (1, 10, 0),
-                (1, 11, 0),
-                (1, 12, 0),
-                (1, 13, 0),
-                (1, 14, 0)
-                ON CONFLICT(User_ID, Lesson_ID) DO UPDATE SET Is_Unlocked = excluded.Is_Unlocked;
-
-                -- User Badges
-                INSERT INTO User_Badges (User_ID, Badge_ID, Is_Unlocked, Is_Claimed) VALUES
-                (1, 1, 1, 0),
-                (1, 2, 1, 0),
-                (1, 3, 1, 0),
-                (1, 4, 1, 0),
-                (1, 5, 1, 0),
-                (1, 6, 1, 0),
-                (1, 7, 1, 0),
-                (1, 8, 1, 0),
-                (1, 9, 1, 0),
-                (1, 10, 1, 0),
-                (1, 11, 1, 0),
-                (1, 12, 1, 0)
-                ON CONFLICT(User_ID, Badge_ID) DO UPDATE SET
-                    Is_Unlocked = excluded.Is_Unlocked,
-                    Is_Claimed = excluded.Is_Claimed;
-
-                ";
-
-                command.ExecuteNonQuery();
+                connection.Open();
+                using (var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT name FROM sqlite_master WHERE type='table';";
+                    using (IDataReader reader = cmd.ExecuteReader())
+                    {
+                        List<string> tables = new List<string>();
+                        while (reader.Read())
+                        {
+                            tables.Add(reader.GetString(0));
+                        }
+                        Debug.Log("Tables in DB: " + string.Join(", ", tables));
+                    }
+                }
             }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Failed to open DB or list tables: " + e.Message);
         }
     }
 
@@ -680,13 +519,13 @@ public class DatabaseManager : MonoBehaviour
     {
         using (var conn = new SqliteConnection(dbPath))
         {
-            conn.Open(); 
+            conn.Open();
 
             using (IDbCommand cmd = conn.CreateCommand())
             {
                 cmd.CommandText = @"UPDATE users 
                                 SET coins = coins + @goldToAdd
-                                WHERE id = @userId";    
+                                WHERE id = @userId";
 
                 var param1 = cmd.CreateParameter();
                 param1.ParameterName = "@goldToAdd";
@@ -763,4 +602,81 @@ public class DatabaseManager : MonoBehaviour
             }
         }
     }
+
+    public List<Question> LoadRandomQuestions(int quizId, string questionType, int count)
+    {
+        List<Question> allQuestions = new List<Question>();
+
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = @"
+                    SELECT q.Question_ID, q.Question_Text, qq.Correct_Answer_Index, qq.Quiz_Question_ID
+                    FROM Questions q
+                    JOIN Quiz_Questions qq ON q.Question_ID = qq.Question_ID
+                    WHERE q.Quiz_ID = @quizId AND q.Question_Type = @type";
+                cmd.Parameters.AddWithValue("@quizId", quizId);
+                cmd.Parameters.AddWithValue("@type", questionType);
+
+                using (IDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int questionId = reader.GetInt32(0);
+                        string text = reader.GetString(1);
+                        int correctIndex = reader.GetInt32(2);
+                        int quizQuestionId = reader.GetInt32(3);
+
+                        string[] answers = LoadAnswers(connection, quizQuestionId);
+
+                        allQuestions.Add(new Question
+                        {
+                            id = questionId,
+                            questionText = text,
+                            correctAnswerIndex = correctIndex,
+                            choices = answers
+                        });
+                    }
+                }
+            }
+        }
+
+        Shuffle(allQuestions);
+        return allQuestions.Count > count ? allQuestions.GetRange(0, count) : allQuestions;
+    }
+
+    private string[] LoadAnswers(SqliteConnection connection, int quizQuestionId)
+    {
+        List<string> answers = new List<string>();
+
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = "SELECT Answer_Text FROM Quiz_Answers WHERE Quiz_Question_ID = @qqid ORDER BY Answer_Index ASC";
+            cmd.Parameters.AddWithValue("@qqid", quizQuestionId);
+
+            using (IDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    answers.Add(reader.GetString(0));
+                }
+            }
+        }
+        return answers.ToArray();
+    }
+
+    private void Shuffle<T>(List<T> list)
+    {
+        System.Random rng = new System.Random();
+        int n = list.Count;
+        while (n > 1)
+        {
+            int k = rng.Next(n--);
+            (list[n], list[k]) = (list[k], list[n]);
+        }
+    }
 }
+
