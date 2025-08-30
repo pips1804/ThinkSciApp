@@ -37,10 +37,39 @@ public class RocketAsteroidGame : MonoBehaviour
     public float spawnInterval = 1.5f;
     public int maxEnergyPoints = 100;
     public int deviceEnergyValue = 10;
-    public int asteroidScoreValue = 2;
-    public int deviceScoreValue = 3;
     public int asteroidMaxHealth = 3;
     public int targetScore = 100;
+
+    [Header("Configurable Scoring")]
+    [Tooltip("Points gained for destroying an asteroid")]
+    public int asteroidScoreValue = 2;
+    [Tooltip("Points gained for catching a device")]
+    public int deviceScoreValue = 3;
+
+    [Header("Asteroid Movement")]
+    [Tooltip("Enable zigzag movement for asteroids")]
+    public bool enableZigzagMovement = true;
+    [Tooltip("Amplitude of zigzag movement")]
+    public float zigzagAmplitude = 100f;
+    [Tooltip("Speed of zigzag oscillation")]
+    public float zigzagSpeed = 2f;
+    [Tooltip("Enable asteroids to follow player")]
+    public bool enablePlayerFollowing = true;
+    [Tooltip("How strongly asteroids are attracted to player (0-1)")]
+    [Range(0f, 1f)]
+    public float followStrength = 0.3f;
+
+    [Header("Animation Settings")]
+    [Tooltip("Duration of device catch animation")]
+    public float deviceCatchAnimDuration = 0.5f;
+    [Tooltip("Scale factor for device catch animation")]
+    public float deviceCatchScaleMultiplier = 1.5f;
+    [Tooltip("Duration of asteroid hit animation")]
+    public float asteroidHitAnimDuration = 0.8f;
+    [Tooltip("Shake intensity for asteroid hit")]
+    public float shakeIntensity = 20f;
+    [Tooltip("Number of flashes during invulnerability")]
+    public int invulnerabilityFlashes = 6;
 
     [Header("Question System")]
     public GameObject questionPanel;
@@ -64,6 +93,7 @@ public class RocketAsteroidGame : MonoBehaviour
     private bool isInvulnerable = false;
     private bool isQuestionActive = false;
     private float invulnerabilityTime = 1.0f;
+    private Vector2 originalRocketPosition;
 
     [Header("UI Panels")]
     public GameObject gameUI;
@@ -73,9 +103,11 @@ public class RocketAsteroidGame : MonoBehaviour
     [Header("Optional Dialogue")]
     public Dialogues dialogues;
 
-    // Simple object tracking
+    // Enhanced object tracking
     private Dictionary<GameObject, bool> isAsteroidDict = new Dictionary<GameObject, bool>();
     private Dictionary<GameObject, int> asteroidHealthDict = new Dictionary<GameObject, int>();
+    private Dictionary<GameObject, float> asteroidTimeDict = new Dictionary<GameObject, float>();
+    private Dictionary<GameObject, Vector2> asteroidStartPosDict = new Dictionary<GameObject, Vector2>();
     private Vector2 catchZoneOffset;
 
     [System.Serializable]
@@ -87,37 +119,66 @@ public class RocketAsteroidGame : MonoBehaviour
     }
 
     public GameQuestion[] questions = new GameQuestion[]
+    {    new GameQuestion
     {
-        new GameQuestion
-        {
-            question = "What planet is known as the Red Planet?",
-            answers = new string[] { "Venus", "Mars", "Jupiter", "Saturn" },
-            correctAnswerIndex = 1
-        },
-        new GameQuestion
-        {
-            question = "What is the largest planet in our solar system?",
-            answers = new string[] { "Earth", "Saturn", "Jupiter", "Neptune" },
-            correctAnswerIndex = 2
-        },
-        new GameQuestion
-        {
-            question = "How many moons does Earth have?",
-            answers = new string[] { "0", "1", "2", "3" },
-            correctAnswerIndex = 1
-        },
-        new GameQuestion
-        {
-            question = "What is the closest star to Earth?",
-            answers = new string[] { "Alpha Centauri", "Sirius", "The Sun", "Polaris" },
-            correctAnswerIndex = 2
-        },
-        new GameQuestion
-        {
-            question = "What force keeps planets in orbit around the Sun?",
-            answers = new string[] { "Magnetism", "Gravity", "Friction", "Inertia" },
-            correctAnswerIndex = 1
-        }
+        question = "What device converts heat directly into electricity using the Seebeck effect?",
+        answers = new string[] { "Solar Panel", "Thermoelectric Generator", "Geothermal Plant", "Battery" },
+        correctAnswerIndex = 1
+    },
+    new GameQuestion
+    {
+        question = "Which device captures heat from beneath the Earth’s surface to generate electricity?",
+        answers = new string[] { "Solar Panel", "Wind Turbine", "Geothermal Plant", "Thermoelectric Generator" },
+        correctAnswerIndex = 2
+    },
+    new GameQuestion
+    {
+        question = "What type of energy transformation happens in a solar panel?",
+        answers = new string[] { "Heat to Mechanical", "Heat to Sound", "Heat to Chemical", "Heat to Electrical" },
+        correctAnswerIndex = 3
+    },
+    new GameQuestion
+    {
+        question = "What is the main energy source used by geothermal power plants?",
+        answers = new string[] { "Sunlight", "Wind", "Heat from Earth’s interior", "Chemical Reactions" },
+        correctAnswerIndex = 2
+    },
+    new GameQuestion
+    {
+        question = "Which technological device often powers spacecraft by converting heat from radioisotopes into electricity?",
+        answers = new string[] { "Solar Panel", "RTG (Radioisotope Thermoelectric Generator)", "Battery", "Wind Turbine" },
+        correctAnswerIndex = 1
+    },
+    new GameQuestion
+    {
+        question = "What is the role of the Seebeck effect in thermoelectric generators?",
+        answers = new string[] { "Converts heat into sound", "Converts temperature differences into electricity", "Stores heat as chemical energy", "Transfers heat to the environment" },
+        correctAnswerIndex = 1
+    },
+    new GameQuestion
+    {
+        question = "Which device captures sunlight and transforms it into electricity using photovoltaic cells?",
+        answers = new string[] { "Solar Panel", "Geothermal Plant", "Wind Turbine", "Heat Engine" },
+        correctAnswerIndex = 0
+    },
+    new GameQuestion
+    {
+        question = "Which of the following is a disadvantage of geothermal power plants?",
+        answers = new string[] { "They release large amounts of smoke", "They depend on radioactive materials", "They are location-dependent", "They cannot run at night" },
+        correctAnswerIndex = 2
+    },
+    new GameQuestion
+    {
+        question = "What is the main advantage of thermoelectric generators?",
+        answers = new string[] { "They require moving parts", "They are silent and reliable", "They use wind as input", "They only work at night" },
+        correctAnswerIndex = 1
+    },
+    new GameQuestion
+    {
+        question = "In a geothermal plant, what is typically used to turn turbines and generate electricity?",
+        answers = new string[] { "Steam from heated water", "Direct sunlight", "Nuclear fuel rods", "Chemical batteries" },
+        correctAnswerIndex = 0
+    }
     };
 
     void Start()
@@ -128,6 +189,9 @@ public class RocketAsteroidGame : MonoBehaviour
         {
             catchZoneOffset = rocketCatchZone.anchoredPosition - rocket.anchoredPosition;
         }
+
+        // Store original rocket position for animations
+        originalRocketPosition = rocket.anchoredPosition;
 
         gameUI.SetActive(false);
         gameOverPanel.SetActive(false);
@@ -359,11 +423,19 @@ public class RocketAsteroidGame : MonoBehaviour
         if (isAsteroid)
         {
             asteroidHealthDict[newObject] = asteroidMaxHealth;
+            asteroidTimeDict[newObject] = 0f;
         }
 
         RectTransform objectRect = newObject.GetComponent<RectTransform>();
         float spawnX = Random.Range(-gameArea.rect.width / 2 + 50f, gameArea.rect.width / 2 - 50f);
-        objectRect.anchoredPosition = new Vector2(spawnX, gameArea.rect.height / 2);
+        Vector2 startPos = new Vector2(spawnX, gameArea.rect.height / 2);
+        objectRect.anchoredPosition = startPos;
+
+        if (isAsteroid)
+        {
+            asteroidStartPosDict[newObject] = startPos;
+        }
+
         activeObjects.Add(newObject);
 
         StartCoroutine(AnimateObjectFalling(objectRect, newObject));
@@ -375,6 +447,7 @@ public class RocketAsteroidGame : MonoBehaviour
         float endY = -gameArea.rect.height / 2 - 50f;
         Vector2 startPos = objectRect.anchoredPosition;
         float elapsedTime = 0f;
+        bool isAsteroid = isAsteroidDict.ContainsKey(objectObj) ? isAsteroidDict[objectObj] : false;
 
         while (elapsedTime < fallDuration && objectObj != null && objectRect != null)
         {
@@ -386,7 +459,34 @@ public class RocketAsteroidGame : MonoBehaviour
 
             float t = elapsedTime / fallDuration;
             float currentY = Mathf.Lerp(startY, endY, t);
-            Vector2 newPosition = new Vector2(startPos.x, currentY);
+            float currentX = startPos.x;
+
+            // Enhanced movement for asteroids
+            if (isAsteroid && asteroidTimeDict.ContainsKey(objectObj))
+            {
+                asteroidTimeDict[objectObj] = elapsedTime;
+
+                // Zigzag movement
+                if (enableZigzagMovement)
+                {
+                    float zigzagOffset = Mathf.Sin(elapsedTime * zigzagSpeed) * zigzagAmplitude * t;
+                    currentX += zigzagOffset;
+                }
+
+                // Player following
+                if (enablePlayerFollowing && rocket != null)
+                {
+                    float rocketX = rocket.anchoredPosition.x;
+                    float directionToPlayer = (rocketX - currentX) * followStrength * t;
+                    currentX += directionToPlayer * Time.deltaTime;
+                }
+
+                // Keep within bounds
+                float halfWidth = gameArea.rect.width / 2f - 50f;
+                currentX = Mathf.Clamp(currentX, -halfWidth, halfWidth);
+            }
+
+            Vector2 newPosition = new Vector2(currentX, currentY);
             objectRect.anchoredPosition = newPosition;
 
             elapsedTime += Time.deltaTime;
@@ -407,6 +507,10 @@ public class RocketAsteroidGame : MonoBehaviour
             isAsteroidDict.Remove(obj);
         if (asteroidHealthDict.ContainsKey(obj))
             asteroidHealthDict.Remove(obj);
+        if (asteroidTimeDict.ContainsKey(obj))
+            asteroidTimeDict.Remove(obj);
+        if (asteroidStartPosDict.ContainsKey(obj))
+            asteroidStartPosDict.Remove(obj);
     }
 
     void CheckCollisions()
@@ -428,7 +532,10 @@ public class RocketAsteroidGame : MonoBehaviour
             GameObject obj = activeObjects[i];
             if (obj == null || !isAsteroidDict.ContainsKey(obj))
             {
-                activeObjects.RemoveAt(i);
+                if (obj != null && activeObjects.Count > i)
+                {
+                    activeObjects.RemoveAt(i);
+                }
                 continue;
             }
 
@@ -454,7 +561,10 @@ public class RocketAsteroidGame : MonoBehaviour
                     StartCoroutine(ProcessDeviceCatch(obj));
                 }
 
-                activeObjects.RemoveAt(i);
+                if (activeObjects.Count > i)
+                {
+                    activeObjects.RemoveAt(i);
+                }
                 break;
             }
         }
@@ -479,7 +589,10 @@ public class RocketAsteroidGame : MonoBehaviour
                 GameObject obj = activeObjects[i];
                 if (obj == null || !isAsteroidDict.ContainsKey(obj))
                 {
-                    activeObjects.RemoveAt(i);
+                    if (obj != null && activeObjects.Count > i)
+                    {
+                        activeObjects.RemoveAt(i);
+                    }
                     continue;
                 }
 
@@ -504,7 +617,10 @@ public class RocketAsteroidGame : MonoBehaviour
                         {
                             // Asteroid destroyed
                             ProcessAsteroidDestroyed();
-                            activeObjects.RemoveAt(i);
+                            if (activeObjects.Count > i)
+                            {
+                                activeObjects.RemoveAt(i);
+                            }
                             RemoveObjectData(obj);
                             Destroy(obj);
                         }
@@ -532,10 +648,14 @@ public class RocketAsteroidGame : MonoBehaviour
             Color originalColor = asteroidImage.color;
             asteroidImage.color = Color.red;
             yield return new WaitForSeconds(0.2f);
-            asteroidImage.color = originalColor;
+            if (asteroidImage != null)
+            {
+                asteroidImage.color = originalColor;
+            }
         }
     }
 
+    // ENHANCED ASTEROID HIT ANIMATION
     IEnumerator ProcessAsteroidHit(GameObject asteroid)
     {
         Debug.Log("ASTEROID HIT ROCKET!");
@@ -544,15 +664,9 @@ public class RocketAsteroidGame : MonoBehaviour
         currentHealth--;
         UpdateHealthDisplay();
 
-        // Simple hit animation
-        Image rocketImage = rocket.GetComponent<Image>();
-        if (rocketImage != null)
-        {
-            Color originalColor = rocketImage.color;
-            rocketImage.color = Color.red;
-            yield return new WaitForSeconds(0.3f);
-            rocketImage.color = originalColor;
-        }
+        // Start screen shake and rocket hit animation simultaneously
+        StartCoroutine(ScreenShakeEffect());
+        StartCoroutine(RocketHitAnimation());
 
         RemoveObjectData(asteroid);
         Destroy(asteroid);
@@ -568,12 +682,13 @@ public class RocketAsteroidGame : MonoBehaviour
         }
     }
 
+    // ENHANCED DEVICE CATCH ANIMATION
     IEnumerator ProcessDeviceCatch(GameObject device)
     {
         Debug.Log("DEVICE CAUGHT!");
 
-        RemoveObjectData(device);
-        Destroy(device);
+        // Start the catch animation before destroying the device
+        StartCoroutine(DeviceCatchAnimation(device));
 
         devicesCaught++;
         energyPoints += deviceEnergyValue;
@@ -581,17 +696,161 @@ public class RocketAsteroidGame : MonoBehaviour
         UpdateEnergyMeter();
         UpdateScore();
 
-        if (devicesCaught >= devicesNeededForQuestion)
-        {
-            ShowQuestion();
-        }
+        // Start rocket celebration animation
+        StartCoroutine(RocketCelebrationAnimation());
 
-        if (energyPoints >= maxEnergyPoints)
+        // Wait a bit before removing the object data and checking conditions
+        yield return new WaitForSeconds(0.1f);
+
+        RemoveObjectData(device);
+
+        // Check for victory based on SCORE, not energy points
+        if (score >= targetScore)
         {
             Victory();
         }
 
-        yield return null;
+        if (devicesCaught >= devicesNeededForQuestion)
+        {
+            ShowQuestion();
+        }
+    }
+
+    // NEW: Device catch animation with scaling and fade effect
+    IEnumerator DeviceCatchAnimation(GameObject device)
+    {
+        if (device == null) yield break;
+
+        RectTransform deviceRect = device.GetComponent<RectTransform>();
+        Image deviceImage = device.GetComponent<Image>();
+
+        if (deviceRect == null) yield break;
+
+        Vector3 originalScale = deviceRect.localScale;
+        Color originalColor = deviceImage != null ? deviceImage.color : Color.white;
+        Vector2 startPos = deviceRect.anchoredPosition;
+        Vector2 endPos = rocket.anchoredPosition;
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < deviceCatchAnimDuration && device != null)
+        {
+            float t = elapsedTime / deviceCatchAnimDuration;
+            float easedT = 1f - (1f - t) * (1f - t); // Ease out quad
+
+            // Scale animation - grow then shrink
+            float scaleProgress = t < 0.5f ? t * 2f : (1f - t) * 2f;
+            float currentScale = 1f + (deviceCatchScaleMultiplier - 1f) * scaleProgress;
+            deviceRect.localScale = originalScale * currentScale;
+
+            // Move towards rocket
+            Vector2 currentPos = Vector2.Lerp(startPos, endPos, easedT);
+            deviceRect.anchoredPosition = currentPos;
+
+            // Fade out
+            if (deviceImage != null)
+            {
+                Color fadeColor = originalColor;
+                fadeColor.a = Mathf.Lerp(originalColor.a, 0f, easedT);
+                deviceImage.color = fadeColor;
+            }
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure the device is destroyed
+        if (device != null)
+        {
+            Destroy(device);
+        }
+    }
+
+    // NEW: Rocket celebration animation when catching device
+    IEnumerator RocketCelebrationAnimation()
+    {
+        if (rocket == null) yield break;
+
+        Vector3 originalScale = rocket.localScale;
+        Vector2 originalPos = rocket.anchoredPosition;
+
+        float animDuration = 0.3f;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < animDuration)
+        {
+            float t = elapsedTime / animDuration;
+
+            // Bounce scale effect
+            float scaleMultiplier = 1f + Mathf.Sin(t * Mathf.PI * 2f) * 0.1f;
+            rocket.localScale = originalScale * scaleMultiplier;
+
+            // Subtle upward bounce
+            float yOffset = Mathf.Sin(t * Mathf.PI) * 10f;
+            rocket.anchoredPosition = new Vector2(originalPos.x, originalPos.y + yOffset);
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Reset to original state
+        rocket.localScale = originalScale;
+        rocket.anchoredPosition = originalPos;
+    }
+
+    // NEW: Screen shake effect for asteroid hits
+    IEnumerator ScreenShakeEffect()
+    {
+        if (gameArea == null) yield break;
+
+        Vector2 originalPos = gameArea.anchoredPosition;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < asteroidHitAnimDuration * 0.5f) // Shake for half the hit duration
+        {
+            float intensity = Mathf.Lerp(shakeIntensity, 0f, elapsedTime / (asteroidHitAnimDuration * 0.5f));
+
+            Vector2 randomOffset = new Vector2(
+                Random.Range(-intensity, intensity),
+                Random.Range(-intensity, intensity)
+            );
+
+            gameArea.anchoredPosition = originalPos + randomOffset;
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Reset position
+        gameArea.anchoredPosition = originalPos;
+    }
+
+    // NEW: Enhanced rocket hit animation with flashing
+    IEnumerator RocketHitAnimation()
+    {
+        if (rocket == null) yield break;
+
+        Image rocketImage = rocket.GetComponent<Image>();
+        if (rocketImage == null) yield break;
+
+        Color originalColor = rocketImage.color;
+        float flashInterval = asteroidHitAnimDuration / invulnerabilityFlashes;
+
+        for (int i = 0; i < invulnerabilityFlashes; i++)
+        {
+            // Flash red
+            rocketImage.color = Color.red;
+            yield return new WaitForSeconds(flashInterval * 0.3f);
+
+            // Flash semi-transparent
+            Color flashColor = originalColor;
+            flashColor.a = 0.3f;
+            rocketImage.color = flashColor;
+            yield return new WaitForSeconds(flashInterval * 0.7f);
+        }
+
+        // Reset to original color
+        rocketImage.color = originalColor;
     }
 
     void ProcessAsteroidDestroyed()
@@ -622,10 +881,17 @@ public class RocketAsteroidGame : MonoBehaviour
         devicesCaught = 0;
         isQuestionActive = true;
 
+        if (questions.Length == 0)
+        {
+            Debug.LogWarning("No questions available!");
+            isQuestionActive = false;
+            return;
+        }
+
         GameQuestion selectedQuestion = questions[Random.Range(0, questions.Length)];
         questionText.text = selectedQuestion.question;
 
-        for (int i = 0; i < answerButtons.Length; i++)
+        for (int i = 0; i < answerButtons.Length && i < selectedQuestion.answers.Length; i++)
         {
             answerTexts[i].text = selectedQuestion.answers[i];
             answerButtons[i].interactable = true;
@@ -726,6 +992,7 @@ public class RocketAsteroidGame : MonoBehaviour
         {
             scoreText.text = score.ToString();
         }
+        UpdateWaveDisplay(); // Update wave display when score changes
     }
 
     void UpdateWaveDisplay()
@@ -786,6 +1053,8 @@ public class RocketAsteroidGame : MonoBehaviour
 
         isAsteroidDict.Clear();
         asteroidHealthDict.Clear();
+        asteroidTimeDict.Clear();
+        asteroidStartPosDict.Clear();
 
         if (questionPanel != null)
         {
@@ -809,6 +1078,8 @@ public class RocketAsteroidGame : MonoBehaviour
 
         isAsteroidDict.Clear();
         asteroidHealthDict.Clear();
+        asteroidTimeDict.Clear();
+        asteroidStartPosDict.Clear();
 
         BeginGame();
     }
