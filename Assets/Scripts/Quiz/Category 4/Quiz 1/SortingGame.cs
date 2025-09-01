@@ -27,11 +27,19 @@ public class SortingGame : MonoBehaviour
     public Image binImage;               // UI Image for the bin
     public RectTransform binCatchZone;   // Child GameObject representing the bin hole/catch area
     public float binMoveSpeed = 600f;    // Bin movement speed
-    public float fallDuration = 3f;      // Time for icon to fall from top to bottom
+    public float baseFallDuration = 3f;  // Base time for icon to fall from top to bottom
+    public float baseSpawnInterval = 1f; // Base time between icon spawns
+
+    [Header("Challenge Settings")]
+    [Range(0f, 200f)]
+    public float maxWindStrength = 100f; // Maximum wind drift strength
+    [Range(0.5f, 2f)]
+    public float minGravityMultiplier = 0.7f; // Minimum gravity speed multiplier
+    [Range(0.5f, 2f)]
+    public float maxGravityMultiplier = 1.5f; // Maximum gravity speed multiplier
 
     [Header("Wave Settings")]
     public int iconsPerWave = 15;        // Total icons to spawn per wave
-    public float spawnInterval = 1f;     // Time between icon spawns
     public int fossilIconsPerWave = 10;  // Number of fossil icons per wave
     public int targetIconsPerWave = 5;   // Number of target icons per wave
 
@@ -44,6 +52,10 @@ public class SortingGame : MonoBehaviour
     private int targetIconsCaughtThisWave = 0;
     private List<GameObject> activeIcons = new List<GameObject>();
     private bool isSpawning = false;
+    private float currentFallDuration;   // Dynamic fall duration for current wave
+    private float currentSpawnInterval;  // Dynamic spawn interval for current wave
+    private bool isPaused = false;       // Game pause state
+    private List<Coroutine> activeCoroutines = new List<Coroutine>(); // Track active coroutines for pausing
 
     [Header("Dialogue System")]
     public Dialogues dialogues;
@@ -59,6 +71,10 @@ public class SortingGame : MonoBehaviour
     public GameObject Header;
     public GameObject Settings;
     public GameObject QuizProgress;
+
+    [Header("End Game Modals")]
+    public GameObject passModal;         // Modal to show when player passes
+    public GameObject failModal;         // Modal to show when player fails
 
     // Store the relative position of catch zone to bin for proper syncing
     private Vector2 catchZoneOffset;
@@ -81,6 +97,10 @@ public class SortingGame : MonoBehaviour
         Score.SetActive(false);
         WaveInfo.SetActive(false);
         TargetDisplay.SetActive(false);
+
+        // Hide modals initially
+        if (passModal != null) passModal.SetActive(false);
+        if (failModal != null) failModal.SetActive(false);
 
         // Start the dialogue before the game
         if (dialogues != null)
@@ -140,7 +160,7 @@ public class SortingGame : MonoBehaviour
 
     void Update()
     {
-        if (!gameStarted) return;
+        if (!gameStarted || isPaused) return; // Don't update when paused
 
         HandleBinMovement();
         CheckIconCollisions();
@@ -333,7 +353,11 @@ public class SortingGame : MonoBehaviour
         targetIconsCaughtThisWave = 0;
         targetIconIndex = currentWave; // Use wave number as target icon index
 
+        // Calculate dynamic difficulty for this wave
+        UpdateDynamicDifficulty();
+
         Debug.Log($"Target icon index: {targetIconIndex}");
+        Debug.Log($"Wave {currentWave + 1} - Fall Duration: {currentFallDuration}s, Spawn Interval: {currentSpawnInterval}s");
         if (targetIconIndex < renewableIconNames.Length)
         {
             Debug.Log($"Target icon name: {renewableIconNames[targetIconIndex]}");
@@ -345,6 +369,17 @@ public class SortingGame : MonoBehaviour
 
         // Start spawning icons for this wave
         StartCoroutine(SpawnWaveIcons());
+    }
+
+    void UpdateDynamicDifficulty()
+    {
+        // Progressive falling speed - each wave gets 0.3s faster
+        currentFallDuration = Mathf.Max(1.5f, baseFallDuration - (currentWave * 0.3f));
+
+        // Progressive spawn rate - each wave spawns 0.15s faster
+        currentSpawnInterval = Mathf.Max(0.3f, baseSpawnInterval - (currentWave * 0.15f));
+
+        Debug.Log($"Updated difficulty - Fall: {currentFallDuration}s, Spawn: {currentSpawnInterval}s");
     }
 
     IEnumerator SpawnWaveIcons()
@@ -408,7 +443,7 @@ public class SortingGame : MonoBehaviour
             iconsToSpawn[randomIndex] = temp;
         }
 
-        // Spawn icons with intervals
+        // Spawn icons with intervals using current dynamic spawn interval
         foreach (SpawnData spawnData in iconsToSpawn)
         {
             if (spawnData.prefab != null)
@@ -417,7 +452,7 @@ public class SortingGame : MonoBehaviour
                 iconsSpawnedThisWave++;
                 Debug.Log($"Spawned icon {iconsSpawnedThisWave}/{iconsToSpawn.Count}");
             }
-            yield return new WaitForSeconds(spawnInterval);
+            yield return new WaitForSeconds(currentSpawnInterval);
         }
 
         Debug.Log("Finished spawning all icons for this wave");
@@ -442,7 +477,10 @@ public class SortingGame : MonoBehaviour
         iconType.isRenewable = spawnData.isRenewable;
         iconType.iconIndex = spawnData.iconIndex;
 
-        Debug.Log($"Icon configured - Renewable: {iconType.isRenewable}, Index: {iconType.iconIndex}");
+        // NEW: Add gravity and wind effects
+        AddChallengeEffects(iconType);
+
+        Debug.Log($"Icon configured - Renewable: {iconType.isRenewable}, Index: {iconType.iconIndex}, Gravity: {iconType.gravityMultiplier}, Wind: {iconType.windStrength}");
 
         // Position at random X, top of screen
         float randomX = Random.Range(-spawnArea.rect.width / 2 + 50f, spawnArea.rect.width / 2 - 50f);
@@ -462,30 +500,112 @@ public class SortingGame : MonoBehaviour
         activeIcons.Add(newIcon);
         Debug.Log($"Total active icons: {activeIcons.Count}");
 
-        // Start falling animation
-        StartCoroutine(AnimateIconFalling(iconRect, newIcon));
+        // Start falling animation with challenge effects
+        StartCoroutine(AnimateIconFallingWithEffects(iconRect, newIcon, iconType));
     }
 
-    // REMOVED: Old SpawnIcon method - replaced with SpawnIconWithData
+    void AddChallengeEffects(IconType iconType)
+    {
+        // Apply wind effects only on waves 2-4 (currentWave 1-3 since it's 0-indexed)
+        if (currentWave >= 1 && currentWave <= 3)
+        {
+            // Random wind strength and direction
+            iconType.windStrength = Random.Range(-maxWindStrength, maxWindStrength);
+        }
+        else
+        {
+            iconType.windStrength = 0f;
+        }
 
-    IEnumerator AnimateIconFalling(RectTransform iconRect, GameObject iconObj)
+        // Apply random gravity multiplier to all waves
+        iconType.gravityMultiplier = Random.Range(minGravityMultiplier, maxGravityMultiplier);
+
+        // NEW: Add zigzag movement to fossil fuel icons
+        if (!iconType.isRenewable)
+        {
+            iconType.hasZigzag = true;
+            iconType.zigzagAmplitude = Random.Range(30f, 80f); // Horizontal zigzag distance
+            iconType.zigzagFrequency = Random.Range(2f, 4f);   // Zigzag speed
+        }
+        else
+        {
+            iconType.hasZigzag = false;
+        }
+
+        // Apply visual indicators for gravity
+        Image iconImage = iconType.GetComponent<Image>();
+        if (iconImage != null)
+        {
+            if (iconType.gravityMultiplier > 1.2f)
+            {
+                // Fast falling - red tint
+                iconImage.color = new Color(1f, 0.8f, 0.8f, 1f);
+            }
+            else if (iconType.gravityMultiplier < 0.8f)
+            {
+                // Slow falling - blue tint
+                iconImage.color = new Color(0.8f, 0.8f, 1f, 1f);
+            }
+            else
+            {
+                // Normal speed - no tint
+                iconImage.color = Color.white;
+            }
+        }
+    }
+
+    IEnumerator AnimateIconFallingWithEffects(RectTransform iconRect, GameObject iconObj, IconType iconType)
     {
         float startY = spawnArea.rect.height / 2;
-        // FIXED: Better end position calculation for more predictable falling
+        // Calculate actual fall duration with gravity multiplier
+        float actualFallDuration = currentFallDuration / iconType.gravityMultiplier;
+
+        // Better end position calculation for more predictable falling
         float endY = binCatchZone != null ? binCatchZone.anchoredPosition.y - 100f : binImage.rectTransform.anchoredPosition.y - 100f;
 
         float elapsedTime = 0f;
         Vector2 startPos = iconRect.anchoredPosition;
         Vector2 endPos = new Vector2(startPos.x, endY);
 
-        Debug.Log($"Icon falling from {startPos.y} to {endPos.y} over {fallDuration} seconds");
+        // Store original X position for zigzag calculation
+        float originalX = startPos.x;
 
-        while (elapsedTime < fallDuration && iconObj != null && iconRect != null)
+        Debug.Log($"Icon falling from {startPos.y} to {endPos.y} over {actualFallDuration} seconds with wind {iconType.windStrength}, gravity {iconType.gravityMultiplier}, zigzag: {iconType.hasZigzag}");
+
+        while (elapsedTime < actualFallDuration && iconObj != null && iconRect != null)
         {
-            float t = elapsedTime / fallDuration;
+            // Pause handling - wait if game is paused
+            while (isPaused && iconObj != null)
+            {
+                yield return null;
+            }
+
+            if (iconObj == null || iconRect == null) break;
+
+            float t = elapsedTime / actualFallDuration;
             float easedT = t * t; // Ease-in for gravity effect
 
+            // Calculate base position
             Vector2 currentPos = Vector2.Lerp(startPos, endPos, easedT);
+
+            // Apply wind effect (horizontal drift) - only on waves 2-4
+            if (currentWave >= 1 && currentWave <= 3)
+            {
+                float windOffset = iconType.windStrength * t * Time.deltaTime * 10f; // Gradual wind accumulation
+                currentPos.x += windOffset;
+            }
+
+            // NEW: Apply zigzag movement to fossil fuel icons
+            if (iconType.hasZigzag && !iconType.isRenewable)
+            {
+                float zigzagOffset = Mathf.Sin(t * iconType.zigzagFrequency * Mathf.PI * 2) * iconType.zigzagAmplitude * t;
+                currentPos.x = originalX + zigzagOffset;
+            }
+
+            // Ensure icon doesn't drift completely off screen
+            float maxX = spawnArea.rect.width / 2 - 25f;
+            currentPos.x = Mathf.Clamp(currentPos.x, -maxX, maxX);
+
             iconRect.anchoredPosition = currentPos;
 
             elapsedTime += Time.deltaTime;
@@ -624,11 +744,13 @@ public class SortingGame : MonoBehaviour
         if (currentEarthState < earthStates.Length)
         {
             StartCoroutine(AnimateEarthChange(earthStates[currentEarthState], true));
-        }
-        else
-        {
-            Debug.Log("Earth fully polluted - triggering game over");
-            GameOver();
+
+            // Check if Earth reached maximum pollution (5th sprite, index 4)
+            if (currentEarthState >= 4)
+            {
+                Debug.Log("Earth fully polluted - triggering game over");
+                GameOver();
+            }
         }
     }
 
@@ -715,16 +837,8 @@ public class SortingGame : MonoBehaviour
     {
         Debug.Log("=== GAME COMPLETE! ===");
 
-        // Hide game UI
-        Earth.SetActive(false);
-        SpawnArea.SetActive(false);
-        MainBin.SetActive(false);
-        Score.SetActive(false);
-        WaveInfo.SetActive(false);
-        TargetDisplay.SetActive(false);
-        Header.SetActive(false);
-        Settings.SetActive(false);
-        QuizProgress.SetActive(false);
+        // Hide all game UI first
+        HideAllGameUI();
 
         // Clean up any remaining icons
         foreach (GameObject icon in activeIcons)
@@ -734,28 +848,16 @@ public class SortingGame : MonoBehaviour
         }
         activeIcons.Clear();
 
-        // Trigger completion dialogue
-        if (dialogues != null)
-        {
-            dialogues.StartDialogue(2); // Assuming index 2 is for game completion
-        }
+        // Show pass modal after hiding UI
+        StartCoroutine(ShowPassModalAfterDelay());
     }
 
     void GameOver()
     {
         Debug.Log("=== GAME OVER! ===");
 
-        // Hide game UI
-        Earth.SetActive(true);
-        SpawnArea.SetActive(true);
-        MainBin.SetActive(true);
-        Score.SetActive(true);
-        WaveInfo.SetActive(true);
-        TargetDisplay.SetActive(true);
-        Header.SetActive(true);
-        Settings.SetActive(true);
-        QuizProgress.SetActive(true);
-        TargetDisplay.SetActive(false);
+        // Hide all game UI first
+        HideAllGameUI();
 
         // Clean up any remaining icons
         foreach (GameObject icon in activeIcons)
@@ -765,27 +867,153 @@ public class SortingGame : MonoBehaviour
         }
         activeIcons.Clear();
 
-        // Trigger Game Over dialogue
-        if (dialogues != null)
+        // Show fail modal after hiding UI
+        StartCoroutine(ShowFailModalAfterDelay());
+    }
+
+    public void RestartGame()
+    {
+        Debug.Log("=== RESTARTING GAME ===");
+
+        // Stop all running coroutines (spawning, animations, etc.)
+        StopAllCoroutines();
+
+        // Destroy all active icons
+        foreach (GameObject icon in activeIcons)
         {
-            dialogues.StartDialogue(1);
+            if (icon != null)
+                Destroy(icon);
+        }
+        activeIcons.Clear();
+
+        // Reset game state variables
+        score = 0;
+        currentWave = 0;
+        currentEarthState = 0;
+        targetIconIndex = 0;
+        iconsSpawnedThisWave = 0;
+        targetIconsCaughtThisWave = 0;
+        isSpawning = false;
+        isPaused = false;
+        gameStarted = false;
+
+        // Reset UI
+        if (earthImage != null && earthStates.Length > 0)
+            earthImage.sprite = earthStates[0]; // Reset Earth to healthy state
+
+        if (scoreText != null)
+            scoreText.text = "0";
+
+        if (waveText != null)
+            waveText.text = "1/5";
+
+        if (progressSlider != null)
+            progressSlider.value = 0;
+
+        if (passModal != null) passModal.SetActive(false);
+        if (failModal != null) failModal.SetActive(false);
+
+        // Restart the game flow
+        BeginGame();
+    }
+
+    void HideAllGameUI()
+    {
+        Debug.Log("Hiding all game UI elements");
+
+        Earth.SetActive(false);
+        SpawnArea.SetActive(false);
+        MainBin.SetActive(false);
+        Score.SetActive(false);
+        WaveInfo.SetActive(false);
+        TargetDisplay.SetActive(false);
+        // Header.SetActive(false);
+        // Settings.SetActive(false);
+        // QuizProgress.SetActive(false);
+    }
+
+    IEnumerator ShowPassModalAfterDelay()
+    {
+        yield return new WaitForSeconds(0.5f); // Small delay for smooth transition
+
+        if (passModal != null)
+        {
+            passModal.SetActive(true);
+            Debug.Log("Pass modal shown");
+        }
+        else
+        {
+            Debug.LogError("Pass modal is not assigned!");
+            // Fallback to dialogue if modal not found
+            if (dialogues != null)
+            {
+                dialogues.StartDialogue(2); // Assuming index 2 is for game completion
+            }
         }
     }
-}
 
-// Helper component to identify icon types
-[System.Serializable]
-public class IconType : MonoBehaviour
-{
-    public bool isRenewable;
-    public int iconIndex;
-}
+    IEnumerator ShowFailModalAfterDelay()
+    {
+        yield return new WaitForSeconds(0.5f); // Small delay for smooth transition
 
-// NEW: Helper class for spawn data
-[System.Serializable]
-public class SpawnData
-{
-    public GameObject prefab;
-    public bool isRenewable;
-    public int iconIndex;
+        if (failModal != null)
+        {
+            failModal.SetActive(true);
+            Debug.Log("Fail modal shown");
+        }
+        else
+        {
+            Debug.LogError("Fail modal is not assigned!");
+            // Fallback to dialogue if modal not found
+            if (dialogues != null)
+            {
+                dialogues.StartDialogue(1); // Assuming index 1 is for game over
+            }
+        }
+    }
+
+    // NEW: Pause and Resume Methods for Settings Modal
+    public void PauseGame()
+    {
+        Debug.Log("=== GAME PAUSED ===");
+        isPaused = true;
+
+        // Pause physics by setting timeScale to 0 (optional, for additional effects)
+        // Time.timeScale = 0f; // Uncomment if you want to pause all time-based operations
+    }
+
+    public void ResumeGame()
+    {
+        Debug.Log("=== GAME RESUMED ===");
+        isPaused = false;
+
+        // Resume physics
+        // Time.timeScale = 1f; // Uncomment if you used Time.timeScale = 0 in PauseGame
+    }
+
+    // Enhanced IconType component with challenge effects
+    [System.Serializable]
+    public class IconType : MonoBehaviour
+    {
+        public bool isRenewable;
+        public int iconIndex;
+
+        [Header("Challenge Effects")]
+        public float gravityMultiplier = 1f;  // Speed multiplier for falling
+        public float windStrength = 0f;       // Horizontal drift strength
+
+        [Header("Zigzag Movement")]
+        public bool hasZigzag = false;        // Whether this icon moves in zigzag
+        public float zigzagAmplitude = 50f;   // How wide the zigzag movement is
+        public float zigzagFrequency = 3f;    // How fast the zigzag oscillates
+    }
+
+    // Helper class for spawn data
+    [System.Serializable]
+    public class SpawnData
+    {
+        public GameObject prefab;
+        public bool isRenewable;
+        public int iconIndex;
+    }
 }

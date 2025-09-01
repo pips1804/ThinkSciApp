@@ -82,6 +82,32 @@ public class RocketAsteroidGame : MonoBehaviour
     public int asteroidsNeededForQuestion = 7;
     public int devicesNeededForQuestion = 3;
 
+    [Header("Dynamic Difficulty System")]
+    [Tooltip("How much faster asteroids fall after wrong answers (multiplier)")]
+    public float wrongAnswerSpeedMultiplier = 1.4f;
+    [Tooltip("How much more frequently asteroids spawn after wrong answers (spawn rate multiplier)")]
+    public float wrongAnswerSpawnMultiplier = 0.7f;
+    [Tooltip("How much the follow strength increases after wrong answers")]
+    public float wrongAnswerFollowIncrease = 0.2f;
+    [Tooltip("Maximum difficulty multiplier (prevents impossible gameplay)")]
+    public float maxDifficultyMultiplier = 3f;
+    [Tooltip("How long the difficulty increase lasts (seconds)")]
+    public float difficultyDuration = 15f;
+    [Tooltip("Enable punishment for consecutive wrong answers")]
+    public bool enableConsecutiveWrongPunishment = true;
+
+    [Header("Pause System")]
+    [Tooltip("Pause button in game UI")]
+    public Button pauseButton;
+    [Tooltip("Settings modal that appears when game is paused")]
+    public GameObject settingsModal;
+    [Tooltip("Resume button in settings modal")]
+    public Button resumeButton;
+    [Tooltip("Pause overlay (optional - darkens background)")]
+    public GameObject pauseOverlay;
+    [Tooltip("Pause indicator text")]
+    public Text pauseText;
+
     [Header("Game State")]
     private int currentHealth = 3;
     private int score = 0;
@@ -110,6 +136,22 @@ public class RocketAsteroidGame : MonoBehaviour
     private Dictionary<GameObject, Vector2> asteroidStartPosDict = new Dictionary<GameObject, Vector2>();
     private Vector2 catchZoneOffset;
 
+    // Dynamic difficulty variables
+    private float currentDifficultyMultiplier = 1f;
+    private float difficultyEndTime = 0f;
+    private int consecutiveWrongAnswers = 0;
+    private bool isDifficultyActive = false;
+
+    // Base values to restore after difficulty period
+    private float baseFallDuration;
+    private float baseSpawnInterval;
+    private float baseFollowStrength;
+
+    // NEW: Pause system variables
+    private bool isGamePaused = false;
+    private bool wasPausedBeforeQuestion = false;
+    private float pausedTimeScale = 0f;
+
     [System.Serializable]
     public class GameQuestion
     {
@@ -127,7 +169,7 @@ public class RocketAsteroidGame : MonoBehaviour
     },
     new GameQuestion
     {
-        question = "Which device captures heat from beneath the Earth’s surface to generate electricity?",
+        question = "Which device captures heat from beneath the Earth's surface to generate electricity?",
         answers = new string[] { "Solar Panel", "Wind Turbine", "Geothermal Plant", "Thermoelectric Generator" },
         correctAnswerIndex = 2
     },
@@ -140,7 +182,7 @@ public class RocketAsteroidGame : MonoBehaviour
     new GameQuestion
     {
         question = "What is the main energy source used by geothermal power plants?",
-        answers = new string[] { "Sunlight", "Wind", "Heat from Earth’s interior", "Chemical Reactions" },
+        answers = new string[] { "Sunlight", "Wind", "Heat from Earth's interior", "Chemical Reactions" },
         correctAnswerIndex = 2
     },
     new GameQuestion
@@ -185,6 +227,11 @@ public class RocketAsteroidGame : MonoBehaviour
     {
         Debug.Log("=== ROCKET ASTEROID GAME STARTED ===");
 
+        // Store base values for difficulty system
+        baseFallDuration = fallDuration;
+        baseSpawnInterval = spawnInterval;
+        baseFollowStrength = followStrength;
+
         if (rocketCatchZone != null && rocket != null)
         {
             catchZoneOffset = rocketCatchZone.anchoredPosition - rocket.anchoredPosition;
@@ -197,6 +244,9 @@ public class RocketAsteroidGame : MonoBehaviour
         gameOverPanel.SetActive(false);
         victoryPanel.SetActive(false);
         questionPanel.SetActive(false);
+
+        // NEW: Initialize pause system
+        InitializePauseSystem();
 
         for (int i = 0; i < answerButtons.Length; i++)
         {
@@ -215,6 +265,100 @@ public class RocketAsteroidGame : MonoBehaviour
         }
     }
 
+    // NEW: Initialize pause system UI
+    void InitializePauseSystem()
+    {
+        // Hide pause elements initially
+        if (settingsModal != null)
+            settingsModal.SetActive(false);
+
+        if (pauseOverlay != null)
+            pauseOverlay.SetActive(false);
+
+        // Setup pause button
+        if (pauseButton != null)
+        {
+            pauseButton.onClick.AddListener(PauseGame);
+        }
+
+        // Setup resume button
+        if (resumeButton != null)
+        {
+            resumeButton.onClick.AddListener(ResumeGame);
+        }
+
+        // Update pause text
+        if (pauseText != null)
+        {
+            pauseText.gameObject.SetActive(false);
+        }
+    }
+
+    // NEW: Pause the game
+    public void PauseGame()
+    {
+        if (!isGameActive || isGamePaused) return;
+
+        Debug.Log("Game Paused");
+        isGamePaused = true;
+
+        // Store whether we were in a question before pausing
+        wasPausedBeforeQuestion = isQuestionActive;
+
+        // Show pause UI
+        if (settingsModal != null)
+            settingsModal.SetActive(true);
+
+        if (pauseOverlay != null)
+            pauseOverlay.SetActive(true);
+
+        if (pauseText != null)
+        {
+            pauseText.gameObject.SetActive(true);
+            pauseText.text = "PAUSED";
+        }
+
+        // Optionally reduce time scale for dramatic effect
+        Time.timeScale = 0.1f;
+
+        UpdateWaveDisplay(); // Update UI to show pause status
+    }
+
+    // NEW: Resume the game
+    public void ResumeGame()
+    {
+        if (!isGamePaused) return;
+
+        Debug.Log("Game Resumed");
+        isGamePaused = false;
+
+        // Hide pause UI
+        if (settingsModal != null)
+            settingsModal.SetActive(false);
+
+        if (pauseOverlay != null)
+            pauseOverlay.SetActive(false);
+
+        if (pauseText != null)
+        {
+            pauseText.gameObject.SetActive(false);
+        }
+
+        // Restore time scale
+        Time.timeScale = 1f;
+
+        UpdateWaveDisplay(); // Update UI to remove pause status
+    }
+
+    // NEW: Toggle pause (useful for keyboard input)
+    public void TogglePause()
+    {
+        if (isGamePaused)
+            ResumeGame();
+        else
+            PauseGame();
+    }
+
     IEnumerator WaitForDialogueThenStartGame()
     {
         yield return new WaitUntil(() => dialogues.dialogueFinished);
@@ -229,13 +373,17 @@ public class RocketAsteroidGame : MonoBehaviour
         isGameActive = true;
         isInvulnerable = false;
         isQuestionActive = false;
+        isGamePaused = false; // NEW: Ensure game is not paused when starting
         asteroidsDestroyed = 0;
         devicesCaught = 0;
+
+        // Reset difficulty
+        ResetDifficulty();
 
         if (energyMeter != null)
         {
             energyMeter.minValue = 0;
-            energyMeter.maxValue = maxEnergyPoints;
+            energyMeter.maxValue = targetScore; // Changed from maxEnergyPoints to targetScore
             energyMeter.value = 0;
         }
 
@@ -243,11 +391,100 @@ public class RocketAsteroidGame : MonoBehaviour
         UpdateScore();
         UpdateWaveDisplay();
         StartCoroutine(SpawnObjects());
+        StartCoroutine(ManageDifficulty());
+    }
+
+    // Difficulty management coroutine
+    IEnumerator ManageDifficulty()
+    {
+        while (isGameActive)
+        {
+            // NEW: Skip difficulty management when paused
+            if (!isGamePaused && isDifficultyActive && Time.time >= difficultyEndTime)
+            {
+                ResetDifficulty();
+                Debug.Log("Difficulty reset to normal");
+            }
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
+
+    // Apply difficulty increase
+    void ApplyDifficultyIncrease()
+    {
+        consecutiveWrongAnswers++;
+
+        // Calculate difficulty multiplier based on consecutive wrong answers
+        float additionalMultiplier = enableConsecutiveWrongPunishment ?
+            1f + (consecutiveWrongAnswers - 1) * 0.3f : 1f;
+
+        currentDifficultyMultiplier = Mathf.Min(
+            wrongAnswerSpeedMultiplier * additionalMultiplier,
+            maxDifficultyMultiplier
+        );
+
+        // Apply the difficulty changes
+        fallDuration = baseFallDuration / currentDifficultyMultiplier;
+        spawnInterval = baseSpawnInterval * wrongAnswerSpawnMultiplier / currentDifficultyMultiplier;
+
+        if (enablePlayerFollowing)
+        {
+            followStrength = Mathf.Min(baseFollowStrength + wrongAnswerFollowIncrease * consecutiveWrongAnswers, 1f);
+        }
+
+        isDifficultyActive = true;
+        difficultyEndTime = Time.time + difficultyDuration;
+
+        Debug.Log($"Difficulty increased! Multiplier: {currentDifficultyMultiplier:F2}, Consecutive wrong: {consecutiveWrongAnswers}");
+        Debug.Log($"New fall duration: {fallDuration:F2}s, spawn interval: {spawnInterval:F2}s, follow strength: {followStrength:F2}");
+
+        // Visual feedback for difficulty increase
+        StartCoroutine(ShowDifficultyIncreaseEffect());
+    }
+
+    // Reset difficulty to normal
+    void ResetDifficulty()
+    {
+        currentDifficultyMultiplier = 1f;
+        fallDuration = baseFallDuration;
+        spawnInterval = baseSpawnInterval;
+        followStrength = baseFollowStrength;
+        isDifficultyActive = false;
+    }
+
+    // Visual effect when difficulty increases
+    IEnumerator ShowDifficultyIncreaseEffect()
+    {
+        Image gameAreaImage = gameArea.GetComponent<Image>();
+        if (gameAreaImage != null)
+        {
+            Color originalColor = gameAreaImage.color;
+
+            // Flash red to indicate danger
+            for (int i = 0; i < 3; i++)
+            {
+                gameAreaImage.color = new Color(1f, 0f, 0f, 0.4f);
+                yield return new WaitForSeconds(0.2f);
+                gameAreaImage.color = originalColor;
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
     }
 
     void Update()
     {
-        if (!isGameActive || isQuestionActive) return;
+        // NEW: Don't update game logic when paused
+        if (!isGameActive || isGamePaused) return;
+
+        // Also skip if question is active (unless we were paused before the question)
+        if (isQuestionActive && !wasPausedBeforeQuestion) return;
+
+        // NEW: Handle pause input (ESC key or P key)
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
+        {
+            TogglePause();
+            return;
+        }
 
         HandleRocketMovement();
         HandleShooting();
@@ -350,6 +587,13 @@ public class RocketAsteroidGame : MonoBehaviour
         float timeAlive = 0f;
         while (bulletObj != null && bulletRect != null && timeAlive < 5f)
         {
+            // NEW: Pause bullet movement when game is paused
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
             Vector2 currentPos = bulletRect.anchoredPosition;
             currentPos.y += bulletSpeed * Time.deltaTime;
             bulletRect.anchoredPosition = currentPos;
@@ -381,14 +625,15 @@ public class RocketAsteroidGame : MonoBehaviour
     {
         while (isGameActive)
         {
-            if (isQuestionActive)
+            // NEW: Don't spawn when paused or during questions (unless paused before question)
+            if (isGamePaused || (isQuestionActive && !wasPausedBeforeQuestion))
             {
                 yield return new WaitForSeconds(0.1f);
                 continue;
             }
 
             SpawnSingleObject();
-            yield return new WaitForSeconds(spawnInterval);
+            yield return new WaitForSeconds(spawnInterval); // This now uses the modified spawn interval
         }
     }
 
@@ -449,15 +694,19 @@ public class RocketAsteroidGame : MonoBehaviour
         float elapsedTime = 0f;
         bool isAsteroid = isAsteroidDict.ContainsKey(objectObj) ? isAsteroidDict[objectObj] : false;
 
-        while (elapsedTime < fallDuration && objectObj != null && objectRect != null)
+        // Use current fall duration (which may be modified by difficulty)
+        float currentFallDuration = fallDuration;
+
+        while (elapsedTime < currentFallDuration && objectObj != null && objectRect != null)
         {
-            if (isQuestionActive)
+            // NEW: Pause object movement when game is paused or during questions
+            if (isGamePaused || (isQuestionActive && !wasPausedBeforeQuestion))
             {
                 yield return null;
                 continue;
             }
 
-            float t = elapsedTime / fallDuration;
+            float t = elapsedTime / currentFallDuration;
             float currentY = Mathf.Lerp(startY, endY, t);
             float currentX = startPos.x;
 
@@ -466,18 +715,21 @@ public class RocketAsteroidGame : MonoBehaviour
             {
                 asteroidTimeDict[objectObj] = elapsedTime;
 
-                // Zigzag movement
+                // Zigzag movement (more intense during difficulty)
                 if (enableZigzagMovement)
                 {
-                    float zigzagOffset = Mathf.Sin(elapsedTime * zigzagSpeed) * zigzagAmplitude * t;
+                    float zigzagIntensity = isDifficultyActive ? zigzagAmplitude * 1.3f : zigzagAmplitude;
+                    float zigzagFreq = isDifficultyActive ? zigzagSpeed * 1.5f : zigzagSpeed;
+                    float zigzagOffset = Mathf.Sin(elapsedTime * zigzagFreq) * zigzagIntensity * t;
                     currentX += zigzagOffset;
                 }
 
-                // Player following
+                // Player following (stronger during difficulty)
                 if (enablePlayerFollowing && rocket != null)
                 {
                     float rocketX = rocket.anchoredPosition.x;
-                    float directionToPlayer = (rocketX - currentX) * followStrength * t;
+                    float currentFollowStrength = followStrength; // This uses the modified follow strength
+                    float directionToPlayer = (rocketX - currentX) * currentFollowStrength * t;
                     currentX += directionToPlayer * Time.deltaTime;
                 }
 
@@ -693,7 +945,7 @@ public class RocketAsteroidGame : MonoBehaviour
         devicesCaught++;
         energyPoints += deviceEnergyValue;
         score += deviceScoreValue;
-        UpdateEnergyMeter();
+        UpdateScoreSlider(); // Changed from UpdateEnergyMeter to UpdateScoreSlider
         UpdateScore();
 
         // Start rocket celebration animation
@@ -716,7 +968,7 @@ public class RocketAsteroidGame : MonoBehaviour
         }
     }
 
-    // NEW: Device catch animation with scaling and fade effect
+    // Device catch animation with scaling and fade effect
     IEnumerator DeviceCatchAnimation(GameObject device)
     {
         if (device == null) yield break;
@@ -735,6 +987,13 @@ public class RocketAsteroidGame : MonoBehaviour
 
         while (elapsedTime < deviceCatchAnimDuration && device != null)
         {
+            // NEW: Pause animation when game is paused
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
             float t = elapsedTime / deviceCatchAnimDuration;
             float easedT = 1f - (1f - t) * (1f - t); // Ease out quad
 
@@ -766,7 +1025,7 @@ public class RocketAsteroidGame : MonoBehaviour
         }
     }
 
-    // NEW: Rocket celebration animation when catching device
+    // Rocket celebration animation when catching device
     IEnumerator RocketCelebrationAnimation()
     {
         if (rocket == null) yield break;
@@ -779,6 +1038,13 @@ public class RocketAsteroidGame : MonoBehaviour
 
         while (elapsedTime < animDuration)
         {
+            // NEW: Pause animation when game is paused
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
             float t = elapsedTime / animDuration;
 
             // Bounce scale effect
@@ -798,7 +1064,7 @@ public class RocketAsteroidGame : MonoBehaviour
         rocket.anchoredPosition = originalPos;
     }
 
-    // NEW: Screen shake effect for asteroid hits
+    // Screen shake effect for asteroid hits
     IEnumerator ScreenShakeEffect()
     {
         if (gameArea == null) yield break;
@@ -808,6 +1074,13 @@ public class RocketAsteroidGame : MonoBehaviour
 
         while (elapsedTime < asteroidHitAnimDuration * 0.5f) // Shake for half the hit duration
         {
+            // NEW: Pause animation when game is paused
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
             float intensity = Mathf.Lerp(shakeIntensity, 0f, elapsedTime / (asteroidHitAnimDuration * 0.5f));
 
             Vector2 randomOffset = new Vector2(
@@ -825,7 +1098,7 @@ public class RocketAsteroidGame : MonoBehaviour
         gameArea.anchoredPosition = originalPos;
     }
 
-    // NEW: Enhanced rocket hit animation with flashing
+    // Enhanced rocket hit animation with flashing
     IEnumerator RocketHitAnimation()
     {
         if (rocket == null) yield break;
@@ -838,9 +1111,23 @@ public class RocketAsteroidGame : MonoBehaviour
 
         for (int i = 0; i < invulnerabilityFlashes; i++)
         {
+            // NEW: Handle pause during flashing
+            if (isGamePaused)
+            {
+                yield return null;
+                i--; // Don't count this flash
+                continue;
+            }
+
             // Flash red
             rocketImage.color = Color.red;
             yield return new WaitForSeconds(flashInterval * 0.3f);
+
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
 
             // Flash semi-transparent
             Color flashColor = originalColor;
@@ -858,6 +1145,7 @@ public class RocketAsteroidGame : MonoBehaviour
         asteroidsDestroyed++;
         score += asteroidScoreValue;
         UpdateScore();
+        UpdateScoreSlider(); // NEW: Update slider when asteroids are destroyed
 
         Debug.Log("Asteroid destroyed! Score: " + score);
 
@@ -880,6 +1168,9 @@ public class RocketAsteroidGame : MonoBehaviour
         asteroidsDestroyed = 0;
         devicesCaught = 0;
         isQuestionActive = true;
+
+        // NEW: Remember if we were paused before the question
+        wasPausedBeforeQuestion = isGamePaused;
 
         if (questions.Length == 0)
         {
@@ -910,15 +1201,19 @@ public class RocketAsteroidGame : MonoBehaviour
         StartCoroutine(ProcessAnswer(selectedIndex));
     }
 
+    // Process answer with difficulty changes
     IEnumerator ProcessAnswer(int selectedIndex)
     {
         bool isCorrect = false;
+        int correctAnswerIndex = -1;
 
+        // Find the correct answer for the current question
         foreach (var q in questions)
         {
             if (questionText.text == q.question)
             {
                 isCorrect = (selectedIndex == q.correctAnswerIndex);
+                correctAnswerIndex = q.correctAnswerIndex;
                 break;
             }
         }
@@ -927,22 +1222,56 @@ public class RocketAsteroidGame : MonoBehaviour
         {
             Debug.Log("CORRECT ANSWER!");
             score += correctAnswerPoints;
-            if (answerButtonImages != null && selectedIndex < answerButtonImages.Length)
+
+            // Reset consecutive wrong answers on correct answer
+            consecutiveWrongAnswers = 0;
+
+            // NEW: When answer is correct - selected button green, all others red
+            for (int i = 0; i < answerButtons.Length && i < answerButtonImages.Length; i++)
             {
-                answerButtonImages[selectedIndex].color = Color.green;
+                if (i == selectedIndex)
+                {
+                    // Selected correct answer - make it green
+                    answerButtonImages[i].color = Color.green;
+                }
+                else
+                {
+                    // All other answers - make them red to show they were wrong choices
+                    answerButtonImages[i].color = Color.red;
+                }
             }
         }
         else
         {
             Debug.Log("WRONG ANSWER!");
             score += wrongAnswerPenalty;
-            if (answerButtonImages != null && selectedIndex < answerButtonImages.Length)
+
+            // Apply difficulty increase for wrong answer
+            ApplyDifficultyIncrease();
+
+            // NEW: When answer is wrong - selected button red, correct answer green, others default
+            for (int i = 0; i < answerButtons.Length && i < answerButtonImages.Length; i++)
             {
-                answerButtonImages[selectedIndex].color = Color.red;
+                if (i == selectedIndex)
+                {
+                    // Selected wrong answer - make it red
+                    answerButtonImages[i].color = Color.red;
+                }
+                else if (i == correctAnswerIndex)
+                {
+                    // Correct answer - make it green to show what should have been selected
+                    answerButtonImages[i].color = Color.green;
+                }
+                else
+                {
+                    // Other wrong answers - leave as default white
+                    answerButtonImages[i].color = Color.white;
+                }
             }
         }
 
         UpdateScore();
+        UpdateScoreSlider(); // NEW: Update slider after answering questions
         yield return new WaitForSeconds(2f);
 
         // Reset button colors
@@ -956,6 +1285,7 @@ public class RocketAsteroidGame : MonoBehaviour
 
         questionPanel.SetActive(false);
         isQuestionActive = false;
+        wasPausedBeforeQuestion = false; // NEW: Reset this flag
     }
 
     IEnumerator ShowExplosionEffect()
@@ -965,7 +1295,18 @@ public class RocketAsteroidGame : MonoBehaviour
         {
             Color originalColor = gameAreaImage.color;
             gameAreaImage.color = new Color(1f, 1f, 0f, 0.3f);
-            yield return new WaitForSeconds(0.1f);
+
+            // NEW: Handle pause during explosion effect
+            float waitTime = 0f;
+            while (waitTime < 0.1f)
+            {
+                if (!isGamePaused)
+                {
+                    waitTime += Time.deltaTime;
+                }
+                yield return null;
+            }
+
             gameAreaImage.color = originalColor;
         }
     }
@@ -986,6 +1327,46 @@ public class RocketAsteroidGame : MonoBehaviour
         }
     }
 
+    // NEW: Update slider based on score progress toward target
+    void UpdateScoreSlider()
+    {
+        if (energyMeter != null)
+        {
+            energyMeter.value = Mathf.Clamp(score, 0, targetScore);
+
+            // Optional: Change slider color based on progress
+            Image sliderFill = energyMeter.fillRect?.GetComponent<Image>();
+            if (sliderFill != null)
+            {
+                float progress = (float)score / targetScore;
+
+                if (progress < 0.33f)
+                {
+                    // Red for low progress (0-33%)
+                    sliderFill.color = Color.Lerp(Color.red, Color.yellow, progress * 3f);
+                }
+                else if (progress < 0.66f)
+                {
+                    // Yellow to green for medium progress (33-66%)
+                    sliderFill.color = Color.Lerp(Color.yellow, Color.green, (progress - 0.33f) * 3f);
+                }
+                else
+                {
+                    // Green to bright green for high progress (66-100%)
+                    sliderFill.color = Color.Lerp(Color.green, new Color(0f, 1f, 0f, 1f), (progress - 0.66f) * 3f);
+                }
+
+                // Special effect when close to victory
+                if (progress >= 0.9f)
+                {
+                    // Pulsing gold effect when very close to winning
+                    float pulse = Mathf.Sin(Time.time * 8f) * 0.3f + 0.7f;
+                    sliderFill.color = Color.Lerp(Color.green, Color.yellow, pulse);
+                }
+            }
+        }
+    }
+
     void UpdateScore()
     {
         if (scoreText != null)
@@ -999,7 +1380,15 @@ public class RocketAsteroidGame : MonoBehaviour
     {
         if (waveText != null)
         {
-            waveText.text = "Score: " + score + "/" + targetScore;
+            // Show difficulty status and pause status in wave display
+            string difficultyStatus = isDifficultyActive ? " [HARD MODE]" : "";
+            string pauseStatus = isGamePaused ? " [PAUSED]" : "";
+
+            // NEW: Calculate and show percentage progress
+            float progressPercentage = ((float)score / targetScore) * 100f;
+            progressPercentage = Mathf.Clamp(progressPercentage, 0f, 100f);
+
+            waveText.text = $"Score: {score}/{targetScore} ({progressPercentage:F0}%){difficultyStatus}{pauseStatus}";
         }
     }
 
@@ -1007,10 +1396,17 @@ public class RocketAsteroidGame : MonoBehaviour
     {
         Debug.Log("VICTORY!");
         isGameActive = false;
+        isGamePaused = false; // NEW: Ensure we're not paused when victory occurs
         CleanupGame();
 
         gameUI.SetActive(false);
         victoryPanel.SetActive(true);
+
+        // NEW: Hide pause elements if they were visible
+        if (settingsModal != null)
+            settingsModal.SetActive(false);
+        if (pauseOverlay != null)
+            pauseOverlay.SetActive(false);
 
         if (dialogues != null)
         {
@@ -1022,10 +1418,17 @@ public class RocketAsteroidGame : MonoBehaviour
     {
         Debug.Log("GAME OVER!");
         isGameActive = false;
+        isGamePaused = false; // NEW: Ensure we're not paused when game over occurs
         CleanupGame();
 
         gameUI.SetActive(false);
         gameOverPanel.SetActive(true);
+
+        // NEW: Hide pause elements if they were visible
+        if (settingsModal != null)
+            settingsModal.SetActive(false);
+        if (pauseOverlay != null)
+            pauseOverlay.SetActive(false);
 
         if (dialogues != null)
         {
@@ -1061,6 +1464,9 @@ public class RocketAsteroidGame : MonoBehaviour
             questionPanel.SetActive(false);
         }
         isQuestionActive = false;
+
+        // NEW: Reset time scale in case it was modified
+        Time.timeScale = 1f;
     }
 
     public void RestartGame()
@@ -1071,21 +1477,76 @@ public class RocketAsteroidGame : MonoBehaviour
         isInvulnerable = false;
         asteroidsDestroyed = 0;
         devicesCaught = 0;
+        consecutiveWrongAnswers = 0;
+        isGamePaused = false; // NEW: Ensure game isn't paused on restart
 
         gameOverPanel.SetActive(false);
         victoryPanel.SetActive(false);
         questionPanel.SetActive(false);
+
+        // NEW: Hide pause elements
+        if (settingsModal != null)
+            settingsModal.SetActive(false);
+        if (pauseOverlay != null)
+            pauseOverlay.SetActive(false);
 
         isAsteroidDict.Clear();
         asteroidHealthDict.Clear();
         asteroidTimeDict.Clear();
         asteroidStartPosDict.Clear();
 
+        // NEW: Reset time scale
+        Time.timeScale = 1f;
+
         BeginGame();
     }
 
     public void ReturnToMenu()
     {
+        // NEW: Ensure time scale is reset when returning to menu
+        Time.timeScale = 1f;
+        isGamePaused = false;
+
         Debug.Log("Returning to menu...");
+    }
+
+    // NEW: Public methods for external UI elements to call
+
+    /// <summary>
+    /// Call this method when opening any modal/settings panel
+    /// </summary>
+    public void OpenModal()
+    {
+        if (isGameActive && !isGamePaused)
+        {
+            PauseGame();
+        }
+    }
+
+    /// <summary>
+    /// Call this method when closing any modal/settings panel
+    /// </summary>
+    public void CloseModal()
+    {
+        if (isGameActive && isGamePaused)
+        {
+            ResumeGame();
+        }
+    }
+
+    /// <summary>
+    /// Check if the game is currently paused
+    /// </summary>
+    public bool IsGamePaused()
+    {
+        return isGamePaused;
+    }
+
+    /// <summary>
+    /// Check if the game is currently active
+    /// </summary>
+    public bool IsGameActive()
+    {
+        return isGameActive;
     }
 }

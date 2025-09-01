@@ -15,9 +15,32 @@ public class ParticleSpawner : MonoBehaviour
     public HeatEscape heatEscape; // Drag your HeatEscape GameObject here
 
     private bool spawning = true;
+    private bool hasStarted = false;
 
     void Start()
     {
+        StartSpawningProcess();
+    }
+
+    void OnEnable()
+    {
+        // If this isn't the first time (game has been restarted)
+        if (hasStarted)
+        {
+            StartSpawningProcess();
+        }
+    }
+
+    public void StartSpawningProcess()
+    {
+        // Stop any existing spawning first
+        StopSpawning();
+
+        // Reset spawning state
+        spawning = true;
+        hasStarted = true;
+
+        // Start the spawning coroutine
         StartCoroutine(WaitForDialogueAndSpawn());
     }
 
@@ -33,6 +56,12 @@ public class ParticleSpawner : MonoBehaviour
         yield return new WaitUntil(() => heatEscape.quizPanel.activeSelf);
 
         // Stop spawning once quiz begins
+        StopSpawning();
+    }
+
+    public void StopSpawning()
+    {
+        // Cancel any existing invoke
         CancelInvoke(nameof(SpawnParticle));
         spawning = false;
 
@@ -60,5 +89,4 @@ public class ParticleSpawner : MonoBehaviour
             Destroy(child.gameObject);
         }
     }
-
 }
