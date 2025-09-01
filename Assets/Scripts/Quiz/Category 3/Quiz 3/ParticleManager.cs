@@ -28,18 +28,37 @@ public class ParticleManager : MonoBehaviour
     public GameObject messagePanel;   // drag a simple panel with text + button
     public Text messageText;
     public Button messageButton;
-    public GameObject petImage;
 
     [Header("Panel")]
     public GameObject potBackground;
     public GameObject controllerBackground;
     public GameObject quizPanel;
 
+    [Header("Timer & Score UI")]
+    public Text simulationTimerText; // UI Text for simulation timer
+    public GameObject scorePanel; // Panel containing score UI
+    public Text scoreText; // UI Text for quiz score
+    public Text quizTimerText; // UI Text for quiz question timer
+
+    [Header("Progress UI")]
+    public Slider progressSlider; // Reference to progress slider (optional, for direct control)
+    public Text progressText; // Reference to progress text (optional, for direct control)
+
+    [Header("Pass/Fail Modals")]
+    public GameObject passModal; // Modal shown when quiz is passed
+    public GameObject failModal; // Modal shown when quiz is failed
+    public Button restartButton; // Restart button (can be in either modal)
+    public Button exitButton; // Exit button (optional)
+
     [Header("Timer")]
     public float simulationDuration = 10f; // ⏳ set in inspector
+    public float quizQuestionTime = 30f; // Time per quiz question
 
     [Header("Quiz Manager")]
     public QuizManager quizManager;
+
+    [Header("Score Settings")]
+    public int passingScore = 70; // Minimum score to pass (out of 100)
 
     private Rigidbody2D[] particles;
     private Image[] particleImages;
@@ -51,20 +70,62 @@ public class ParticleManager : MonoBehaviour
     private Coroutine heatRoutine;
     private Coroutine coolRoutine;
     private Coroutine flameRoutine;
+    private Coroutine simulationTimerRoutine;
+    private Coroutine quizTimerRoutine;
 
     private bool initialized = false;
+    private bool isFirstTime = true;
+
+    // Quiz tracking
+    private int currentScore = 0;
+    private int totalQuestions = 0;
+    private float currentQuestionTimeLeft = 0f;
+
+    [Header("Knob Reference")]
+    public StoveKnob stoveKnob; // Drag your knob here in inspector
 
     void Start()
     {
+        InitializeGame();
+    }
+
+    void InitializeGame()
+    {
         potBackground.SetActive(false);
         controllerBackground.SetActive(false);
+        quizPanel.SetActive(false);
+        passModal.SetActive(false);
+        failModal.SetActive(false);
+        scorePanel.SetActive(false);
 
-        // Show intro message first
-        petImage.SetActive(true);
-        messagePanel.SetActive(true);
-        messageText.text = "Watch closely and take note of the changes";
-        messageButton.onClick.RemoveAllListeners();
-        messageButton.onClick.AddListener(OnMessageConfirmed);
+        // Hide UI elements
+        if (simulationTimerText != null) simulationTimerText.gameObject.SetActive(false);
+        if (scoreText != null) scoreText.gameObject.SetActive(false);
+        if (quizTimerText != null) quizTimerText.gameObject.SetActive(false);
+        // if (progressSlider != null) progressSlider.gameObject.SetActive(false);
+        // if (progressText != null) progressText.gameObject.SetActive(false);
+
+        // Setup restart button
+        if (restartButton != null)
+        {
+            restartButton.onClick.RemoveAllListeners();
+            restartButton.onClick.AddListener(RestartGame);
+        }
+
+        // Show intro message only on first time
+        if (isFirstTime)
+        {
+            messagePanel.SetActive(true);
+            messageText.text = "Watch closely and take note of the changes";
+            messageButton.onClick.RemoveAllListeners();
+            messageButton.onClick.AddListener(OnMessageConfirmed);
+        }
+        else
+        {
+            // Skip intro for restart
+            messagePanel.SetActive(false);
+            OnMessageConfirmed();
+        }
 
         // Hide flames at start
         foreach (var flame in flameImages)
@@ -76,39 +137,311 @@ public class ParticleManager : MonoBehaviour
 
     void OnMessageConfirmed()
     {
-        petImage.SetActive(false);
         messagePanel.SetActive(false);
         potBackground.SetActive(true);
         controllerBackground.SetActive(true);
 
         InitializeParticles();
         initialized = true;
+        isFirstTime = false;
+
+        // Show simulation timer
+        if (simulationTimerText != null)
+        {
+            simulationTimerText.gameObject.SetActive(true);
+            simulationTimerText.text = "" + simulationDuration.ToString("F0");
+        }
 
         Debug.Log("Message confirmed → ParticleManager ready!");
 
         // ⏳ Start simulation timer
-        StartCoroutine(SimulationTimer());
+        simulationTimerRoutine = StartCoroutine(SimulationTimer());
     }
 
     IEnumerator SimulationTimer()
     {
-        yield return new WaitForSeconds(simulationDuration);
+        float timeLeft = simulationDuration;
+
+        while (timeLeft > 0)
+        {
+            if (simulationTimerText != null)
+            {
+                simulationTimerText.text = "" + Mathf.Ceil(timeLeft).ToString("F0");
+            }
+
+            timeLeft -= Time.deltaTime;
+            yield return null;
+        }
 
         // After duration → hide backgrounds, show dialogue
+        if (simulationTimerText != null) simulationTimerText.gameObject.SetActive(false);
         potBackground.SetActive(false);
         controllerBackground.SetActive(false);
 
         messagePanel.SetActive(true);
-        messageText.text = "Experiment done! Let’s check your understanding";
+        messageText.text = "Experiment done! Let's check your understanding";
 
         messageButton.onClick.RemoveAllListeners();
         messageButton.onClick.AddListener(() =>
         {
             messagePanel.SetActive(false);
-            Debug.Log("Dialogue finished → Next step can happen here.");
-            quizPanel.SetActive(true);
-            quizManager.StartQuiz();
+            Debug.Log("Dialogue finished → Starting Quiz");
+            StartQuizMode();
         });
+    }
+
+    public void StartQuestionTimer()
+    {
+        if (quizTimerRoutine != null)
+            StopCoroutine(quizTimerRoutine);
+
+        quizTimerRoutine = StartCoroutine(QuestionTimerCoroutine());
+    }
+
+    IEnumerator QuestionTimerCoroutine()
+    {
+        currentQuestionTimeLeft = quizQuestionTime;
+
+        if (quizTimerText != null)
+            quizTimerText.gameObject.SetActive(true);
+
+        while (currentQuestionTimeLeft > 0)
+        {
+            if (quizTimerText != null)
+            {
+                quizTimerText.text = "" + Mathf.Ceil(currentQuestionTimeLeft).ToString("F0");
+
+                // Change color when time is running out
+                if (currentQuestionTimeLeft <= 10f)
+                    quizTimerText.color = Color.red;
+            }
+
+            currentQuestionTimeLeft -= Time.deltaTime;
+            yield return null;
+        }
+
+        // Time's up - automatically mark as wrong
+        if (quizManager != null)
+        {
+            quizManager.OnTimeUp(); // You'll need to implement this method in QuizManager
+        }
+
+        OnQuestionAnswered(false); // Mark as incorrect
+    }
+
+    // Update your StartQuizMode method
+    void StartQuizMode()
+    {
+        quizPanel.SetActive(true);
+        scorePanel.SetActive(true);
+
+        // Show score display
+        if (scoreText != null)
+        {
+            scoreText.gameObject.SetActive(true);
+            UpdateScoreDisplay();
+        }
+
+        // Show and initialize progress display
+        if (progressSlider != null)
+        {
+            progressSlider.gameObject.SetActive(true);
+            progressSlider.value = 0f; // Start at 0
+        }
+        if (progressText != null)
+        {
+            progressText.gameObject.SetActive(true);
+        }
+
+        // Initialize quiz tracking
+        currentScore = 0;
+        totalQuestions = 0;
+
+        // Start quiz
+        if (quizManager != null)
+        {
+            quizManager.StartQuiz();
+            UpdateProgressDisplay(); // Initialize progress display
+            StartQuestionTimer();
+        }
+    }
+
+    void UpdateProgressDisplay()
+    {
+        if (quizManager != null)
+        {
+            int currentQuestionIndex = quizManager.GetCurrentQuestionIndex(); // 1-based
+            int totalQuestions = quizManager.GetTotalQuestions();
+
+            // Update progress slider (0 to 1 range)
+            if (progressSlider != null)
+            {
+                float progress = totalQuestions > 0 ? (float)currentQuestionIndex / totalQuestions : 0f;
+                progressSlider.value = progress;
+
+                Debug.Log($"Progress: {currentQuestionIndex}/{totalQuestions} = {progress:F2}");
+            }
+
+            // Update progress text
+            if (progressText != null)
+            {
+                progressText.text = $"{currentQuestionIndex}/{totalQuestions}";
+            }
+        }
+    }
+
+    // Update your existing OnQuestionAnswered method
+    public void OnQuestionAnswered(bool isCorrect)
+    {
+        // Stop the timer
+        if (quizTimerRoutine != null)
+        {
+            StopCoroutine(quizTimerRoutine);
+            quizTimerRoutine = null;
+        }
+
+        // Get total questions from QuizManager for more accurate tracking
+        if (quizManager != null)
+        {
+            totalQuestions = quizManager.GetTotalQuestions();
+            currentScore = quizManager.GetCurrentScore();
+        }
+        else
+        {
+            // Fallback method
+            totalQuestions++;
+            if (isCorrect)
+                currentScore++;
+        }
+
+        UpdateScoreDisplay();
+        UpdateProgressDisplay(); // ADD THIS LINE
+
+        // Hide question timer temporarily
+        if (quizTimerText != null)
+            quizTimerText.gameObject.SetActive(false);
+    }
+
+    // Update your existing OnNextQuestion method
+    public void OnNextQuestion()
+    {
+        // Update progress when moving to next question
+        UpdateProgressDisplay(); // ADD THIS LINE
+
+        // Start timer for next question
+        StartQuestionTimer();
+    }
+
+
+
+    public void OnQuizCompleted()
+    {
+        // Stop any running timers
+        if (quizTimerRoutine != null)
+        {
+            StopCoroutine(quizTimerRoutine);
+            quizTimerRoutine = null;
+        }
+
+        // Hide quiz UI
+        quizPanel.SetActive(false);
+        if (scoreText != null) scoreText.gameObject.SetActive(false);
+        if (quizTimerText != null) quizTimerText.gameObject.SetActive(false);
+
+        // Get final score from QuizManager for accuracy
+        float scorePercentage = 0f;
+        if (quizManager != null)
+        {
+            scorePercentage = quizManager.GetScorePercentage();
+            currentScore = quizManager.GetCurrentScore();
+            totalQuestions = quizManager.GetTotalQuestions();
+        }
+        else
+        {
+            // Fallback calculation
+            scorePercentage = totalQuestions > 0 ? (float)currentScore / totalQuestions * 100f : 0f;
+        }
+
+        // Show appropriate modal
+        if (scorePercentage >= passingScore)
+        {
+            ShowPassModal(scorePercentage);
+        }
+        else
+        {
+            ShowFailModal(scorePercentage);
+        }
+    }
+
+    void ShowPassModal(float scorePercentage)
+    {
+        passModal.SetActive(true);
+
+        // Update pass modal text (assuming it has a Text component)
+        // Text passText = passModal.GetComponentInChildren<Text>();
+        // if (passText != null)
+        // {
+        //     passText.text = $"Congratulations!\nYou passed with {scorePercentage:F1}%\nScore: {currentScore}/{totalQuestions}";
+        // }
+    }
+
+    void ShowFailModal(float scorePercentage)
+    {
+        failModal.SetActive(true);
+
+        // Update fail modal text (assuming it has a Text component)
+        // Text failText = failModal.GetComponentInChildren<Text>();
+        // if (failText != null)
+        // {
+        //     failText.text = $"Better luck next time!\nYou scored {scorePercentage:F1}%\nScore: {currentScore}/{totalQuestions}\nYou need {passingScore}% to pass.";
+        // }
+    }
+
+    public void RestartGame()
+    {
+        // Stop all coroutines
+        StopAllCoroutines();
+
+        // Hide modals
+        passModal.SetActive(false);
+        failModal.SetActive(false);
+
+        // Clear particles
+        if (particles != null)
+        {
+            for (int i = 0; i < particles.Length; i++)
+            {
+                if (particles[i] != null)
+                    DestroyImmediate(particles[i].gameObject);
+            }
+        }
+
+        // Reset knob position
+        if (stoveKnob != null)
+        {
+            stoveKnob.ResetToDefaults();
+        }
+
+        // Reset variables
+        particles = null;
+        particleImages = null;
+        initialized = false;
+        isHot = false;
+        currentScore = 0;
+        totalQuestions = 0;
+
+        // Restart from simulation (skip intro)
+        isFirstTime = false;
+        InitializeGame();
+    }
+
+    void UpdateScoreDisplay()
+    {
+        if (scoreText != null)
+        {
+            float percentage = totalQuestions > 0 ? (float)currentScore / totalQuestions * 100f : 0f;
+            scoreText.text = $"{currentScore}";
+        }
     }
 
     void InitializeParticles()
@@ -205,7 +538,6 @@ public class ParticleManager : MonoBehaviour
         heatRoutine = StartCoroutine(HeatUpRoutine());
         flameRoutine = StartCoroutine(FadeFlamesIn());
     }
-
 
     public void CoolDown()
     {

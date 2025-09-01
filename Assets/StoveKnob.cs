@@ -13,7 +13,13 @@ public class StoveKnob : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
     void Start()
     {
         rectTransform = GetComponent<RectTransform>();
-        currentAngle = maxAngle; // Default = left = cool
+        ResetToDefaults();
+    }
+
+    public void ResetToDefaults()
+    {
+        // Start at maxAngle (right side = cool) - based on your original logic
+        currentAngle = maxAngle;
         rectTransform.localRotation = Quaternion.Euler(0, 0, currentAngle);
 
         if (particleManager != null)
@@ -32,6 +38,7 @@ public class StoveKnob : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         rectTransform.localRotation = Quaternion.Euler(0, 0, currentAngle);
 
         // Change heat state depending on knob direction
+        // Based on your original logic: right side (maxAngle) = cool, left side (minAngle) = heat
         if (currentAngle > (minAngle + maxAngle) / 2f)
         {
             if (particleManager != null) particleManager.CoolDown();
@@ -47,12 +54,14 @@ public class StoveKnob : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         // Snap to closest side when touch is released
         if (currentAngle > (minAngle + maxAngle) / 2f)
         {
+            // Snap to cool side (right)
             currentAngle = maxAngle;
             rectTransform.localRotation = Quaternion.Euler(0, 0, currentAngle);
             if (particleManager != null) particleManager.CoolDown();
         }
         else
         {
+            // Snap to heat side (left)
             currentAngle = minAngle;
             rectTransform.localRotation = Quaternion.Euler(0, 0, currentAngle);
             if (particleManager != null) particleManager.HeatUp();
