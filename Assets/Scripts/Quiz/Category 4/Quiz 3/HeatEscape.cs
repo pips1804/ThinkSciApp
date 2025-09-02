@@ -24,6 +24,15 @@ public class HeatEscape : MonoBehaviour
     public Text scoreText;
     public Button retakeButton;
 
+    [Header("Performance Display")]
+    [Tooltip("Text component in the passed modal to show performance message")]
+    public Text passedPerformanceText;
+    [Tooltip("Text component in the failed modal to show performance message")]
+    public Text failedPerformanceText;
+    [Tooltip("Minimum percentage required to pass")]
+    [Range(0f, 100f)]
+    public float passingPercentage = 70f;
+
     [Header("Other Components")]
     public Dialogues dialogues;
     public Image insulatorImage;
@@ -33,13 +42,17 @@ public class HeatEscape : MonoBehaviour
     public DatabaseManager dbManager;
 
     [Header("Particle Spawner")]
-    public ParticleSpawner particleSpawner; // Drag your ParticleSpawner here
+    public ParticleSpawner particleSpawner;
 
     private int currentQuestionIndex = 0;
     private int currentScore = 0;
     private int totalQuestions = 10;
     private List<Question> dbQuestions;
     private bool quizCompleted = false;
+
+    // NEW: Performance tracking variables
+    private int totalCorrectAnswers = 0;
+    private int totalQuestionsAnswered = 0;
 
     void Start()
     {
@@ -48,7 +61,6 @@ public class HeatEscape : MonoBehaviour
 
     void OnEnable()
     {
-        // Reset when game object is re-enabled
         if (quizCompleted)
         {
             ResetGame();
@@ -63,37 +75,39 @@ public class HeatEscape : MonoBehaviour
         passedModal.SetActive(false);
         failedModal.SetActive(false);
 
-        // Hide timer and score initially
         if (timerText != null) timerText.gameObject.SetActive(false);
         if (scoreText != null) scoreText.gameObject.SetActive(false);
 
         insulatorImage.color = new Color(1, 1, 1, 0);
+
+        // NEW: Reset performance tracking
+        totalCorrectAnswers = 0;
+        totalQuestionsAnswered = 0;
 
         StartCoroutine(GameFlow());
     }
 
     private void ResetGame()
     {
-        // Reset all variables
         currentQuestionIndex = 0;
         currentScore = 0;
         quizCompleted = false;
 
-        // Hide all panels
+        // NEW: Reset performance tracking
+        totalCorrectAnswers = 0;
+        totalQuestionsAnswered = 0;
+
         HousePanel.SetActive(false);
         ButtonsPanel.SetActive(false);
         quizPanel.SetActive(false);
         passedModal.SetActive(false);
         failedModal.SetActive(false);
 
-        // Hide timer and score
         if (timerText != null) timerText.gameObject.SetActive(false);
         if (scoreText != null) scoreText.gameObject.SetActive(false);
 
-        // Reset insulator image
         insulatorImage.color = new Color(1, 1, 1, 0);
 
-        // Restart from simulation part (skip first dialogue)
         StartCoroutine(RestartFromSimulation());
     }
 
@@ -105,7 +119,6 @@ public class HeatEscape : MonoBehaviour
         HousePanel.SetActive(true);
         ButtonsPanel.SetActive(true);
 
-        // Show timer during simulation
         if (timerText != null)
         {
             timerText.gameObject.SetActive(true);
@@ -114,7 +127,6 @@ public class HeatEscape : MonoBehaviour
 
         yield return StartCoroutine(SimulationTimer());
 
-        // Hide timer after simulation
         if (timerText != null) timerText.gameObject.SetActive(false);
 
         dialogues.StartDialogue(1);
@@ -133,7 +145,6 @@ public class HeatEscape : MonoBehaviour
             elapsed += Time.deltaTime;
             float remainingTime = simulationTime - elapsed;
 
-            // Update timer display
             if (timerText != null)
             {
                 timerText.text = $"{Mathf.Ceil(remainingTime)}";
@@ -149,27 +160,27 @@ public class HeatEscape : MonoBehaviour
         ButtonsPanel.SetActive(false);
         quizPanel.SetActive(true);
 
-        // Show score display
         if (scoreText != null)
         {
             scoreText.gameObject.SetActive(true);
             UpdateScoreDisplay();
         }
 
-        // Initialize quiz progress slider
         if (quizProgressSlider != null)
         {
             quizProgressSlider.maxValue = totalQuestions;
             quizProgressSlider.value = 0;
         }
 
-        // Load questions
         dbQuestions = dbManager.LoadRandomQuestions(13, "Multiple Choice", totalQuestions);
 
-        // Reset quiz variables
         currentQuestionIndex = 0;
         currentScore = 0;
         quizCompleted = false;
+
+        // NEW: Reset performance tracking for new quiz
+        totalCorrectAnswers = 0;
+        totalQuestionsAnswered = 0;
 
         ShowQuestion();
     }
@@ -185,14 +196,12 @@ public class HeatEscape : MonoBehaviour
         var q = dbQuestions[currentQuestionIndex];
         questionText.text = q.questionText;
 
-        // Reset button colors and states
         foreach (Button btn in optionButtons)
         {
             btn.image.color = Color.white;
             btn.interactable = true;
         }
 
-        // Set up option buttons
         for (int i = 0; i < optionButtons.Count; i++)
         {
             int index = i;
@@ -201,7 +210,6 @@ public class HeatEscape : MonoBehaviour
             optionButtons[i].onClick.AddListener(() => OnOptionSelected(index));
         }
 
-        // Update progress slider
         if (quizProgressSlider != null)
         {
             quizProgressSlider.value = currentQuestionIndex;
@@ -218,33 +226,34 @@ public class HeatEscape : MonoBehaviour
         int correctIndex = dbQuestions[currentQuestionIndex].correctAnswerIndex;
         bool isCorrect = selectedIndex == correctIndex;
 
-        // Update score if correct
+        // NEW: Track total questions answered
+        totalQuestionsAnswered++;
+
         if (isCorrect)
         {
             currentScore++;
+            // NEW: Track total correct answers
+            totalCorrectAnswers++;
             UpdateScoreDisplay();
         }
 
-        // Color the buttons based on correctness
         for (int i = 0; i < optionButtons.Count; i++)
         {
             if (isCorrect)
             {
-                // ✅ Correct Answer Selected
                 if (i == selectedIndex)
-                    optionButtonImages[i].color = Color.green; // Chosen correct answer
+                    optionButtonImages[i].color = Color.green;
                 else
-                    optionButtonImages[i].color = Color.red;   // All others wrong
+                    optionButtonImages[i].color = Color.white;
             }
             else
             {
-                // ❌ Wrong Answer Selected
                 if (i == selectedIndex)
-                    optionButtonImages[i].color = Color.red;   // Chosen wrong answer
+                    optionButtonImages[i].color = Color.red;
                 else if (i == correctIndex)
-                    optionButtonImages[i].color = Color.green; // Show the correct one
+                    optionButtonImages[i].color = Color.green;
                 else
-                    optionButtonImages[i].color = Color.white; // Neutral others
+                    optionButtonImages[i].color = Color.white;
             }
 
             optionButtons[i].interactable = false;
@@ -264,7 +273,6 @@ public class HeatEscape : MonoBehaviour
         }
     }
 
-
     private void UpdateScoreDisplay()
     {
         if (scoreText != null)
@@ -273,19 +281,58 @@ public class HeatEscape : MonoBehaviour
         }
     }
 
+    // NEW: Generate performance message based on results
+    private string GetPerformanceMessage()
+    {
+        if (totalQuestionsAnswered == 0)
+        {
+            return "No questions were answered.";
+        }
+
+        float overallPercentage = ((float)totalCorrectAnswers / totalQuestionsAnswered) * 100f;
+
+        if (overallPercentage >= passingPercentage)
+        {
+            return $"Congratulations! You passed with {overallPercentage:F0}%!\nFinal Score: {totalCorrectAnswers}/{totalQuestionsAnswered}";
+        }
+        else
+        {
+            return $"You scored {overallPercentage:F0}%. You need {passingPercentage:F0}% or higher to pass.\nFinal Score: {totalCorrectAnswers}/{totalQuestionsAnswered}";
+        }
+    }
+
+    // NEW: Display performance message on appropriate modal
+    private void DisplayPerformanceMessage(bool passed)
+    {
+        string performanceMessage = GetPerformanceMessage();
+
+        if (passed && passedPerformanceText != null)
+        {
+            passedPerformanceText.text = performanceMessage;
+        }
+        else if (!passed && failedPerformanceText != null)
+        {
+            failedPerformanceText.text = performanceMessage;
+        }
+
+        // Fallback: Log to console if no UI elements are assigned
+        Debug.Log("Quiz Performance: " + performanceMessage);
+    }
+
     private void EndQuiz()
     {
         quizPanel.SetActive(false);
         quizCompleted = true;
 
-        // Update final progress
         if (quizProgressSlider != null)
         {
             quizProgressSlider.value = totalQuestions;
         }
 
-        // Show appropriate modal based on score
         bool passed = currentScore >= 7;
+
+        // NEW: Display performance message before showing modal
+        DisplayPerformanceMessage(passed);
 
         if (passed)
         {
@@ -296,7 +343,6 @@ public class HeatEscape : MonoBehaviour
             failedModal.SetActive(true);
         }
 
-        // Set up retake button if it exists
         if (retakeButton != null)
         {
             retakeButton.onClick.RemoveAllListeners();
@@ -306,38 +352,34 @@ public class HeatEscape : MonoBehaviour
 
     public void RetakeQuiz()
     {
-        // Hide modals
         passedModal.SetActive(false);
         failedModal.SetActive(false);
 
-        // Reset all variables
         currentQuestionIndex = 0;
         currentScore = 0;
         quizCompleted = false;
 
-        // Hide score display
+        // NEW: Reset performance tracking for retake
+        totalCorrectAnswers = 0;
+        totalQuestionsAnswered = 0;
+
         if (scoreText != null) scoreText.gameObject.SetActive(false);
 
-        // Reset insulator image
         insulatorImage.color = new Color(1, 1, 1, 0);
 
-        // Restart from simulation part
         StartCoroutine(RestartFromSimulation());
     }
 
     private IEnumerator RestartFromSimulation()
     {
-        // Restart particle spawning
         if (particleSpawner != null)
         {
             particleSpawner.StartSpawningProcess();
         }
 
-        // Show house and buttons panels for simulation
         HousePanel.SetActive(true);
         ButtonsPanel.SetActive(true);
 
-        // Show timer during simulation
         if (timerText != null)
         {
             timerText.gameObject.SetActive(true);
@@ -346,13 +388,33 @@ public class HeatEscape : MonoBehaviour
 
         yield return StartCoroutine(SimulationTimer());
 
-        // Hide timer after simulation
         if (timerText != null) timerText.gameObject.SetActive(false);
 
         dialogues.StartDialogue(1);
         yield return new WaitUntil(() => dialogues.dialogueFinished);
 
         StartQuiz();
+    }
+
+    // NEW: Public methods for getting performance statistics
+    public void GetCurrentPerformanceStats(out int correct, out int total, out float percentage)
+    {
+        correct = totalCorrectAnswers;
+        total = totalQuestionsAnswered;
+        percentage = totalQuestionsAnswered > 0 ? ((float)totalCorrectAnswers / totalQuestionsAnswered) * 100f : 0f;
+    }
+
+    public bool IsCurrentlyPassing()
+    {
+        if (totalQuestionsAnswered == 0) return true;
+
+        float currentPercentage = ((float)totalCorrectAnswers / totalQuestionsAnswered) * 100f;
+        return currentPercentage >= passingPercentage;
+    }
+
+    public string GetCurrentPerformanceMessage()
+    {
+        return GetPerformanceMessage();
     }
 
     #region Material Buttons

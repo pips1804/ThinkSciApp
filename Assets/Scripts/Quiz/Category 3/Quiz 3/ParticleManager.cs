@@ -49,6 +49,8 @@ public class ParticleManager : MonoBehaviour
     public GameObject failModal; // Modal shown when quiz is failed
     public Button restartButton; // Restart button (can be in either modal)
     public Button exitButton; // Exit button (optional)
+    public Text passText; // Text component in pass modal to show score
+    public Text failText;
 
     [Header("Timer")]
     public float simulationDuration = 10f; // ⏳ set in inspector
@@ -379,10 +381,10 @@ public class ParticleManager : MonoBehaviour
 
         // Update pass modal text (assuming it has a Text component)
         // Text passText = passModal.GetComponentInChildren<Text>();
-        // if (passText != null)
-        // {
-        //     passText.text = $"Congratulations!\nYou passed with {scorePercentage:F1}%\nScore: {currentScore}/{totalQuestions}";
-        // }
+        if (passText != null)
+        {
+            passText.text = $"Congratulations!\nYou passed with {scorePercentage:F1}%\nFinal Score: {currentScore}/{totalQuestions}";
+        }
     }
 
     void ShowFailModal(float scorePercentage)
@@ -391,10 +393,10 @@ public class ParticleManager : MonoBehaviour
 
         // Update fail modal text (assuming it has a Text component)
         // Text failText = failModal.GetComponentInChildren<Text>();
-        // if (failText != null)
-        // {
-        //     failText.text = $"Better luck next time!\nYou scored {scorePercentage:F1}%\nScore: {currentScore}/{totalQuestions}\nYou need {passingScore}% to pass.";
-        // }
+        if (failText != null)
+        {
+            failText.text = $"You scored {scorePercentage:F1}%. You need 70% or higher to pass.\nFinal Score: {currentScore}/{totalQuestions}\n";
+        }
     }
 
     public void RestartGame()

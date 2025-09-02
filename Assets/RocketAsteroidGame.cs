@@ -1237,7 +1237,7 @@ public class RocketAsteroidGame : MonoBehaviour
                 else
                 {
                     // All other answers - make them red to show they were wrong choices
-                    answerButtonImages[i].color = Color.red;
+                    answerButtonImages[i].color = Color.white;
                 }
             }
         }

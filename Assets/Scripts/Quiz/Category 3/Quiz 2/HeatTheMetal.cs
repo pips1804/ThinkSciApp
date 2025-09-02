@@ -11,13 +11,48 @@ public class Question
     public int correctAnswerIndex;
 }
 
+// DIAGNOSTIC: Helper component to track which button was actually clicked
+public class ButtonClickTracker : MonoBehaviour
+{
+    public int buttonIndex;
+    public HeatTheMetal quizManager;
+
+    void Start()
+    {
+        Button button = GetComponent<Button>();
+        if (button != null)
+        {
+            // Clear existing listeners and add our tracker
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(OnClick);
+            Debug.Log($"ButtonClickTracker attached to button {buttonIndex}");
+        }
+    }
+
+    void OnClick()
+    {
+        Debug.Log($"ButtonClickTracker: Physical button {buttonIndex} clicked on GameObject {gameObject.name}");
+        if (quizManager != null)
+        {
+            quizManager.OnButtonClicked(buttonIndex, gameObject);
+        }
+    }
+}
+
 public class HeatTheMetal : MonoBehaviour
 {
     [Header("Panels")]
-    public GameObject introPanel;
     public GameObject gamePanel;
     public GameObject quizPanel;
-    public GameObject resultPanel;
+
+    [Header("Pass/Fail Modals")]
+    public GameObject passedModal;
+    public GameObject failedModal;
+    public Text passedScoreText;
+    public Text failedScoreText;
+    public Button retryButton;
+    public Button continueButton;
+    public Button retakeQuizButton; // NEW: Add this button to the failed modal
 
     [Header("Scenario 2 Panels")]
     public GameObject warmRoomPanel;
@@ -40,36 +75,40 @@ public class HeatTheMetal : MonoBehaviour
     public Slider rotationSlider;
     public RectTransform solarPanelImage;
     public Image sunlightBeam;
-    public float targetRotation = 45f;
-    public float rotationTolerance = 5f;
-    public float holdTimeRequired = 1f;
-    public float beamFadeSpeed = 1f;
     public float targetXPosition;
     public float positionTolerance = 10f;
+    public float holdTimeRequired = 1f;
+    public float beamFadeSpeed = 1f;
 
     [Header("Quiz Elements")]
     public Text questionTextUI;
     public Button[] answerButtons;
     public Text[] answerButtonTexts;
-    public Question[] questionsScenario1;
-    public Question[] questionsScenario2;
-    public Question[] questionsScenario3;
-    public Image petImage;
-    public Sprite thinkingPetSprite;
-    public Sprite ideaPetSprite;
     public Image[] buttonVisualImages;
 
-    [Header("Animation Settings")]
-    public float fadeDuration = 0.5f;
-    public AnimationCurve fadeAnimationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [Header("Quiz Timer & Score")]
+    public Text timerText;
+    public Text scoreText;
+    public float questionTimeLimit = 30f;
+    public Image timerFillImage;
 
     [Header("Button Colors")]
     public Color correctButtonColor = Color.green;
     public Color incorrectButtonColor = Color.red;
     public Color defaultButtonColor = Color.white;
 
-    [Header("Dialogue Reference")]
+    [Header("References")]
     public Dialogues dialogueManager;
+    public DatabaseManager dbManager;
+
+    [Header("Draggable Items - NEW")]
+    public DragFire dragFireScript;
+    public DragHeater dragHeaterScript;
+
+    // Private variables
+    private Question[] questionsScenario1;
+    private Question[] questionsScenario2;
+    private Question[] questionsScenario3;
 
     private int currentQuestionIndex = 0;
     private bool isHeating = false;
@@ -81,59 +120,279 @@ public class HeatTheMetal : MonoBehaviour
     private bool scenario3Active = false;
     private bool scenario3Completed = false;
 
-    [SerializeField] private DatabaseManager dbManager;
-
-    
     private Color[] originalButtonColors;
     private bool buttonsInteractable = true;
 
+    // Quiz Timer and Score Variables
+    private float currentQuestionTimer = 0f;
+    private bool questionTimerActive = false;
+    private Coroutine questionTimerCoroutine;
+    private int currentScenarioScore = 0;
+    private int totalQuestionsAnswered = 0;
+    private int currentScenario = 1;
+    private const float PASSING_PERCENTAGE = 70f;
+
+    // Overall game score tracking
+    private int totalCorrectAnswers = 0;
+    private int totalQuestionsInGame = 0;
+
+    // NEW: Store original positions for reset
+    private Vector3 originalFirePosition;
+    private Vector3 originalHeaterPosition;
+    private bool originalPositionsStored = false;
+
     void Start()
     {
-        questionsScenario1 = dbManager.LoadRandomQuestions(9, "Multiple Choice Scene 1", 4).ToArray();
-        questionsScenario2 = dbManager.LoadRandomQuestions(9, "Multiple Choice Scene 2", 3).ToArray();
-        questionsScenario3 = dbManager.LoadRandomQuestions(9, "Multiple Choice Scene 3", 3).ToArray();
-        ShowIntro();
-        warmRoomPanel.SetActive(false);
-        warmAirArrows.SetActive(false);
-        coolAirArrows.SetActive(false);
-
-        // Store original button colors
+        LoadQuestions();
         StoreOriginalButtonColors();
+        StoreOriginalPositions(); // NEW: Store initial positions
+        ShowIntro();
+        InitializeScenarioElements();
+        InitializeModals();
+        SetupButtonListeners();
+        StartGame();
+    }
+
+    // NEW: Store original positions of draggable items
+    void StoreOriginalPositions()
+    {
+        if (!originalPositionsStored)
+        {
+            if (dragFireScript != null)
+            {
+                originalFirePosition = dragFireScript.transform.position;
+                Debug.Log($"Stored original fire position: {originalFirePosition}");
+            }
+
+            if (dragHeaterScript != null)
+            {
+                originalHeaterPosition = dragHeaterScript.transform.position;
+                Debug.Log($"Stored original heater position: {originalHeaterPosition}");
+            }
+
+            originalPositionsStored = true;
+        }
+    }
+
+    // NEW: Reset all draggable items to their original positions
+    void ResetDraggableItems()
+    {
+        Debug.Log("Resetting draggable items to original positions");
+
+        if (dragFireScript != null)
+        {
+            dragFireScript.ResetFire(originalFirePosition);
+            Debug.Log($"Reset fire to position: {originalFirePosition}");
+        }
+
+        if (dragHeaterScript != null)
+        {
+            dragHeaterScript.ResetHeater(originalHeaterPosition);
+            Debug.Log($"Reset heater to position: {originalHeaterPosition}");
+        }
+    }
+
+    // NEW: Complete game reset functionality
+    public void RetakeEntireQuiz()
+    {
+        Debug.Log("Retaking entire quiz - full reset");
+
+        // Hide all modals
+        if (passedModal != null) passedModal.SetActive(false);
+        if (failedModal != null) failedModal.SetActive(false);
+
+        // Stop all coroutines
+        StopAllCoroutines();
+
+        // Reset draggable items
+        ResetDraggableItems();
+
+        // Reset all game state
+        ResetAllGameState();
+
+        // Start from the beginning
+        ShowIntro();
+        StartGame();
+    }
+
+    // NEW: Reset all game state variables
+    void ResetAllGameState()
+    {
+        // Reset scenario progress
+        currentScenario = 1;
+        currentQuestionIndex = 0;
+        currentScenarioScore = 0;
+        totalQuestionsAnswered = 0;
+        totalCorrectAnswers = 0;
+        totalQuestionsInGame = 0;
+
+        // Reset scenario 1 state
+        isHeating = false;
+        heatProgress = 0f;
+
+        // Reset scenario 2 state
+        inScenario2 = false;
+        if (arrowAnim != null)
+        {
+            StopCoroutine(arrowAnim);
+            arrowAnim = null;
+        }
+
+        // Reset scenario 3 state
+        correctHoldTime = 0f;
+        scenario3Active = false;
+        scenario3Completed = false;
+
+        // Reset quiz state
+        buttonsInteractable = true;
+        StopQuestionTimer();
+
+        // Reset UI elements
+        if (heatEffect != null)
+            heatEffect.color = new Color(heatEffect.color.r, heatEffect.color.g, heatEffect.color.b, 0);
+
+        if (sunlightBeam != null)
+            sunlightBeam.color = new Color(sunlightBeam.color.r, sunlightBeam.color.g, sunlightBeam.color.b, 0);
+
+        if (rotationSlider != null)
+        {
+            rotationSlider.value = 0.5f; // Reset to middle position
+            rotationSlider.interactable = true;
+        }
+
+        // Reset arrow positions and visibility
+        if (warmAirArrows != null) warmAirArrows.SetActive(false);
+        if (coolAirArrows != null) coolAirArrows.SetActive(false);
+
+        UpdateScoreDisplay();
+        Debug.Log("All game state reset complete");
+    }
+
+    void LoadQuestions()
+    {
+        if (dbManager != null)
+        {
+            questionsScenario1 = dbManager.LoadRandomQuestions(9, "Multiple Choice Scene 1", 4).ToArray();
+            questionsScenario2 = dbManager.LoadRandomQuestions(9, "Multiple Choice Scene 2", 3).ToArray();
+            questionsScenario3 = dbManager.LoadRandomQuestions(9, "Multiple Choice Scene 3", 3).ToArray();
+        }
+        else
+        {
+            Debug.LogError("DatabaseManager is null!");
+        }
+    }
+
+    void InitializeScenarioElements()
+    {
+        if (warmRoomPanel != null) warmRoomPanel.SetActive(false);
+        if (warmAirArrows != null) warmAirArrows.SetActive(false);
+        if (coolAirArrows != null) coolAirArrows.SetActive(false);
+        if (solarPanelPanel != null) solarPanelPanel.SetActive(false);
+
+        if (heatEffect != null)
+            heatEffect.color = new Color(heatEffect.color.r, heatEffect.color.g, heatEffect.color.b, 0);
+    }
+
+    void InitializeModals()
+    {
+        if (passedModal != null)
+        {
+            passedModal.SetActive(false);
+            // Canvas modalCanvas = passedModal.GetComponent<Canvas>();
+            // if (modalCanvas == null) modalCanvas = passedModal.AddComponent<Canvas>();
+            // modalCanvas.overrideSorting = true;
+            // modalCanvas.sortingOrder = 100;
+        }
+
+        if (failedModal != null)
+        {
+            failedModal.SetActive(false);
+            // Canvas modalCanvas = failedModal.GetComponent<Canvas>();
+            // if (modalCanvas == null) modalCanvas = failedModal.AddComponent<Canvas>();
+            // modalCanvas.overrideSorting = true;
+            // modalCanvas.sortingOrder = 100;
+        }
+    }
+
+    void SetupButtonListeners()
+    {
+        if (retryButton != null)
+            retryButton.onClick.AddListener(RetryCurrentScenario);
+        if (continueButton != null)
+            continueButton.onClick.AddListener(ContinueToNextScenario);
+
+        // NEW: Setup retake quiz button
+        if (retakeQuizButton != null)
+            retakeQuizButton.onClick.AddListener(RetakeEntireQuiz);
     }
 
     void ShowIntro()
     {
-        SetPanelActive(introPanel, true);
-        SetPanelActive(gamePanel, false);
-        SetPanelActive(quizPanel, false);
-        SetPanelActive(resultPanel, false);
-        SetPanelActive(messagePanel, false);
-        SetPanelActive(warmRoomPanel, false);
-        heatEffect.color = new Color(heatEffect.color.r, heatEffect.color.g, heatEffect.color.b, 0);
+        if (gamePanel != null) gamePanel.SetActive(false);
+        if (quizPanel != null) quizPanel.SetActive(false);
+        if (messagePanel != null) messagePanel.SetActive(true);
+        if (warmRoomPanel != null) warmRoomPanel.SetActive(false);
+
+        // Reset quiz state for entire game
+        currentScenarioScore = 0;
+        totalQuestionsAnswered = 0;
+        currentScenario = 1;
+        totalCorrectAnswers = 0;
+        totalQuestionsInGame = 0;
+        UpdateScoreDisplay();
     }
 
     public void StartGame()
     {
-        StartCoroutine(FadeOutThenAction(introPanel, () =>
+        Debug.Log("StartGame called!");
+
+        if (messagePanel != null) messagePanel.SetActive(true);
+
+        if (dialogueManager != null)
         {
+            Debug.Log("DialogueManager found, starting dialogue...");
             dialogueManager.StartDialogue(0);
             StartCoroutine(WaitForDialogueThen(() =>
             {
-                StartCoroutine(FadeInThenAction(gamePanel, () =>
-                {
-                    isHeating = false;
-                    heatProgress = 0f;
-                    heatTheMetalPanel.SetActive(true);
-                    petImage.gameObject.SetActive(false);
-                }));
+                Debug.Log("Coroutine finished, showing game panels...");
+                if (gamePanel != null) gamePanel.SetActive(true);
+                isHeating = false;
+                heatProgress = 0f;
+                if (heatTheMetalPanel != null) heatTheMetalPanel.SetActive(true);
             }));
-        }));
+        }
+        else
+        {
+            Debug.LogWarning("DialogueManager is NULL, skipping dialogue!");
+            if (gamePanel != null) gamePanel.SetActive(true);
+            isHeating = false;
+            heatProgress = 0f;
+            if (heatTheMetalPanel != null) heatTheMetalPanel.SetActive(true);
+        }
+    }
+
+    // NEW: OnEnable method to handle game object reactivation
+    void OnEnable()
+    {
+        // Only trigger retake if the game has been played before
+        if (originalPositionsStored && totalQuestionsInGame > 0)
+        {
+            Debug.Log("GameObject reactivated - triggering quiz retake");
+            RetakeEntireQuiz();
+        }
     }
 
     IEnumerator WaitForDialogueThen(System.Action onFinish)
     {
-        while (dialogueManager.dialoguePanel.activeSelf)
-            yield return null;
+        if (dialogueManager != null)
+        {
+            while (!dialogueManager.dialogueFinished)
+            {
+                Debug.Log("Waiting... dialogueFinished = " + dialogueManager.dialogueFinished);
+                yield return null;
+            }
+        }
+        Debug.Log("Dialogue finished! Now showing game panel.");
         onFinish?.Invoke();
     }
 
@@ -142,9 +401,12 @@ public class HeatTheMetal : MonoBehaviour
         if (!inScenario2 && isHeating)
         {
             heatProgress += Time.deltaTime;
-            Color c = heatEffect.color;
-            c.a = Mathf.Clamp01(heatProgress / heatingTime);
-            heatEffect.color = c;
+            if (heatEffect != null)
+            {
+                Color c = heatEffect.color;
+                c.a = Mathf.Clamp01(heatProgress / heatingTime);
+                heatEffect.color = c;
+            }
 
             if (heatProgress >= heatingTime)
             {
@@ -167,134 +429,434 @@ public class HeatTheMetal : MonoBehaviour
 
     void StartQuizScenario1()
     {
-        StartCoroutine(FadeOutThenAction(gamePanel, () =>
-        {
-            StartCoroutine(FadeInThenAction(quizPanel, () =>
-            {
-                currentQuestionIndex = 0;
-                ShowQuestionScenario1();
-            }));
-        }));
+        currentScenario = 1;
+        currentScenarioScore = 0;
+        totalQuestionsAnswered = 0;
+
+        if (gamePanel != null) gamePanel.SetActive(false);
+        if (quizPanel != null) quizPanel.SetActive(true);
+        currentQuestionIndex = 0;
+        ShowQuestionScenario1();
     }
 
     void ShowQuestionScenario1()
     {
-        if (questionsScenario1 == null || questionsScenario1.Length == 0)
+        ShowQuestion(questionsScenario1, "Scenario 1");
+    }
+
+    void ShowQuestionScenario2()
+    {
+        ShowQuestion(questionsScenario2, "Scenario 2");
+    }
+
+    void ShowQuestionScenario3()
+    {
+        ShowQuestion(questionsScenario3, "Scenario 3");
+    }
+
+    // FIXED: Unified question display method
+    void ShowQuestion(Question[] questions, string scenarioName)
+    {
+        if (questions == null || questions.Length == 0)
         {
-            Debug.LogError("Questions Scenario 1 is null or empty!");
+            Debug.LogError($"Questions for {scenarioName} is null or empty!");
             return;
         }
 
-        if (currentQuestionIndex >= questionsScenario1.Length)
+        if (currentQuestionIndex >= questions.Length)
         {
-            Debug.LogError("Current question index is out of bounds!");
+            Debug.LogError($"Current question index {currentQuestionIndex} is out of bounds for {scenarioName}!");
             return;
         }
 
-        Question q = questionsScenario1[currentQuestionIndex];
-        questionTextUI.text = q.questionText;
+        Question q = questions[currentQuestionIndex];
+        if (questionTextUI != null)
+        {
+            questionTextUI.text = q.questionText;
+        }
 
-        // Reset button colors and interactability
+        // FIXED: Reset button state properly
         ResetButtonColors();
         buttonsInteractable = true;
 
-        // Clear all listeners first
+        // FIXED: Clear all button listeners before setting up new ones
+        ClearAllButtonListeners();
+
+        // FIXED: Setup buttons with proper validation
+        SetupAnswerButtons(q);
+
+        StartQuestionTimer();
+
+        Debug.Log($"Showing {scenarioName} question {currentQuestionIndex + 1}: {q.questionText}");
+        Debug.Log($"Correct answer index: {q.correctAnswerIndex}");
+    }
+
+    // FIXED: New method to safely clear all button listeners
+    void ClearAllButtonListeners()
+    {
+        if (answerButtons == null) return;
+
         for (int i = 0; i < answerButtons.Length; i++)
         {
             if (answerButtons[i] != null)
             {
                 answerButtons[i].onClick.RemoveAllListeners();
-            }
-        }
-
-        // Set up buttons with choices
-        for (int i = 0; i < answerButtons.Length && i < q.choices.Length; i++)
-        {
-            if (answerButtonTexts[i] != null)
-            {
-                answerButtonTexts[i].text = q.choices[i];
-                Debug.Log($"Button {i} text set to: {q.choices[i]}");
-            }
-            else
-            {
-                Debug.LogError($"Answer button text {i} is null!");
-            }
-
-            // Create a local copy of the index to avoid closure issues
-            int buttonIndex = i;
-            answerButtons[i].onClick.AddListener(() =>
-            {
-                Debug.Log($"Button {buttonIndex} clicked!");
-                SelectAnswerScenario1(buttonIndex);
-            });
-            answerButtons[i].interactable = true;
-            answerButtons[i].gameObject.SetActive(true);
-        }
-
-        // Hide unused buttons if there are more buttons than choices
-        for (int i = q.choices.Length; i < answerButtons.Length; i++)
-        {
-            if (answerButtons[i] != null)
-            {
-                answerButtons[i].gameObject.SetActive(false);
+                answerButtons[i].interactable = true;
             }
         }
     }
 
-    public void SelectAnswerScenario1(int index)
+    // DIAGNOSTIC: Debug method to identify which physical button was clicked
+    void SetupAnswerButtons(Question q)
     {
-        if (!buttonsInteractable) return;
+        if (answerButtons == null || q.choices == null)
+        {
+            Debug.LogError("Answer buttons or question choices are null!");
+            return;
+        }
 
-        Debug.Log($"SelectAnswerScenario1 called with index: {index}");
+        Debug.Log("=== BUTTON SETUP DEBUG ===");
+        Debug.Log($"Question: {q.questionText}");
+        Debug.Log($"Choices count: {q.choices.Length}");
+        Debug.Log($"Correct answer index: {q.correctAnswerIndex}");
+        Debug.Log($"Available buttons: {answerButtons.Length}");
+
+        // Set up buttons with choices
+        for (int i = 0; i < answerButtons.Length; i++)
+        {
+            if (answerButtons[i] != null)
+            {
+                if (i < q.choices.Length)
+                {
+                    // Show and setup button
+                    answerButtons[i].gameObject.SetActive(true);
+                    answerButtons[i].interactable = true;
+
+                    // Set button text
+                    if (answerButtonTexts != null && i < answerButtonTexts.Length && answerButtonTexts[i] != null)
+                    {
+                        answerButtonTexts[i].text = q.choices[i];
+                        Debug.Log($"Button {i} text set to: '{q.choices[i]}'");
+                    }
+
+                    // DIAGNOSTIC: Add button name for identification
+                    answerButtons[i].name = $"AnswerButton_{i}";
+
+                    // Create a component to track which button was actually clicked
+                    ButtonClickTracker tracker = answerButtons[i].GetComponent<ButtonClickTracker>();
+                    if (tracker == null)
+                    {
+                        tracker = answerButtons[i].gameObject.AddComponent<ButtonClickTracker>();
+                    }
+                    tracker.buttonIndex = i;
+                    tracker.quizManager = this;
+
+                    Debug.Log($"Setup button {i} with tracker, name: {answerButtons[i].name}");
+                }
+                else
+                {
+                    // Hide unused buttons
+                    answerButtons[i].gameObject.SetActive(false);
+                    Debug.Log($"Hidden unused button {i}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"Answer button at index {i} is null!");
+            }
+        }
+
+        Debug.Log("=== END BUTTON SETUP ===");
+    }
+
+    // DIAGNOSTIC: Method called by ButtonClickTracker
+    public void OnButtonClicked(int buttonIndex, GameObject buttonObject)
+    {
+        Debug.Log($"=== BUTTON CLICK DEBUG ===");
+        Debug.Log($"Physical button clicked: {buttonObject.name}");
+        Debug.Log($"Button index from tracker: {buttonIndex}");
+        Debug.Log($"Button text: {(answerButtonTexts[buttonIndex] != null ? answerButtonTexts[buttonIndex].text : "NULL")}");
+
+        if (!buttonsInteractable)
+        {
+            Debug.Log("Buttons not interactable, ignoring click");
+            return;
+        }
+
+        SelectAnswer(buttonIndex);
+    }
+
+    // FIXED: New method that properly handles button index
+    void SelectAnswerByIndex(int index)
+    {
+        Debug.Log($"SelectAnswerByIndex called with index: {index}");
+
+        if (!buttonsInteractable)
+        {
+            Debug.Log("Buttons not interactable, ignoring click");
+            return;
+        }
+
+        SelectAnswer(index);
+    }
+
+    // FIXED: Improved answer selection with better debugging
+    public void SelectAnswer(int index)
+    {
+        if (!buttonsInteractable)
+        {
+            Debug.Log("Buttons not interactable, ignoring click");
+            return;
+        }
+
+        Debug.Log($"SelectAnswer called with index: {index}");
+
+        StopQuestionTimer();
         buttonsInteractable = false;
-        Question q = questionsScenario1[currentQuestionIndex];
+
+        Question q = GetCurrentQuestion();
+        if (q == null)
+        {
+            Debug.LogError("Current question is null!");
+            return;
+        }
+
+        // FIXED: Add bounds checking for the selected index
+        if (index < 0 || index >= q.choices.Length)
+        {
+            Debug.LogError($"Selected index {index} is out of bounds for question with {q.choices.Length} choices!");
+            return;
+        }
+
         bool isCorrect = index == q.correctAnswerIndex;
 
         Debug.Log($"Question: {q.questionText}");
-        Debug.Log($"Selected answer: {q.choices[index]}");
+        Debug.Log($"Selected choice {index}: {q.choices[index]}");
         Debug.Log($"Correct answer index: {q.correctAnswerIndex}");
-        Debug.Log($"Is correct: {isCorrect}");
+        Debug.Log($"Correct answer: {q.choices[q.correctAnswerIndex]}");
+        Debug.Log($"Answer is correct: {isCorrect}");
+
+        // Update score
+        totalQuestionsAnswered++;
+        totalQuestionsInGame++;
+        if (isCorrect)
+        {
+            currentScenarioScore++;
+            totalCorrectAnswers++;
+        }
+
+        UpdateScoreDisplay();
 
         StartCoroutine(HandleAnswerFeedback(index, q.correctAnswerIndex, isCorrect, () =>
         {
             currentQuestionIndex++;
-            if (currentQuestionIndex < questionsScenario1.Length)
-                ShowQuestionScenario1();
+            if (ShouldShowNextQuestion())
+                ShowNextQuestion();
             else
-                EndScenario1();
+                EndCurrentScenario();
         }));
     }
 
-    void EndScenario1()
+    // FIXED: Improved feedback handling with better validation
+    IEnumerator HandleAnswerFeedback(int selectedIndex, int correctIndex, bool isCorrect, System.Action onComplete)
     {
-        StartCoroutine(FadeOutThenAction(quizPanel, () =>
+        Debug.Log($"HandleAnswerFeedback: selected={selectedIndex}, correct={correctIndex}, isCorrect={isCorrect}");
+
+        // Disable all buttons immediately
+        SetAllButtonsInteractable(false);
+
+        yield return new WaitForSeconds(0.1f);
+
+        // FIXED: Better validation for button color changes
+        if (selectedIndex == -1) // Timeout case
         {
-            StartCoroutine(FadeInThenAction(resultPanel, () =>
+            Debug.Log("Timeout - showing correct answer");
+            SetButtonColor(correctIndex, correctButtonColor);
+        }
+        else if (isCorrect)
+        {
+            Debug.Log("Correct answer - highlighting in green");
+            SetButtonColor(selectedIndex, correctButtonColor);
+        }
+        else
+        {
+            Debug.Log("Incorrect answer - showing red for selected, green for correct");
+            SetButtonColor(selectedIndex, incorrectButtonColor);
+            SetButtonColor(correctIndex, correctButtonColor);
+        }
+
+        yield return new WaitForSeconds(2f);
+
+        Debug.Log("Feedback complete, calling onComplete");
+        onComplete?.Invoke();
+    }
+
+    // FIXED: New helper method to safely set all buttons' interactable state
+    void SetAllButtonsInteractable(bool interactable)
+    {
+        if (answerButtons == null) return;
+
+        for (int i = 0; i < answerButtons.Length; i++)
+        {
+            if (answerButtons[i] != null)
             {
-                petImage.gameObject.SetActive(true);
-                dialogueManager.StartDialogue(1);
-                StartCoroutine(WaitForDialogueThen(() =>
-                {
-                    StartCoroutine(FadeOutThenAction(resultPanel, () =>
-                    {
-                        heatTheMetalPanel.SetActive(false);
-                        petImage.gameObject.SetActive(false);
-                        StartScenario2();
-                    }));
-                }));
-            }));
-        }));
+                answerButtons[i].interactable = interactable;
+            }
+        }
     }
 
-    void StartScenario2()
+    // FIXED: Improved button color setting with validation
+    void SetButtonColor(int buttonIndex, Color color)
     {
-        inScenario2 = true;
-        StartCoroutine(FadeInThenAction(gamePanel, () =>
+        if (buttonVisualImages == null)
         {
-            warmRoomPanel.SetActive(true);
-            warmAirArrows.SetActive(false);
-            coolAirArrows.SetActive(false);
-        }));
+            Debug.LogWarning("buttonVisualImages array is null!");
+            return;
+        }
+
+        if (buttonIndex < 0 || buttonIndex >= buttonVisualImages.Length)
+        {
+            Debug.LogWarning($"Button index {buttonIndex} is out of bounds! Array length: {buttonVisualImages.Length}");
+            return;
+        }
+
+        if (buttonVisualImages[buttonIndex] != null)
+        {
+            buttonVisualImages[buttonIndex].color = color;
+            Debug.Log($"Set button {buttonIndex} color to {color}");
+        }
+        else
+        {
+            Debug.LogWarning($"Button visual image at index {buttonIndex} is null!");
+        }
+    }
+
+    // FIXED: Improved color reset with fallback to default color
+    void ResetButtonColors()
+    {
+        if (buttonVisualImages == null)
+        {
+            Debug.LogWarning("buttonVisualImages is null in ResetButtonColors");
+            return;
+        }
+
+        for (int i = 0; i < buttonVisualImages.Length; i++)
+        {
+            if (buttonVisualImages[i] != null)
+            {
+                if (originalButtonColors != null && i < originalButtonColors.Length)
+                {
+                    buttonVisualImages[i].color = originalButtonColors[i];
+                }
+                else
+                {
+                    buttonVisualImages[i].color = defaultButtonColor;
+                }
+            }
+        }
+
+        Debug.Log("Button colors reset");
+    }
+
+    // FIXED: Better original color storage with null checks
+    void StoreOriginalButtonColors()
+    {
+        if (buttonVisualImages == null)
+        {
+            Debug.LogWarning("buttonVisualImages is null, cannot store original colors");
+            return;
+        }
+
+        originalButtonColors = new Color[buttonVisualImages.Length];
+        for (int i = 0; i < buttonVisualImages.Length; i++)
+        {
+            if (buttonVisualImages[i] != null)
+            {
+                originalButtonColors[i] = buttonVisualImages[i].color;
+            }
+            else
+            {
+                originalButtonColors[i] = defaultButtonColor;
+                Debug.LogWarning($"Button visual image at index {i} is null, using default color");
+            }
+        }
+
+        Debug.Log($"Stored {originalButtonColors.Length} original button colors");
+    }
+
+    // FIXED: Better question retrieval with validation
+    Question GetCurrentQuestion()
+    {
+        Question[] currentQuestions = null;
+        string scenarioName = "";
+
+        switch (currentScenario)
+        {
+            case 1:
+                currentQuestions = questionsScenario1;
+                scenarioName = "Scenario 1";
+                break;
+            case 2:
+                currentQuestions = questionsScenario2;
+                scenarioName = "Scenario 2";
+                break;
+            case 3:
+                currentQuestions = questionsScenario3;
+                scenarioName = "Scenario 3";
+                break;
+            default:
+                Debug.LogError($"Invalid scenario: {currentScenario}");
+                return null;
+        }
+
+        if (currentQuestions == null)
+        {
+            Debug.LogError($"Questions array for {scenarioName} is null!");
+            return null;
+        }
+
+        if (currentQuestionIndex < 0 || currentQuestionIndex >= currentQuestions.Length)
+        {
+            Debug.LogError($"Question index {currentQuestionIndex} is out of bounds for {scenarioName} (length: {currentQuestions.Length})");
+            return null;
+        }
+
+        return currentQuestions[currentQuestionIndex];
+    }
+
+    bool ShouldShowNextQuestion()
+    {
+        switch (currentScenario)
+        {
+            case 1: return questionsScenario1 != null && currentQuestionIndex < questionsScenario1.Length;
+            case 2: return questionsScenario2 != null && currentQuestionIndex < questionsScenario2.Length;
+            case 3: return questionsScenario3 != null && currentQuestionIndex < questionsScenario3.Length;
+            default: return false;
+        }
+    }
+
+    void ShowNextQuestion()
+    {
+        Debug.Log($"Showing next question for scenario {currentScenario}, index {currentQuestionIndex}");
+
+        switch (currentScenario)
+        {
+            case 1: ShowQuestionScenario1(); break;
+            case 2: ShowQuestionScenario2(); break;
+            case 3: ShowQuestionScenario3(); break;
+        }
+    }
+
+    void EndCurrentScenario()
+    {
+        Debug.Log($"Ending scenario {currentScenario}");
+
+        switch (currentScenario)
+        {
+            case 1: EndScenario1(); break;
+            case 2: EndScenario2(); break;
+            case 3: EndScenario3(); break;
+        }
     }
 
     public void FirePlacedSuccess()
@@ -304,8 +866,9 @@ public class HeatTheMetal : MonoBehaviour
 
     public void HeaterPlacedSuccess()
     {
-        warmAirArrows.SetActive(true);
-        coolAirArrows.SetActive(true);
+        if (warmAirArrows != null) warmAirArrows.SetActive(true);
+        if (coolAirArrows != null) coolAirArrows.SetActive(true);
+
         if (arrowAnim != null) StopCoroutine(arrowAnim);
         arrowAnim = StartCoroutine(AnimateArrows());
         StartQuizScenario2();
@@ -313,10 +876,12 @@ public class HeatTheMetal : MonoBehaviour
 
     private IEnumerator AnimateArrows()
     {
+        if (warmAirArrows == null || coolAirArrows == null) yield break;
+
         Vector3 warmStart = warmAirArrows.transform.localPosition;
         Vector3 coolStart = coolAirArrows.transform.localPosition;
 
-        while (true)
+        while (warmAirArrows != null && coolAirArrows != null)
         {
             float t = Mathf.PingPong(Time.time * moveSpeed, 1f);
             warmAirArrows.transform.localPosition = warmStart + Vector3.up * Mathf.Lerp(0, moveDistance, t);
@@ -334,416 +899,325 @@ public class HeatTheMetal : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-        StartCoroutine(FadeOutThenAction(gamePanel, () =>
+        currentScenario = 2;
+        currentScenarioScore = 0;
+        totalQuestionsAnswered = 0;
+
+        if (gamePanel != null) gamePanel.SetActive(false);
+        if (quizPanel != null) quizPanel.SetActive(true);
+        currentQuestionIndex = 0;
+        ShowQuestionScenario2();
+    }
+
+    void EndScenario1()
+    {
+        if (quizPanel != null) quizPanel.SetActive(false);
+
+        if (dialogueManager != null)
         {
-            StartCoroutine(FadeInThenAction(quizPanel, () =>
+            dialogueManager.StartDialogue(1);
+            StartCoroutine(WaitForDialogueThen(() =>
             {
-                currentQuestionIndex = 0;
-                ShowQuestionScenario2();
+                if (heatTheMetalPanel != null) heatTheMetalPanel.SetActive(false);
+                StartScenario2();
             }));
-        }));
-    }
-
-    void ShowQuestionScenario2()
-    {
-        if (questionsScenario2 == null || questionsScenario2.Length == 0)
-        {
-            Debug.LogError("Questions Scenario 2 is null or empty!");
-            return;
         }
-
-        if (currentQuestionIndex >= questionsScenario2.Length)
+        else
         {
-            Debug.LogError("Current question index is out of bounds!");
-            return;
-        }
-
-        Question q = questionsScenario2[currentQuestionIndex];
-        questionTextUI.text = q.questionText;
-
-        ResetButtonColors();
-        buttonsInteractable = true;
-
-        for (int i = 0; i < answerButtons.Length && i < q.choices.Length; i++)
-        {
-            if (answerButtonTexts[i] != null)
-            {
-                answerButtonTexts[i].text = q.choices[i];
-                Debug.Log($"Button {i} text set to: {q.choices[i]}");
-            }
-            else
-            {
-                Debug.LogError($"Answer button text {i} is null!");
-            }
-
-            answerButtons[i].onClick.RemoveAllListeners();
-            int index = i;
-            answerButtons[i].onClick.AddListener(() => SelectAnswerScenario2(index));
-            answerButtons[i].interactable = true;
-            answerButtons[i].gameObject.SetActive(true);
-        }
-
-        // Hide unused buttons if there are more buttons than choices
-        for (int i = q.choices.Length; i < answerButtons.Length; i++)
-        {
-            answerButtons[i].gameObject.SetActive(false);
+            if (heatTheMetalPanel != null) heatTheMetalPanel.SetActive(false);
+            StartScenario2();
         }
     }
 
-    public void SelectAnswerScenario2(int index)
+    void StartScenario2()
     {
-        if (!buttonsInteractable) return;
+        currentScenario = 2;
+        currentScenarioScore = 0;
+        totalQuestionsAnswered = 0;
 
-        buttonsInteractable = false;
-        Question q = questionsScenario2[currentQuestionIndex];
-        bool isCorrect = index == q.correctAnswerIndex;
-
-        StartCoroutine(HandleAnswerFeedback(index, q.correctAnswerIndex, isCorrect, () =>
-        {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < questionsScenario2.Length)
-                ShowQuestionScenario2();
-            else
-                EndScenario2();
-        }));
+        inScenario2 = true;
+        if (gamePanel != null) gamePanel.SetActive(true);
+        if (warmRoomPanel != null) warmRoomPanel.SetActive(true);
+        if (warmAirArrows != null) warmAirArrows.SetActive(false);
+        if (coolAirArrows != null) coolAirArrows.SetActive(false);
     }
 
     void EndScenario2()
     {
-        StartCoroutine(FadeOutThenAction(quizPanel, () =>
+        if (quizPanel != null) quizPanel.SetActive(false);
+
+        if (dialogueManager != null)
         {
-            petImage.sprite = ideaPetSprite;
-            petImage.rectTransform.sizeDelta = new Vector2(820, 780);
-            petImage.gameObject.SetActive(true);
             dialogueManager.StartDialogue(2);
             StartCoroutine(WaitForDialogueThen(() =>
             {
-                warmRoomPanel.SetActive(false);
-                petImage.gameObject.SetActive(false);
+                if (warmRoomPanel != null) warmRoomPanel.SetActive(false);
                 StartScenario3();
             }));
-        }));
+        }
+        else
+        {
+            if (warmRoomPanel != null) warmRoomPanel.SetActive(false);
+            StartScenario3();
+        }
     }
 
     void StartScenario3()
     {
-        StartCoroutine(FadeInThenAction(gamePanel, () =>
-        {
-            solarPanelPanel.SetActive(true);
-            sunlightBeam.color = new Color(sunlightBeam.color.r, sunlightBeam.color.g, sunlightBeam.color.b, 0);
-            correctHoldTime = 0f;
-            scenario3Active = true;
-            scenario3Completed = false;
+        currentScenario = 3;
+        currentScenarioScore = 0;
+        totalQuestionsAnswered = 0;
 
+        if (gamePanel != null) gamePanel.SetActive(true);
+        if (solarPanelPanel != null) solarPanelPanel.SetActive(true);
+
+        if (sunlightBeam != null)
+            sunlightBeam.color = new Color(sunlightBeam.color.r, sunlightBeam.color.g, sunlightBeam.color.b, 0);
+
+        correctHoldTime = 0f;
+        scenario3Active = true;
+        scenario3Completed = false;
+
+        if (rotationSlider != null)
+        {
             rotationSlider.onValueChanged.RemoveAllListeners();
             rotationSlider.onValueChanged.AddListener(OnSliderChanged);
-        }));
+        }
     }
 
     void OnSliderChanged(float value)
     {
-        float newX = Mathf.Lerp(-200f, 200f, value);
-        Vector3 pos = solarPanelImage.localPosition;
-        pos.x = newX;
-        solarPanelImage.localPosition = pos;
+        if (solarPanelImage != null)
+        {
+            float newX = Mathf.Lerp(-200f, 200f, value);
+            Vector3 pos = solarPanelImage.localPosition;
+            pos.x = newX;
+            solarPanelImage.localPosition = pos;
+        }
     }
 
     void HandleScenario3()
     {
+        if (solarPanelImage == null) return;
+
         float currentX = solarPanelImage.localPosition.x;
         float diff = Mathf.Abs(currentX - targetXPosition);
 
         if (diff <= positionTolerance)
         {
             correctHoldTime += Time.deltaTime;
-            sunlightBeam.color = new Color(sunlightBeam.color.r, sunlightBeam.color.g, sunlightBeam.color.b,
-                Mathf.MoveTowards(sunlightBeam.color.a, 1f, beamFadeSpeed * Time.deltaTime));
+            if (sunlightBeam != null)
+            {
+                sunlightBeam.color = new Color(sunlightBeam.color.r, sunlightBeam.color.g, sunlightBeam.color.b,
+                    Mathf.MoveTowards(sunlightBeam.color.a, 1f, beamFadeSpeed * Time.deltaTime));
+            }
 
             if (correctHoldTime >= holdTimeRequired)
             {
                 scenario3Completed = true;
                 scenario3Active = false;
-                rotationSlider.interactable = false;
+                if (rotationSlider != null) rotationSlider.interactable = false;
                 StartQuizScenario3();
             }
         }
         else
         {
             correctHoldTime = 0f;
-            sunlightBeam.color = new Color(sunlightBeam.color.r, sunlightBeam.color.g, sunlightBeam.color.b,
-                Mathf.MoveTowards(sunlightBeam.color.a, 0f, beamFadeSpeed * Time.deltaTime));
+            if (sunlightBeam != null)
+            {
+                sunlightBeam.color = new Color(sunlightBeam.color.r, sunlightBeam.color.g, sunlightBeam.color.b,
+                    Mathf.MoveTowards(sunlightBeam.color.a, 0f, beamFadeSpeed * Time.deltaTime));
+            }
         }
     }
 
     void StartQuizScenario3()
     {
-        StartCoroutine(FadeOutThenAction(gamePanel, () =>
-        {
-            StartCoroutine(FadeInThenAction(quizPanel, () =>
-            {
-                currentQuestionIndex = 0;
-                ShowQuestionScenario3();
-            }));
-        }));
-    }
+        currentScenario = 3;
+        currentScenarioScore = 0;
+        totalQuestionsAnswered = 0;
 
-    void ShowQuestionScenario3()
-    {
-        if (questionsScenario3 == null || questionsScenario3.Length == 0)
-        {
-            Debug.LogError("Questions Scenario 3 is null or empty!");
-            return;
-        }
-
-        if (currentQuestionIndex >= questionsScenario3.Length)
-        {
-            Debug.LogError("Current question index is out of bounds!");
-            return;
-        }
-
-        Question q = questionsScenario3[currentQuestionIndex];
-        questionTextUI.text = q.questionText;
-
-        ResetButtonColors();
-        buttonsInteractable = true;
-
-        // Clear all listeners first
-        for (int i = 0; i < answerButtons.Length; i++)
-        {
-            if (answerButtons[i] != null)
-            {
-                answerButtons[i].onClick.RemoveAllListeners();
-            }
-        }
-
-        // Set up buttons with choices
-        for (int i = 0; i < answerButtons.Length && i < q.choices.Length; i++)
-        {
-            if (answerButtonTexts[i] != null)
-            {
-                answerButtonTexts[i].text = q.choices[i];
-                Debug.Log($"Button {i} text set to: {q.choices[i]}");
-            }
-            else
-            {
-                Debug.LogError($"Answer button text {i} is null!");
-            }
-
-            // Create a local copy of the index to avoid closure issues
-            int buttonIndex = i;
-            answerButtons[i].onClick.AddListener(() =>
-            {
-                Debug.Log($"Button {buttonIndex} clicked!");
-                SelectAnswerScenario3(buttonIndex);
-            });
-            answerButtons[i].interactable = true;
-            answerButtons[i].gameObject.SetActive(true);
-        }
-
-        // Hide unused buttons if there are more buttons than choices
-        for (int i = q.choices.Length; i < answerButtons.Length; i++)
-        {
-            if (answerButtons[i] != null)
-            {
-                answerButtons[i].gameObject.SetActive(false);
-            }
-        }
-    }
-
-    public void SelectAnswerScenario3(int index)
-    {
-        if (!buttonsInteractable) return;
-
-        buttonsInteractable = false;
-        Question q = questionsScenario3[currentQuestionIndex];
-        bool isCorrect = index == q.correctAnswerIndex;
-
-        StartCoroutine(HandleAnswerFeedback(index, q.correctAnswerIndex, isCorrect, () =>
-        {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < questionsScenario3.Length)
-                ShowQuestionScenario3();
-            else
-                EndScenario3();
-        }));
+        if (gamePanel != null) gamePanel.SetActive(false);
+        if (quizPanel != null) quizPanel.SetActive(true);
+        currentQuestionIndex = 0;
+        ShowQuestionScenario3();
     }
 
     void EndScenario3()
     {
-        StartCoroutine(FadeOutThenAction(quizPanel, () =>
+        if (quizPanel != null) quizPanel.SetActive(false);
+
+        float overallPercentage = CalculateOverallPercentage();
+        Debug.Log($"Game completed! Overall percentage: {overallPercentage}%");
+
+        if (overallPercentage >= PASSING_PERCENTAGE)
         {
-            StartCoroutine(FadeInThenAction(messagePanel, () =>
-            {
-                messageText.text = "Excellent! You finished all tasks!";
-            }));
-        }));
-    }
-
-    // Animation Helper Methods
-    void SetPanelActive(GameObject panel, bool active)
-    {
-        panel.SetActive(active);
-    }
-
-    IEnumerator FadeInThenAction(GameObject panel, System.Action onComplete = null)
-    {
-        panel.SetActive(true);
-        CanvasGroup canvasGroup = GetOrAddCanvasGroup(panel);
-        canvasGroup.alpha = 0f;
-        canvasGroup.interactable = false; // Start with non-interactable
-
-        float elapsedTime = 0f;
-        while (elapsedTime < fadeDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = elapsedTime / fadeDuration;
-            canvasGroup.alpha = fadeAnimationCurve.Evaluate(t);
-            yield return null;
-        }
-
-        canvasGroup.alpha = 1f;
-        canvasGroup.interactable = true; // Make interactable when fade is complete
-        onComplete?.Invoke();
-    }
-
-    IEnumerator FadeOutThenAction(GameObject panel, System.Action onComplete = null)
-    {
-        CanvasGroup canvasGroup = GetOrAddCanvasGroup(panel);
-        canvasGroup.alpha = 1f;
-        canvasGroup.interactable = false;
-
-        float elapsedTime = 0f;
-        while (elapsedTime < fadeDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = elapsedTime / fadeDuration;
-            canvasGroup.alpha = fadeAnimationCurve.Evaluate(1f - t);
-            yield return null;
-        }
-
-        canvasGroup.alpha = 0f;
-        panel.SetActive(false);
-        onComplete?.Invoke();
-    }
-
-    CanvasGroup GetOrAddCanvasGroup(GameObject obj)
-    {
-        CanvasGroup canvasGroup = obj.GetComponent<CanvasGroup>();
-        if (canvasGroup == null)
-        {
-            canvasGroup = obj.AddComponent<CanvasGroup>();
-        }
-        return canvasGroup;
-    }
-
-    // Button Color Feedback Methods
-    IEnumerator HandleAnswerFeedback(int selectedIndex, int correctIndex, bool isCorrect, System.Action onComplete)
-    {
-        Debug.Log($"HandleAnswerFeedback called - Selected: {selectedIndex}, Correct: {correctIndex}, IsCorrect: {isCorrect}");
-
-        // Disable all buttons to prevent multiple clicks
-        for (int i = 0; i < answerButtons.Length; i++)
-        {
-            if (answerButtons[i] != null)
-            {
-                answerButtons[i].interactable = false;
-            }
-        }
-
-        yield return new WaitForSeconds(0.1f); // Small delay before showing color feedback
-
-        if (isCorrect)
-        {
-            // Only color the selected (correct) button green
-            SetButtonColor(selectedIndex, correctButtonColor, "green (correct)");
-
-            // All other buttons stay their original color - no changes needed
+            ShowPassedModal();
         }
         else
         {
-            // Color selected button red (wrong choice)
-            SetButtonColor(selectedIndex, incorrectButtonColor, "red (wrong choice)");
-
-            // Color correct answer green
-            SetButtonColor(correctIndex, correctButtonColor, "green (correct answer)");
-
-            // All other buttons stay their original color - no changes needed
+            ShowFailedModal();
         }
-
-        // Wait for 2 seconds to show the feedback
-        yield return new WaitForSeconds(2f);
-
-        onComplete?.Invoke();
     }
 
-    void SetButtonColor(int buttonIndex, Color color, string description)
+    // TIMER SYSTEM
+    void StartQuestionTimer()
     {
-        if (buttonIndex < 0 || buttonIndex >= answerButtons.Length || answerButtons[buttonIndex] == null)
-        {
-            Debug.LogWarning($"Cannot set color for button {buttonIndex} - invalid or null");
-            return;
-        }
+        if (questionTimerCoroutine != null)
+            StopCoroutine(questionTimerCoroutine);
 
-        if (buttonVisualImages == null || buttonIndex >= buttonVisualImages.Length || buttonVisualImages[buttonIndex] == null)
-        {
-            Debug.LogError($"Button visual image {buttonIndex} is not assigned! Please assign it in the inspector.");
-            return;
-        }
-
-        Image buttonImage = buttonVisualImages[buttonIndex];
-
-        // Apply the color directly to the Image
-        buttonImage.color = color;
-        Debug.Log($"Set button {buttonIndex} to {description} - Color applied: {color}");
+        currentQuestionTimer = questionTimeLimit;
+        questionTimerActive = true;
+        questionTimerCoroutine = StartCoroutine(QuestionTimerCoroutine());
     }
 
-    // Updated ResetButtonColors method
-    void ResetButtonColors()
+    void StopQuestionTimer()
     {
-        if (buttonVisualImages == null)
+        questionTimerActive = false;
+        if (questionTimerCoroutine != null)
         {
-            Debug.LogError("Button visual images array is not assigned!");
-            return;
-        }
-
-        for (int i = 0; i < answerButtons.Length && i < buttonVisualImages.Length; i++)
-        {
-            if (answerButtons[i] != null && buttonVisualImages[i] != null && i < originalButtonColors.Length)
-            {
-                // Reset to original color
-                buttonVisualImages[i].color = originalButtonColors[i];
-                Debug.Log($"Reset button {i} to original color: {originalButtonColors[i]}");
-            }
+            StopCoroutine(questionTimerCoroutine);
+            questionTimerCoroutine = null;
         }
     }
 
-    // Updated StoreOriginalButtonColors method
-    void StoreOriginalButtonColors()
+    IEnumerator QuestionTimerCoroutine()
     {
-        if (answerButtons == null || answerButtons.Length == 0)
+        while (questionTimerActive && currentQuestionTimer > 0)
         {
-            Debug.LogWarning("Answer buttons array is null or empty!");
-            return;
+            currentQuestionTimer -= Time.deltaTime;
+            UpdateTimerDisplay();
+            yield return null;
         }
 
-        if (buttonVisualImages == null || buttonVisualImages.Length == 0)
+        if (questionTimerActive)
         {
-            Debug.LogWarning("Button visual images array is null or empty!");
-            return;
-        }
-
-        originalButtonColors = new Color[answerButtons.Length];
-        for (int i = 0; i < answerButtons.Length && i < buttonVisualImages.Length; i++)
-        {
-            if (answerButtons[i] != null && buttonVisualImages[i] != null)
-            {
-                originalButtonColors[i] = buttonVisualImages[i].color;
-            }
-            else
-            {
-                Debug.LogWarning($"Button {i} or its visual image is null!");
-                originalButtonColors[i] = Color.white; // Default fallback
-            }
+            OnQuestionTimeout();
         }
     }
+
+    void UpdateTimerDisplay()
+    {
+        if (timerText != null)
+        {
+            int seconds = Mathf.CeilToInt(currentQuestionTimer);
+            timerText.text = $"{seconds}";
+
+            if (seconds <= 10)
+                timerText.color = Color.red;
+        }
+
+        if (timerFillImage != null)
+        {
+            timerFillImage.fillAmount = currentQuestionTimer / questionTimeLimit;
+        }
+    }
+
+    void OnQuestionTimeout()
+    {
+        if (!buttonsInteractable) return;
+
+        Debug.Log("Question timed out");
+        buttonsInteractable = false;
+        questionTimerActive = false;
+
+        Question q = GetCurrentQuestion();
+        if (q != null)
+        {
+            totalQuestionsAnswered++;
+            totalQuestionsInGame++;
+            UpdateScoreDisplay();
+
+            StartCoroutine(HandleAnswerFeedback(-1, q.correctAnswerIndex, false, () =>
+            {
+                currentQuestionIndex++;
+                if (ShouldShowNextQuestion())
+                    ShowNextQuestion();
+                else
+                    EndCurrentScenario();
+            }));
+        }
+    }
+
+    void UpdateScoreDisplay()
+    {
+        if (scoreText != null)
+        {
+            scoreText.text = $"{totalCorrectAnswers}";
+        }
+    }
+
+    float CalculatePercentage()
+    {
+        if (totalQuestionsAnswered == 0) return 0f;
+        return (float)currentScenarioScore / totalQuestionsAnswered * 100f;
+    }
+
+    float CalculateOverallPercentage()
+    {
+        if (totalQuestionsInGame == 0) return 0f;
+        return (float)totalCorrectAnswers / totalQuestionsInGame * 100f;
+    }
+
+    void ShowPassedModal()
+    {
+        HideAllPanels();
+
+        if (passedModal != null)
+        {
+            float overallPercentage = CalculateOverallPercentage();
+            if (passedScoreText != null)
+                passedScoreText.text = $"Congratulations! You passed with {overallPercentage:F0}%!\nFinal Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
+
+            passedModal.SetActive(true);
+            passedModal.transform.SetAsLastSibling();
+            Debug.Log("Passed modal activated");
+        }
+    }
+
+    void ShowFailedModal()
+    {
+        HideAllPanels();
+
+        if (failedModal != null)
+        {
+            float overallPercentage = CalculateOverallPercentage();
+            if (failedScoreText != null)
+                failedScoreText.text = $"You scored {overallPercentage:F0}%. You need 70% or higher to pass.\nFinal Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
+
+            failedModal.SetActive(true);
+            failedModal.transform.SetAsLastSibling();
+            Debug.Log("Failed modal activated");
+        }
+    }
+
+    void HideAllPanels()
+    {
+        if (gamePanel != null) gamePanel.SetActive(false);
+        if (quizPanel != null) quizPanel.SetActive(false);
+        if (warmRoomPanel != null) warmRoomPanel.SetActive(false);
+        if (messagePanel != null) messagePanel.SetActive(false);
+        if (solarPanelPanel != null) solarPanelPanel.SetActive(false);
+    }
+
+    public void RetryCurrentScenario()
+    {
+        if (passedModal != null) passedModal.SetActive(false);
+        if (failedModal != null) failedModal.SetActive(false);
+        ShowIntro();
+    }
+
+    public void ContinueToNextScenario()
+    {
+        if (passedModal != null) passedModal.SetActive(false);
+        if (failedModal != null) failedModal.SetActive(false);
+
+        if (messagePanel != null) messagePanel.SetActive(true);
+        if (messageText != null) messageText.text = "Excellent! You've completed all scenarios successfully!";
+    }
+
+    // LEGACY METHODS - Keep these for backwards compatibility if other scripts call them
+    public void SelectAnswerScenario1(int index) { SelectAnswer(index); }
+    public void SelectAnswerScenario2(int index) { SelectAnswer(index); }
+    public void SelectAnswerScenario3(int index) { SelectAnswer(index); }
 }
