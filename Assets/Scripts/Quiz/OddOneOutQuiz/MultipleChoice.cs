@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
+using System.IO;
 
 public class MultipleChoice : MonoBehaviour
 {
@@ -37,7 +37,7 @@ public class MultipleChoice : MonoBehaviour
     public Text timerText;
 
     private int currentQuestionIndex = 0;
-    private float timer = 30f; 
+    private float timer = 30f;
     private bool isTimerRunning = false;
 
     private bool isBlinking = false;
@@ -53,7 +53,7 @@ public class MultipleChoice : MonoBehaviour
     public Text finalScoreText;
     public Text scoreMessageText;
 
-    public float hitChancePercent = 50f; 
+    public float hitChancePercent = 50f;
 
     public Text missText;
     public Text damageText;
@@ -160,6 +160,8 @@ public class MultipleChoice : MonoBehaviour
         playerStartPos = playerIcon.anchoredPosition;
         enemyStartPos = enemyIcon.anchoredPosition;
         originalScale = timerText.transform.localScale;
+
+        questions = dbManager.GetRandomUnusedQuestions(quizId, 10);
 
         if (progressBar != null)
         {
@@ -638,7 +640,7 @@ public class MultipleChoice : MonoBehaviour
         {
             goldEarned = 60;
             scoreMsg = $"Not bad! You got {score} points.";
-            goldMsg = $"You’ve earned {goldEarned} gold!";
+            goldMsg = $"Youï¿½ve earned {goldEarned} gold!";
         }
         else
         {

@@ -7,11 +7,12 @@ public class SwipeManager : MonoBehaviour
 {
     [System.Serializable]
     public class SwipeQuestion
-    {
-        public string questionText; // Changed from Sprite to string
-        public string correctAnswer; // "Left" or "Right"
-        public string explanationText; // Short feedback text
-    }
+{
+    public int questionId;
+    public string questionText;
+    public string correctAnswer; // "Left" or "Right"
+    public string explanationText;
+}
 
     [Header("Question Display")]
     public List<SwipeQuestion> questions;
@@ -145,6 +146,8 @@ public class SwipeManager : MonoBehaviour
         playerStartPos = playerIcon.anchoredPosition;
         enemyStartPos = enemyIcon.anchoredPosition;
         originalScale = timerText.transform.localScale;
+
+        questions = dbManager.GetRandomSwipeQuestions(quizId, 10);
 
         if (progressBar != null)
         {

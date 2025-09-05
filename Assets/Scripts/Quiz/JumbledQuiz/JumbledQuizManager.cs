@@ -6,16 +6,9 @@ using System.Linq;
 
 public class JumbledQuizManager : MonoBehaviour
 {
-    [System.Serializable]
-    public class JumbledQuestion
-    {
-        public string question;
-        public string answer;
-        public string explanationText;  // Add this for feedback, or you can modify accordingly
-    }
 
     [Header("Questions and Answers")]
-    public List<JumbledQuestion> questions;
+    public List<JumbledQuestion1> questions;
 
     [Header("Player and Enemy")]
     public RectTransform playerIcon;
@@ -156,6 +149,8 @@ public class JumbledQuizManager : MonoBehaviour
         enemyStartPos = enemyIcon.anchoredPosition;
         originalScale = timerText.transform.localScale;
 
+        questions = dbManager.Get10JumbledQuestions(quizId);
+
         if (progressBar != null)
         {
             progressBar.minValue = 0;
@@ -228,9 +223,9 @@ public class JumbledQuizManager : MonoBehaviour
     {
         ClearLetters();
         var question = questions[currentQuestionIndex];
-        questionText.text = question.question;
+        questionText.text = question.QuestionText;
 
-        string shuffled = new string(question.answer.ToCharArray().OrderBy(c => Random.value).ToArray());
+        string shuffled = new string(question.CorrectAnswer.ToCharArray().OrderBy(c => Random.value).ToArray());
 
         // Debug log the shuffled letters
         Debug.Log($"Shuffled letters: {shuffled}");
@@ -289,7 +284,7 @@ public class JumbledQuizManager : MonoBehaviour
 
         var currentQ = questions[currentQuestionIndex];
         string userAnswer = string.Concat(letterButtons.Select(b => b.GetComponentInChildren<Text>().text.Trim()).Where(t => !string.IsNullOrEmpty(t)));
-        string correctAnswer = questions[currentQuestionIndex].answer.Trim();
+        string correctAnswer = questions[currentQuestionIndex].CorrectAnswer.Trim();
         bool isCorrect = string.Equals(userAnswer, correctAnswer, System.StringComparison.OrdinalIgnoreCase);
 
 
@@ -306,7 +301,7 @@ public class JumbledQuizManager : MonoBehaviour
 
             if (isHit)
             {
-                ShowFeedback("Correct!", currentQ.explanationText);
+                ShowFeedback("Correct!", currentQ.Explanation);
                 int damage = isSkillActive ? baseDamage * 2 : baseDamage;
                 isMiss = false;
                 timerContainer.SetActive(false);
@@ -354,7 +349,7 @@ public class JumbledQuizManager : MonoBehaviour
             {
                 timerContainer.SetActive(false);
                 scoreContainer.SetActive(false);
-                ShowFeedback("Correct!", currentQ.explanationText);
+                ShowFeedback("Correct!", currentQ.Explanation);
                 isMiss = true;
                 if (isSkillActive)
                 {
@@ -389,7 +384,7 @@ public class JumbledQuizManager : MonoBehaviour
                 timerContainer.SetActive(false);
                 scoreContainer.SetActive(false);
                 isMiss = false;
-                ShowFeedback("Wrong!", currentQ.explanationText);
+                ShowFeedback("Wrong!", currentQ.Explanation);
 
                 if (enemyDefeated)
                 {
@@ -411,7 +406,7 @@ public class JumbledQuizManager : MonoBehaviour
                 timerContainer.SetActive(false);
                 scoreContainer.SetActive(false);
                 isMiss = true;
-                ShowFeedback("Wrong!", currentQ.explanationText);
+                ShowFeedback("Wrong!", currentQ.Explanation);
                 battleAnim.StartCoroutine(battleAnim.AttackAnimation(enemyIcon, enemyStartPos, new Vector3(-250, 0, 0), playerIcon.position, false, isMiss, isPlayer));
                 battleAnim.StartCoroutine(battleAnim.DodgeAnimation(playerIcon));
                 Color missColor;
@@ -626,7 +621,7 @@ public class JumbledQuizManager : MonoBehaviour
         {
             goldEarned = 60;
             scoreMsg = $"Not bad! You got {score} points.";
-            goldMsg = $"You’ve earned {goldEarned} gold!";
+            goldMsg = $"Youï¿½ve earned {goldEarned} gold!";
         }
         else
         {

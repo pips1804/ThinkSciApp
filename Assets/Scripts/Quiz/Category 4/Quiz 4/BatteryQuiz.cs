@@ -78,6 +78,10 @@ public class BatteryQuiz : MonoBehaviour
     public Dialogues dialogueSystem;   // Reference to your Dialogues script
     public GameObject quizPanel;       // Parent panel of your quiz UI (set inactive until dialogue ends)
 
+    [Header("Database")]
+    public DatabaseManager dbManager;   // Drag DatabaseManager into Inspector
+    public int quizId = 14;              // Quiz ID in DB
+    public int questionLimit = 15;
     private void Awake()
     {
         // gather arrays for easier handling
@@ -116,7 +120,6 @@ public class BatteryQuiz : MonoBehaviour
         }
         else
         {
-            LoadSampleQuestions(); // load sample questions if none assigned
             StartQuiz(); // fallback if no dialogue system assigned
         }
     }
@@ -135,6 +138,7 @@ public class BatteryQuiz : MonoBehaviour
 
     private void Start()
     {
+        LoadQuestionsFromDB();
         // Also ensure panels start hidden
         if (passPanel) passPanel.SetActive(false);
         if (failPanel) failPanel.SetActive(false);
@@ -425,88 +429,30 @@ public class BatteryQuiz : MonoBehaviour
         UpdateBatteryPercentText();
     }
 
-    private void LoadSampleQuestions()
+    private void LoadQuestionsFromDB()
     {
-        questions = new List<QuizQuestion>
-    {
-        new QuizQuestion {
-            questionText = "In the Philippines, solar farms are built to supply electricity to communities. What energy problem do they help solve?",
-            options = new string[] { "Dependence on coal imports", "Water shortage", "Poor internet signal", "Flooding in rural areas" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "Tesla’s Powerwall stores solar energy for use at night. What global challenge does this innovation address?",
-            options = new string[] { "Energy storage for renewable sources", "Transportation fuel shortages", "Nuclear waste disposal", "Water pollution" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "The Philippines is the world’s second largest producer of geothermal energy. What is its biggest advantage?",
-            options = new string[] { "Produces energy continuously regardless of weather", "Relies on imported fuel", "Increases mining production", "Works only in sunny weather" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "The Bangui Wind Farm in Ilocos Norte is known for producing what benefit?",
-            options = new string[] { "Reduction of greenhouse gas emissions", "Faster internet", "Cheaper cellphone loads", "More car sales" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "Why are floating solar farms important in Southeast Asia?",
-            options = new string[] { "They save land space and provide renewable energy", "They make water clean for drinking", "They increase fish population", "They reduce cellphone tower costs" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "Which of the following is a LOCAL solution to the energy crisis in the Philippines?",
-            options = new string[] { "Bangui Wind Farm", "Tesla Powerwall", "Nuclear plants in Japan", "Hydrogen trains in Germany" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "Which of the following is a GLOBAL innovation that helps store renewable energy?",
-            options = new string[] { "Tesla battery technology", "Ilocos Wind Farm", "Mindoro Solar Farm", "Leyte Geothermal Plant" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "Why is geothermal energy considered reliable compared to solar or wind?",
-            options = new string[] { "It is not affected by weather", "It is the cheapest fossil fuel", "It depends on imported oil", "It increases mining production" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "When communities work together globally to solve energy challenges, this shows the importance of:",
-            options = new string[] { "International cooperation", "Competition between nations", "Mining expansion", "Exporting coal" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "What happens if countries rely too much on fossil fuels instead of renewable energy?",
-            options = new string[] { "Greenhouse gases increase and climate change worsens", "Electricity becomes free for everyone", "Water becomes unlimited", "Internet speeds double" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "In Palawan, solar microgrids were installed for island communities. What benefit do they provide?",
-            options = new string[] { "Access to electricity in off-grid areas", "Unlimited cellphone signal", "Increased tourism ads", "Lower cost of gadgets" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "Which renewable energy project in Mindoro helps reduce dependence on diesel power plants?",
-            options = new string[] { "Solar power farms", "Oil rigs", "Coal-fired stations", "Nuclear plants" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "Why do scientists support global research in hydrogen fuel technology?",
-            options = new string[] { "It can provide clean transportation energy", "It makes fossil fuels cheaper", "It increases air pollution", "It stops solar power use" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "What lesson can students learn from local and global energy projects?",
-            options = new string[] { "That teamwork and innovation can solve energy problems", "That coal is the only solution", "That renewable energy is always harmful", "That energy crisis has no solution" },
-            correctIndex = 0
-        },
-        new QuizQuestion {
-            questionText = "Why is it important for the Philippines to invest in renewable energy solutions?",
-            options = new string[] { "To reduce dependence on imported fuel and protect the environment", "To increase fossil fuel burning", "To copy other countries only", "To make electricity free instantly" },
-            correctIndex = 0
-        },
-    };
-    }
+        if (dbManager == null)
+        {
+            Debug.LogError("⚠ No DatabaseManager assigned in BatteryQuiz!");
+            return;
+        }
 
+        // Fetch from DB
+        var dbQuestions = dbManager.GetRandomUnusedQuestions(quizId, questionLimit);
+        questions.Clear();
+
+        foreach (var dbQ in dbQuestions)
+        {
+            QuizQuestion q = new QuizQuestion();
+            q.questionText = dbQ.question;
+            q.options = dbQ.options;
+            q.correctIndex = dbQ.correctIndex;
+
+            questions.Add(q);
+        }
+
+        Debug.Log($"✅ Loaded {questions.Count} questions from database (Quiz {quizId})");
+    }
 
     #endregion
 }

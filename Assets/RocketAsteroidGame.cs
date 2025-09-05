@@ -152,6 +152,10 @@ public class RocketAsteroidGame : MonoBehaviour
     private bool wasPausedBeforeQuestion = false;
     private float pausedTimeScale = 0f;
 
+    public DatabaseManager dbManager;
+    public int quizId = 12;
+    private MultipleChoice.MultipleChoiceQuestions currentQuestion;
+
     [System.Serializable]
     public class GameQuestion
     {
@@ -159,70 +163,6 @@ public class RocketAsteroidGame : MonoBehaviour
         public string[] answers = new string[4];
         public int correctAnswerIndex;
     }
-
-    public GameQuestion[] questions = new GameQuestion[]
-    {    new GameQuestion
-    {
-        question = "What device converts heat directly into electricity using the Seebeck effect?",
-        answers = new string[] { "Solar Panel", "Thermoelectric Generator", "Geothermal Plant", "Battery" },
-        correctAnswerIndex = 1
-    },
-    new GameQuestion
-    {
-        question = "Which device captures heat from beneath the Earth's surface to generate electricity?",
-        answers = new string[] { "Solar Panel", "Wind Turbine", "Geothermal Plant", "Thermoelectric Generator" },
-        correctAnswerIndex = 2
-    },
-    new GameQuestion
-    {
-        question = "What type of energy transformation happens in a solar panel?",
-        answers = new string[] { "Heat to Mechanical", "Heat to Sound", "Heat to Chemical", "Heat to Electrical" },
-        correctAnswerIndex = 3
-    },
-    new GameQuestion
-    {
-        question = "What is the main energy source used by geothermal power plants?",
-        answers = new string[] { "Sunlight", "Wind", "Heat from Earth's interior", "Chemical Reactions" },
-        correctAnswerIndex = 2
-    },
-    new GameQuestion
-    {
-        question = "Which technological device often powers spacecraft by converting heat from radioisotopes into electricity?",
-        answers = new string[] { "Solar Panel", "RTG (Radioisotope Thermoelectric Generator)", "Battery", "Wind Turbine" },
-        correctAnswerIndex = 1
-    },
-    new GameQuestion
-    {
-        question = "What is the role of the Seebeck effect in thermoelectric generators?",
-        answers = new string[] { "Converts heat into sound", "Converts temperature differences into electricity", "Stores heat as chemical energy", "Transfers heat to the environment" },
-        correctAnswerIndex = 1
-    },
-    new GameQuestion
-    {
-        question = "Which device captures sunlight and transforms it into electricity using photovoltaic cells?",
-        answers = new string[] { "Solar Panel", "Geothermal Plant", "Wind Turbine", "Heat Engine" },
-        correctAnswerIndex = 0
-    },
-    new GameQuestion
-    {
-        question = "Which of the following is a disadvantage of geothermal power plants?",
-        answers = new string[] { "They release large amounts of smoke", "They depend on radioactive materials", "They are location-dependent", "They cannot run at night" },
-        correctAnswerIndex = 2
-    },
-    new GameQuestion
-    {
-        question = "What is the main advantage of thermoelectric generators?",
-        answers = new string[] { "They require moving parts", "They are silent and reliable", "They use wind as input", "They only work at night" },
-        correctAnswerIndex = 1
-    },
-    new GameQuestion
-    {
-        question = "In a geothermal plant, what is typically used to turn turbines and generate electricity?",
-        answers = new string[] { "Steam from heated water", "Direct sunlight", "Nuclear fuel rods", "Chemical batteries" },
-        correctAnswerIndex = 0
-    }
-    };
-
     void Start()
     {
         Debug.Log("=== ROCKET ASTEROID GAME STARTED ===");
@@ -1162,34 +1102,35 @@ public class RocketAsteroidGame : MonoBehaviour
     }
 
     void ShowQuestion()
+{
+    Debug.Log("SHOWING QUESTION");
+
+    asteroidsDestroyed = 0;
+    devicesCaught = 0;
+    isQuestionActive = true;
+    wasPausedBeforeQuestion = isGamePaused;
+
+    // ✅ Use the dragged-in DatabaseManager
+    currentQuestion = dbManager.GetRandomUnusedQuestion(quizId);
+
+    if (currentQuestion == null)
     {
-        Debug.Log("SHOWING QUESTION");
-
-        asteroidsDestroyed = 0;
-        devicesCaught = 0;
-        isQuestionActive = true;
-
-        // NEW: Remember if we were paused before the question
-        wasPausedBeforeQuestion = isGamePaused;
-
-        if (questions.Length == 0)
-        {
-            Debug.LogWarning("No questions available!");
-            isQuestionActive = false;
-            return;
-        }
-
-        GameQuestion selectedQuestion = questions[Random.Range(0, questions.Length)];
-        questionText.text = selectedQuestion.question;
-
-        for (int i = 0; i < answerButtons.Length && i < selectedQuestion.answers.Length; i++)
-        {
-            answerTexts[i].text = selectedQuestion.answers[i];
-            answerButtons[i].interactable = true;
-        }
-
-        questionPanel.SetActive(true);
+        Debug.LogWarning("No questions available!");
+        isQuestionActive = false;
+        return;
     }
+
+    // Fill UI
+    questionText.text = currentQuestion.question;
+
+    for (int i = 0; i < answerButtons.Length && i < currentQuestion.options.Length; i++)
+    {
+        answerTexts[i].text = currentQuestion.options[i];
+        answerButtons[i].interactable = true;
+    }
+
+    questionPanel.SetActive(true);
+}
 
     void OnAnswerSelected(int selectedIndex)
     {
@@ -1203,90 +1144,53 @@ public class RocketAsteroidGame : MonoBehaviour
 
     // Process answer with difficulty changes
     IEnumerator ProcessAnswer(int selectedIndex)
+{
+    bool isCorrect = (selectedIndex == currentQuestion.correctIndex);
+    int correctAnswerIndex = currentQuestion.correctIndex;
+
+    if (isCorrect)
     {
-        bool isCorrect = false;
-        int correctAnswerIndex = -1;
+        Debug.Log("CORRECT ANSWER!");
+        score += correctAnswerPoints;
+        consecutiveWrongAnswers = 0;
 
-        // Find the correct answer for the current question
-        foreach (var q in questions)
+        for (int i = 0; i < answerButtons.Length && i < answerButtonImages.Length; i++)
         {
-            if (questionText.text == q.question)
-            {
-                isCorrect = (selectedIndex == q.correctAnswerIndex);
-                correctAnswerIndex = q.correctAnswerIndex;
-                break;
-            }
+            answerButtonImages[i].color = (i == selectedIndex) ? Color.green : Color.white;
         }
-
-        if (isCorrect)
-        {
-            Debug.Log("CORRECT ANSWER!");
-            score += correctAnswerPoints;
-
-            // Reset consecutive wrong answers on correct answer
-            consecutiveWrongAnswers = 0;
-
-            // NEW: When answer is correct - selected button green, all others red
-            for (int i = 0; i < answerButtons.Length && i < answerButtonImages.Length; i++)
-            {
-                if (i == selectedIndex)
-                {
-                    // Selected correct answer - make it green
-                    answerButtonImages[i].color = Color.green;
-                }
-                else
-                {
-                    // All other answers - make them red to show they were wrong choices
-                    answerButtonImages[i].color = Color.white;
-                }
-            }
-        }
-        else
-        {
-            Debug.Log("WRONG ANSWER!");
-            score += wrongAnswerPenalty;
-
-            // Apply difficulty increase for wrong answer
-            ApplyDifficultyIncrease();
-
-            // NEW: When answer is wrong - selected button red, correct answer green, others default
-            for (int i = 0; i < answerButtons.Length && i < answerButtonImages.Length; i++)
-            {
-                if (i == selectedIndex)
-                {
-                    // Selected wrong answer - make it red
-                    answerButtonImages[i].color = Color.red;
-                }
-                else if (i == correctAnswerIndex)
-                {
-                    // Correct answer - make it green to show what should have been selected
-                    answerButtonImages[i].color = Color.green;
-                }
-                else
-                {
-                    // Other wrong answers - leave as default white
-                    answerButtonImages[i].color = Color.white;
-                }
-            }
-        }
-
-        UpdateScore();
-        UpdateScoreSlider(); // NEW: Update slider after answering questions
-        yield return new WaitForSeconds(2f);
-
-        // Reset button colors
-        for (int i = 0; i < answerButtons.Length; i++)
-        {
-            if (answerButtonImages != null && i < answerButtonImages.Length)
-            {
-                answerButtonImages[i].color = Color.white;
-            }
-        }
-
-        questionPanel.SetActive(false);
-        isQuestionActive = false;
-        wasPausedBeforeQuestion = false; // NEW: Reset this flag
     }
+    else
+    {
+        Debug.Log("WRONG ANSWER!");
+        score += wrongAnswerPenalty;
+        ApplyDifficultyIncrease();
+
+        for (int i = 0; i < answerButtons.Length && i < answerButtonImages.Length; i++)
+        {
+            if (i == selectedIndex)
+                answerButtonImages[i].color = Color.red;
+            else if (i == correctAnswerIndex)
+                answerButtonImages[i].color = Color.green;
+            else
+                answerButtonImages[i].color = Color.white;
+        }
+    }
+
+    UpdateScore();
+    UpdateScoreSlider();
+    yield return new WaitForSeconds(2f);
+
+    // Reset button colors
+    for (int i = 0; i < answerButtons.Length; i++)
+    {
+        if (answerButtonImages != null && i < answerButtonImages.Length)
+            answerButtonImages[i].color = Color.white;
+    }
+
+    questionPanel.SetActive(false);
+    isQuestionActive = false;
+    wasPausedBeforeQuestion = false;
+}
 
     IEnumerator ShowExplosionEffect()
     {
