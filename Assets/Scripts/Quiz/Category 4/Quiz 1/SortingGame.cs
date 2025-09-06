@@ -79,6 +79,12 @@ public class SortingGame : MonoBehaviour
     // Store the relative position of catch zone to bin for proper syncing
     private Vector2 catchZoneOffset;
 
+    [Header("Sound Effects")]
+    public AudioClip passed;
+    public AudioClip failed;
+    public AudioClip correct;
+    public AudioClip wrong;
+
     void Start()
     {
         Debug.Log("=== SORTING GAME STARTED ===");
@@ -304,6 +310,7 @@ public class SortingGame : MonoBehaviour
             CorrectAnswer();
             targetIconsCaughtThisWave++;
             StartCoroutine(ShowCorrectFeedback());
+            AudioManager.Instance.PlaySFX(correct);
         }
         else if (iconType.isRenewable && iconType.iconIndex != targetIconIndex)
         {
@@ -311,6 +318,7 @@ public class SortingGame : MonoBehaviour
             Debug.Log("✗ WRONG RENEWABLE TYPE!");
             WrongAnswer();
             StartCoroutine(ShowWrongTypeFeedback());
+            AudioManager.Instance.PlaySFX(wrong);
         }
         else
         {
@@ -318,6 +326,7 @@ public class SortingGame : MonoBehaviour
             Debug.Log("✗ FOSSIL FUEL CAUGHT!");
             WrongAnswer();
             StartCoroutine(ShowFossilFeedback());
+            AudioManager.Instance.PlaySFX(wrong);
         }
 
         // Remove the caught icon safely
@@ -849,6 +858,7 @@ public class SortingGame : MonoBehaviour
         activeIcons.Clear();
 
         // Show pass modal after hiding UI
+        AudioManager.Instance.PlaySFX(passed);
         StartCoroutine(ShowPassModalAfterDelay());
     }
 
@@ -868,6 +878,7 @@ public class SortingGame : MonoBehaviour
         activeIcons.Clear();
 
         // Show fail modal after hiding UI
+        AudioManager.Instance.PlaySFX(failed);
         StartCoroutine(ShowFailModalAfterDelay());
     }
 

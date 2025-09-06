@@ -82,6 +82,12 @@ public class BatteryQuiz : MonoBehaviour
     public DatabaseManager dbManager;   // Drag DatabaseManager into Inspector
     public int quizId = 14;              // Quiz ID in DB
     public int questionLimit = 15;
+
+    [Header("Sound Effects")]
+    public AudioClip passed;
+    public AudioClip failed;
+    public AudioClip correct;
+    public AudioClip wrong;
     private void Awake()
     {
         // gather arrays for easier handling
@@ -277,6 +283,7 @@ public class BatteryQuiz : MonoBehaviour
         {
             correctAnswers++;
             // animate battery increase
+            AudioManager.Instance.PlaySFX(correct);
             float increment = 1f / (float)questions.Count;
             batteryTargetFill = Mathf.Clamp01(batteryImage.fillAmount + increment);
             if (batteryAnimCoroutine != null) StopCoroutine(batteryAnimCoroutine);
@@ -287,6 +294,7 @@ public class BatteryQuiz : MonoBehaviour
         }
         else
         {
+            AudioManager.Instance.PlaySFX(wrong);
             // selected wrong -> red
             if (IsImageAssigned(index)) answerImages[index].color = wrongColor;
             // correct one -> green
@@ -334,6 +342,7 @@ public class BatteryQuiz : MonoBehaviour
             // Pass
             if (passPanel != null)
             {
+                AudioManager.Instance.PlaySFX(passed);
                 passPanel.SetActive(true);
                 if (passText) passText.text = $"Battery is charged!\n You passed with the score of {percent}%!";
             }
@@ -343,6 +352,7 @@ public class BatteryQuiz : MonoBehaviour
             // Fail
             if (failPanel != null)
             {
+                AudioManager.Instance.PlaySFX(failed);
                 failPanel.SetActive(true);
                 if (failText) failText.text = $"Battery is drained!\n You failed with the score of {percent}%.\nTry again!";
             }

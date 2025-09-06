@@ -40,50 +40,50 @@ public class DatabaseManager : MonoBehaviour
     }
 
     void CreateDBIfNotExists()
-{
-    string fileName = "UserDatabase.db";
-    string sourcePath = Path.Combine(Application.streamingAssetsPath, fileName);
-    string targetPath = Path.Combine(Application.persistentDataPath, fileName);
-
-    Debug.Log("StreamingAssets DB path: " + sourcePath);
-    Debug.Log("PersistentDataPath DB path: " + targetPath);
-
-    if (!File.Exists(targetPath))
     {
-        Debug.Log("Database not found in persistentDataPath, copying...");
+        string fileName = "UserDatabase.db";
+        string sourcePath = Path.Combine(Application.streamingAssetsPath, fileName);
+        string targetPath = Path.Combine(Application.persistentDataPath, fileName);
+
+        Debug.Log("StreamingAssets DB path: " + sourcePath);
+        Debug.Log("PersistentDataPath DB path: " + targetPath);
+
+        if (!File.Exists(targetPath))
+        {
+            Debug.Log("Database not found in persistentDataPath, copying...");
 
 #if UNITY_ANDROID && !UNITY_EDITOR
         // On Android, StreamingAssets is inside a jar (apk), use UnityWebRequest
         StartCoroutine(CopyDatabaseAndroid(sourcePath, targetPath));
 #else
-        // On PC/iOS, File.Copy works
-        File.Copy(sourcePath, targetPath);
-        Debug.Log("Database copy complete!");
+            // On PC/iOS, File.Copy works
+            File.Copy(sourcePath, targetPath);
+            Debug.Log("Database copy complete!");
 #endif
+        }
+
+        // Set connection string
+        dbPath = "URI=file:" + targetPath;
+        Debug.Log("Final database connection string: " + dbPath);
     }
 
-    // Set connection string
-    dbPath = "URI=file:" + targetPath;
-    Debug.Log("Final database connection string: " + dbPath);
-}
-
-private IEnumerator CopyDatabaseAndroid(string sourcePath, string targetPath)
-{
-    UnityEngine.Networking.UnityWebRequest www = UnityEngine.Networking.UnityWebRequest.Get(sourcePath);
-    yield return www.SendWebRequest();
-
-    if (www.result != UnityEngine.Networking.UnityWebRequest.Result.Success)
+    private IEnumerator CopyDatabaseAndroid(string sourcePath, string targetPath)
     {
-        Debug.LogError("Failed to load DB from StreamingAssets: " + www.error);
-    }
-    else
-    {
-        File.WriteAllBytes(targetPath, www.downloadHandler.data);
-        Debug.Log("Database copy complete (Android)!");
-    }
+        UnityEngine.Networking.UnityWebRequest www = UnityEngine.Networking.UnityWebRequest.Get(sourcePath);
+        yield return www.SendWebRequest();
 
-    dbPath = "URI=file:" + targetPath;
-}
+        if (www.result != UnityEngine.Networking.UnityWebRequest.Result.Success)
+        {
+            Debug.LogError("Failed to load DB from StreamingAssets: " + www.error);
+        }
+        else
+        {
+            File.WriteAllBytes(targetPath, www.downloadHandler.data);
+            Debug.Log("Database copy complete (Android)!");
+        }
+
+        dbPath = "URI=file:" + targetPath;
+    }
 
     public void UpdateUser(string firstName, string middleName, string lastName)
     {
@@ -129,8 +129,8 @@ private IEnumerator CopyDatabaseAndroid(string sourcePath, string targetPath)
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = @"
-                SELECT first_name, middle_name, last_name 
-                FROM users 
+                SELECT first_name, middle_name, last_name
+                FROM users
                 WHERE id = 1
                 LIMIT 1";
 
@@ -395,8 +395,8 @@ private IEnumerator CopyDatabaseAndroid(string sourcePath, string targetPath)
                 using (IDbCommand cmd = dbConn.CreateCommand())
                 {
                     cmd.Transaction = transaction;
-                    cmd.CommandText = @"UPDATE User_Badges 
-                                    SET Is_Claimed = 1 
+                    cmd.CommandText = @"UPDATE User_Badges
+                                    SET Is_Claimed = 1
                                     WHERE User_ID = @userId AND Badge_ID = @badgeId";
 
                     var param1 = cmd.CreateParameter();
@@ -415,8 +415,8 @@ private IEnumerator CopyDatabaseAndroid(string sourcePath, string targetPath)
                 using (IDbCommand cmd = dbConn.CreateCommand())
                 {
                     cmd.Transaction = transaction;
-                    cmd.CommandText = @"UPDATE users 
-                                    SET coins = coins + @gold 
+                    cmd.CommandText = @"UPDATE users
+                                    SET coins = coins + @gold
                                     WHERE id = @userId";
 
                     var param1 = cmd.CreateParameter();
@@ -443,7 +443,7 @@ private IEnumerator CopyDatabaseAndroid(string sourcePath, string targetPath)
             conn.Open();
 
             string query = @"
-            SELECT p.Pet_Name, p.Base_Health, p.Base_Damage 
+            SELECT p.Pet_Name, p.Base_Health, p.Base_Damage
             FROM users u
             JOIN Pet_Table p ON u.Pet_ID = p.Pet_ID
             WHERE u.id = @userId";
@@ -518,7 +518,7 @@ private IEnumerator CopyDatabaseAndroid(string sourcePath, string targetPath)
 
             using (IDbCommand cmd = conn.CreateCommand())
             {
-                cmd.CommandText = @"UPDATE users 
+                cmd.CommandText = @"UPDATE users
                                 SET coins = coins + @goldToAdd
                                 WHERE id = @userId";
 
@@ -766,10 +766,10 @@ private IEnumerator CopyDatabaseAndroid(string sourcePath, string targetPath)
 
             // Step 1: Count unused questions
             string checkQuery = @"
-            SELECT COUNT(*) 
-            FROM Questions 
-            WHERE Quiz_ID = @quizId 
-              AND Question_Type = 'Swipe to Answer' 
+            SELECT COUNT(*)
+            FROM Questions
+            WHERE Quiz_ID = @quizId
+              AND Question_Type = 'Swipe to Answer'
               AND Is_Used = 0;";
 
             int unusedCount = 0;
@@ -784,9 +784,9 @@ private IEnumerator CopyDatabaseAndroid(string sourcePath, string targetPath)
             if (unusedCount < questionCount)
             {
                 string resetQuery = @"
-                UPDATE Questions 
-                SET Is_Used = 0 
-                WHERE Quiz_ID = @quizId 
+                UPDATE Questions
+                SET Is_Used = 0
+                WHERE Quiz_ID = @quizId
                   AND Question_Type = 'Swipe to Answer';";
 
                 using (var resetCmd = connection.CreateCommand())
@@ -802,8 +802,8 @@ private IEnumerator CopyDatabaseAndroid(string sourcePath, string targetPath)
             SELECT q.Question_ID, q.Question_Text, s.Correct_Direction, s.Explanation
             FROM Questions q
             INNER JOIN Swipe_Answers s ON q.Question_ID = s.Question_ID
-            WHERE q.Quiz_ID = @quizId 
-              AND q.Question_Type = 'Swipe to Answer' 
+            WHERE q.Quiz_ID = @quizId
+              AND q.Question_Type = 'Swipe to Answer'
               AND q.Is_Used = 0
             ORDER BY RANDOM()
             LIMIT @limit;";
@@ -881,10 +881,10 @@ private IEnumerator CopyDatabaseAndroid(string sourcePath, string targetPath)
             // Step 3: Select random unused (guaranteed at least `limit` now)
             using (var cmd = connection.CreateCommand())
             {
-                cmd.CommandText = @"SELECT Question_ID, Question_Text 
-                                FROM Questions 
-                                WHERE Quiz_ID = @quizId AND Is_Used = 0 
-                                ORDER BY RANDOM() 
+                cmd.CommandText = @"SELECT Question_ID, Question_Text
+                                FROM Questions
+                                WHERE Quiz_ID = @quizId AND Is_Used = 0
+                                ORDER BY RANDOM()
                                 LIMIT @limit";
                 cmd.Parameters.AddWithValue("@quizId", quizId);
                 cmd.Parameters.AddWithValue("@limit", limit);
@@ -1051,4 +1051,3 @@ private IEnumerator CopyDatabaseAndroid(string sourcePath, string targetPath)
 
 
 }
-

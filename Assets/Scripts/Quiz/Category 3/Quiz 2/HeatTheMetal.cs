@@ -141,6 +141,12 @@ public class HeatTheMetal : MonoBehaviour
     private Vector3 originalHeaterPosition;
     private bool originalPositionsStored = false;
 
+    [Header("Sound Effects")]
+    public AudioClip passed;
+    public AudioClip failed;
+    public AudioClip correct;
+    public AudioClip wrong;
+
     void Start()
     {
         LoadQuestions();
@@ -672,17 +678,20 @@ public class HeatTheMetal : MonoBehaviour
         {
             Debug.Log("Timeout - showing correct answer");
             SetButtonColor(correctIndex, correctButtonColor);
+            AudioManager.Instance.PlaySFX(wrong);
         }
         else if (isCorrect)
         {
             Debug.Log("Correct answer - highlighting in green");
             SetButtonColor(selectedIndex, correctButtonColor);
+            AudioManager.Instance.PlaySFX(correct);
         }
         else
         {
             Debug.Log("Incorrect answer - showing red for selected, green for correct");
             SetButtonColor(selectedIndex, incorrectButtonColor);
             SetButtonColor(correctIndex, correctButtonColor);
+            AudioManager.Instance.PlaySFX(wrong);
         }
 
         yield return new WaitForSeconds(2f);
@@ -1170,6 +1179,7 @@ public class HeatTheMetal : MonoBehaviour
                 passedScoreText.text = $"Congratulations! You passed with {overallPercentage:F0}%!\nFinal Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
 
             passedModal.SetActive(true);
+            AudioManager.Instance.PlaySFX(passed);
             passedModal.transform.SetAsLastSibling();
             Debug.Log("Passed modal activated");
         }
@@ -1186,6 +1196,7 @@ public class HeatTheMetal : MonoBehaviour
                 failedScoreText.text = $"You scored {overallPercentage:F0}%. You need 70% or higher to pass.\nFinal Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
 
             failedModal.SetActive(true);
+            AudioManager.Instance.PlaySFX(failed);
             failedModal.transform.SetAsLastSibling();
             Debug.Log("Failed modal activated");
         }

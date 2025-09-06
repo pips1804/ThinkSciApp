@@ -33,6 +33,10 @@ public class QuizManager : MonoBehaviour
     private bool questionAnswered = false; // Prevent multiple answers
     private bool timeExpired = false;      // Track if time expired
 
+    [Header("Sound Effects")]
+    public AudioClip correct;
+    public AudioClip wrong;
+
     void Start()
     {
         quizPanel.SetActive(false);
@@ -138,6 +142,7 @@ public class QuizManager : MonoBehaviour
 
             // Show positive feedback
             ShowFeedback("Correct! 🎉", Color.green);
+            AudioManager.Instance.PlaySFX(correct);
         }
         else
         {
@@ -147,6 +152,7 @@ public class QuizManager : MonoBehaviour
 
             // Show negative feedback
             ShowFeedback("Wrong! ❌", Color.red);
+            AudioManager.Instance.PlaySFX(wrong);
         }
 
         // Notify ParticleManager about the answer

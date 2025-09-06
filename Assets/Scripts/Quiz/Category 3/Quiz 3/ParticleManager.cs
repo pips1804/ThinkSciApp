@@ -86,6 +86,10 @@ public class ParticleManager : MonoBehaviour
     [Header("Knob Reference")]
     public StoveKnob stoveKnob; // Drag your knob here in inspector
 
+    [Header("Sound Effects")]
+    public AudioClip passed;
+    public AudioClip failed;
+
     void Start()
     {
         InitializeGame();
@@ -368,10 +372,12 @@ public class ParticleManager : MonoBehaviour
         if (scorePercentage >= passingScore)
         {
             ShowPassModal(scorePercentage);
+            AudioManager.Instance.PlaySFX(passed);
         }
         else
         {
             ShowFailModal(scorePercentage);
+            AudioManager.Instance.PlaySFX(failed);
         }
     }
 

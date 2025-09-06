@@ -54,6 +54,12 @@ public class HeatEscape : MonoBehaviour
     private int totalCorrectAnswers = 0;
     private int totalQuestionsAnswered = 0;
 
+    [Header("Sound Effects")]
+    public AudioClip passedsound;
+    public AudioClip failed;
+    public AudioClip correct;
+    public AudioClip wrong;
+
     void Start()
     {
         InitializeGame();
@@ -241,6 +247,7 @@ public class HeatEscape : MonoBehaviour
         {
             if (isCorrect)
             {
+                AudioManager.Instance.PlaySFX(correct);
                 if (i == selectedIndex)
                     optionButtonImages[i].color = Color.green;
                 else
@@ -248,6 +255,7 @@ public class HeatEscape : MonoBehaviour
             }
             else
             {
+                AudioManager.Instance.PlaySFX(wrong);
                 if (i == selectedIndex)
                     optionButtonImages[i].color = Color.red;
                 else if (i == correctIndex)
@@ -337,10 +345,12 @@ public class HeatEscape : MonoBehaviour
         if (passed)
         {
             passedModal.SetActive(true);
+            AudioManager.Instance.PlaySFX(passedsound);
         }
         else
         {
             failedModal.SetActive(true);
+            AudioManager.Instance.PlaySFX(failed);
         }
 
         if (retakeButton != null)

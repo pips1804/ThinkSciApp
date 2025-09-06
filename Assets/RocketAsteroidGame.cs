@@ -156,6 +156,12 @@ public class RocketAsteroidGame : MonoBehaviour
     public int quizId = 12;
     private MultipleChoice.MultipleChoiceQuestions currentQuestion;
 
+    [Header("Sound Effects")]
+    public AudioClip passed;
+    public AudioClip failed;
+    public AudioClip correct;
+    public AudioClip wrong;
+
     [System.Serializable]
     public class GameQuestion
     {
@@ -1102,35 +1108,35 @@ public class RocketAsteroidGame : MonoBehaviour
     }
 
     void ShowQuestion()
-{
-    Debug.Log("SHOWING QUESTION");
-
-    asteroidsDestroyed = 0;
-    devicesCaught = 0;
-    isQuestionActive = true;
-    wasPausedBeforeQuestion = isGamePaused;
-
-    // ✅ Use the dragged-in DatabaseManager
-    currentQuestion = dbManager.GetRandomUnusedQuestion(quizId);
-
-    if (currentQuestion == null)
     {
-        Debug.LogWarning("No questions available!");
-        isQuestionActive = false;
-        return;
+        Debug.Log("SHOWING QUESTION");
+
+        asteroidsDestroyed = 0;
+        devicesCaught = 0;
+        isQuestionActive = true;
+        wasPausedBeforeQuestion = isGamePaused;
+
+        // ✅ Use the dragged-in DatabaseManager
+        currentQuestion = dbManager.GetRandomUnusedQuestion(quizId);
+
+        if (currentQuestion == null)
+        {
+            Debug.LogWarning("No questions available!");
+            isQuestionActive = false;
+            return;
+        }
+
+        // Fill UI
+        questionText.text = currentQuestion.question;
+
+        for (int i = 0; i < answerButtons.Length && i < currentQuestion.options.Length; i++)
+        {
+            answerTexts[i].text = currentQuestion.options[i];
+            answerButtons[i].interactable = true;
+        }
+
+        questionPanel.SetActive(true);
     }
-
-    // Fill UI
-    questionText.text = currentQuestion.question;
-
-    for (int i = 0; i < answerButtons.Length && i < currentQuestion.options.Length; i++)
-    {
-        answerTexts[i].text = currentQuestion.options[i];
-        answerButtons[i].interactable = true;
-    }
-
-    questionPanel.SetActive(true);
-}
 
     void OnAnswerSelected(int selectedIndex)
     {
@@ -1144,53 +1150,55 @@ public class RocketAsteroidGame : MonoBehaviour
 
     // Process answer with difficulty changes
     IEnumerator ProcessAnswer(int selectedIndex)
-{
-    bool isCorrect = (selectedIndex == currentQuestion.correctIndex);
-    int correctAnswerIndex = currentQuestion.correctIndex;
-
-    if (isCorrect)
     {
-        Debug.Log("CORRECT ANSWER!");
-        score += correctAnswerPoints;
-        consecutiveWrongAnswers = 0;
+        bool isCorrect = (selectedIndex == currentQuestion.correctIndex);
+        int correctAnswerIndex = currentQuestion.correctIndex;
 
-        for (int i = 0; i < answerButtons.Length && i < answerButtonImages.Length; i++)
+        if (isCorrect)
         {
-            answerButtonImages[i].color = (i == selectedIndex) ? Color.green : Color.white;
+            Debug.Log("CORRECT ANSWER!");
+            score += correctAnswerPoints;
+            consecutiveWrongAnswers = 0;
+
+            for (int i = 0; i < answerButtons.Length && i < answerButtonImages.Length; i++)
+            {
+                answerButtonImages[i].color = (i == selectedIndex) ? Color.green : Color.white;
+            }
+            AudioManager.Instance.PlaySFX(correct);
         }
-    }
-    else
-    {
-        Debug.Log("WRONG ANSWER!");
-        score += wrongAnswerPenalty;
-        ApplyDifficultyIncrease();
-
-        for (int i = 0; i < answerButtons.Length && i < answerButtonImages.Length; i++)
+        else
         {
-            if (i == selectedIndex)
-                answerButtonImages[i].color = Color.red;
-            else if (i == correctAnswerIndex)
-                answerButtonImages[i].color = Color.green;
-            else
+            Debug.Log("WRONG ANSWER!");
+            score += wrongAnswerPenalty;
+            ApplyDifficultyIncrease();
+
+            for (int i = 0; i < answerButtons.Length && i < answerButtonImages.Length; i++)
+            {
+                if (i == selectedIndex)
+                    answerButtonImages[i].color = Color.red;
+                else if (i == correctAnswerIndex)
+                    answerButtonImages[i].color = Color.green;
+                else
+                    answerButtonImages[i].color = Color.white;
+            }
+            AudioManager.Instance.PlaySFX(wrong);
+        }
+
+        UpdateScore();
+        UpdateScoreSlider();
+        yield return new WaitForSeconds(2f);
+
+        // Reset button colors
+        for (int i = 0; i < answerButtons.Length; i++)
+        {
+            if (answerButtonImages != null && i < answerButtonImages.Length)
                 answerButtonImages[i].color = Color.white;
         }
+
+        questionPanel.SetActive(false);
+        isQuestionActive = false;
+        wasPausedBeforeQuestion = false;
     }
-
-    UpdateScore();
-    UpdateScoreSlider();
-    yield return new WaitForSeconds(2f);
-
-    // Reset button colors
-    for (int i = 0; i < answerButtons.Length; i++)
-    {
-        if (answerButtonImages != null && i < answerButtonImages.Length)
-            answerButtonImages[i].color = Color.white;
-    }
-
-    questionPanel.SetActive(false);
-    isQuestionActive = false;
-    wasPausedBeforeQuestion = false;
-}
 
     IEnumerator ShowExplosionEffect()
     {
@@ -1305,6 +1313,7 @@ public class RocketAsteroidGame : MonoBehaviour
 
         gameUI.SetActive(false);
         victoryPanel.SetActive(true);
+        AudioManager.Instance.PlaySFX(passed);
 
         // NEW: Hide pause elements if they were visible
         if (settingsModal != null)
@@ -1327,6 +1336,7 @@ public class RocketAsteroidGame : MonoBehaviour
 
         gameUI.SetActive(false);
         gameOverPanel.SetActive(true);
+        AudioManager.Instance.PlaySFX(failed);
 
         // NEW: Hide pause elements if they were visible
         if (settingsModal != null)
