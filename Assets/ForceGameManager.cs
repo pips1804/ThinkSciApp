@@ -16,6 +16,10 @@ public class ForceGameManager : MonoBehaviour
     public GameObject passModal;
     public GameObject failModal;
 
+    [Header("Sound Effects")]
+    public AudioClip passedsound;
+    public AudioClip failed;
+
     [Header("Buttons")]
     public Button retakeButton;
 
@@ -91,10 +95,12 @@ public class ForceGameManager : MonoBehaviour
         if (passed)
         {
             passModal.SetActive(true);
+            AudioManager.Instance.PlaySFX(passedsound);
         }
         else
         {
             failModal.SetActive(true);
+            AudioManager.Instance.PlaySFX(failed);
         }
     }
 

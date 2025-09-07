@@ -25,6 +25,10 @@ public class ForceQuizManager : MonoBehaviour
     public int passingScore = 10;
     public float questionTime = 20f;  // 20 sec per question
 
+    [Header("Sound Effects")]
+    public AudioClip correct;
+    public AudioClip wrong;
+
     private List<ForceQuizQuestion> questions;
     private int currentQuestionIndex = 0;
     private int score = 0;
@@ -226,11 +230,13 @@ public class ForceQuizManager : MonoBehaviour
         {
             choiceImages[choiceIndex].color = Color.green;
             score++;
+            AudioManager.Instance.PlaySFX(correct);
         }
         else
         {
             choiceImages[choiceIndex].color = Color.red;
             choiceImages[question.correctAnswerIndex].color = Color.green;
+            AudioManager.Instance.PlaySFX(wrong);
         }
 
         scoreText.text = "" + score;
