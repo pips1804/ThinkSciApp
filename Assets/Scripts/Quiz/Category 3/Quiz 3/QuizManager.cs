@@ -59,18 +59,17 @@ public class QuizManager : MonoBehaviour
 
     public void StartQuiz()
     {
-        // ✅ Load questions from DB
-        dbQuestions = dbManager.LoadRandomQuestions(quizID, questionType, numberOfQuestions);
 
-        for (int i = 0; i < dbQuestions.Count; i++)
+        var fetchedQuestions = dbManager.GetRandomUnusedQuestions(quizID, questionType, numberOfQuestions);
+        dbQuestions = new List<Question>();
+        foreach (var mcq in fetchedQuestions)
         {
-            Question q = dbQuestions[i];
-            string answersText = "";
-            for (int j = 0; j < q.choices.Length; j++)
-            {
-                answersText += $"\n   {j}. {q.choices[j]}";
-            }
-        }
+            Question q = new Question();
+            q.questionText = mcq.question;
+            q.choices = mcq.options;
+            q.correctAnswerIndex = mcq.correctIndex;
+            dbQuestions.Add(q);
+        }   
 
         quizPanel.SetActive(true);
         currentQuestion = 0;

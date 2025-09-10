@@ -147,7 +147,7 @@ public class SwipeManager : MonoBehaviour
         enemyStartPos = enemyIcon.anchoredPosition;
         originalScale = timerText.transform.localScale;
 
-        questions = dbManager.GetRandomSwipeQuestions(quizId, 10);
+        questions = dbManager.GetRandomSwipeQuestions(quizId, 15);
 
         if (progressBar != null)
         {
@@ -1046,6 +1046,7 @@ public class SwipeManager : MonoBehaviour
 
     public void RestartQuiz()
     {
+        questions = dbManager.GetRandomSwipeQuestions(quizId, 15);
         currentQuestionIndex = 0;
         score = 0;
         isTimerRunning = false;
@@ -1096,9 +1097,11 @@ public class SwipeManager : MonoBehaviour
         battleManager.ResetBattle();
         battleAnim.StartCoroutine(battleAnim.GraduallyRestoreColor(3));
 
+        questions = dbManager.GetRandomSwipeQuestions(quizId, 15);
+
         if (questionText != null)
             questionText.enabled = true;
-
+        
         DisplayQuestion();
     }
 }

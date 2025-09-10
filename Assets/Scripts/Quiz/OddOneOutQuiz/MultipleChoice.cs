@@ -161,7 +161,7 @@ public class MultipleChoice : MonoBehaviour
         enemyStartPos = enemyIcon.anchoredPosition;
         originalScale = timerText.transform.localScale;
 
-        questions = dbManager.GetRandomUnusedQuestions(quizId, 10);
+        questions = dbManager.GetRandomUnusedQuestions(quizId: quizId, limit: 10);
 
         if (progressBar != null)
         {

@@ -62,130 +62,10 @@ public class RacingQuiz : MonoBehaviour
     private int enemySpeedValue = 0;
     private bool quizStarted = false;
 
-    [Header("Questions Database")]
-    public RacingQuizQuestion[] questions = new RacingQuizQuestion[]
-    {
-        new RacingQuizQuestion
-        {
-            questionText = "A car travels 100m in 10 seconds. What is its average velocity?",
-            choices = new string[] { "5 m/s", "10 m/s", "20 m/s", "100 m/s" },
-            correctAnswerIndex = 1
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "Which graph shows constant velocity?",
-            choices = new string[] { "Curved line up", "Straight horizontal line", "Curved line down", "Zigzag line" },
-            correctAnswerIndex = 1
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "What is acceleration when velocity changes from 0 to 20 m/s in 4 seconds?",
-            choices = new string[] { "4 m/s²", "5 m/s²", "20 m/s²", "80 m/s²" },
-            correctAnswerIndex = 1
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "In a distance-time graph, what does the slope represent?",
-            choices = new string[] { "Distance", "Time", "Speed", "Acceleration" },
-            correctAnswerIndex = 2
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "A car decelerates from 30 m/s to 10 m/s in 5 seconds. What is the acceleration?",
-            choices = new string[] { "-4 m/s²", "-2 m/s²", "4 m/s²", "2 m/s²" },
-            correctAnswerIndex = 0
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "What happens to kinetic energy when speed doubles?",
-            choices = new string[] { "Doubles", "Triples", "Quadruples", "Stays same" },
-            correctAnswerIndex = 2
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "Distance = Speed × Time. If speed is 25 m/s and time is 8s, what's the distance?",
-            choices = new string[] { "200m", "150m", "300m", "33m" },
-            correctAnswerIndex = 0
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "What force is needed to accelerate a 1000kg car at 2 m/s²?",
-            choices = new string[] { "500N", "1000N", "2000N", "4000N" },
-            correctAnswerIndex = 2
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "In uniform motion, what is the acceleration?",
-            choices = new string[] { "Increasing", "Decreasing", "Zero", "Constant but not zero" },
-            correctAnswerIndex = 2
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "What does the area under a velocity-time graph represent?",
-            choices = new string[] { "Acceleration", "Distance", "Speed", "Force" },
-            correctAnswerIndex = 1
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "A racing car accelerates from rest to 60 m/s in 12 seconds. What is its acceleration?",
-            choices = new string[] { "3 m/s²", "5 m/s²", "7.2 m/s²", "720 m/s²" },
-            correctAnswerIndex = 1
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "If a car maintains constant speed of 80 km/h, how far will it travel in 2.5 hours?",
-            choices = new string[] { "160 km", "200 km", "240 km", "32 km" },
-            correctAnswerIndex = 1
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "In a velocity-time graph, what does a horizontal line indicate?",
-            choices = new string[] { "Increasing velocity", "Decreasing velocity", "Constant velocity", "Zero velocity" },
-            correctAnswerIndex = 2
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "What is the average speed if a car travels 150 km in 3 hours?",
-            choices = new string[] { "45 km/h", "50 km/h", "60 km/h", "453 km/h" },
-            correctAnswerIndex = 1
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "A ball is thrown upward. At the highest point of its trajectory, what is its velocity?",
-            choices = new string[] { "Maximum", "Minimum but not zero", "Zero", "Cannot be determined" },
-            correctAnswerIndex = 2
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "Which equation correctly represents Newton's second law?",
-            choices = new string[] { "F = ma", "v = u + at", "s = ut + ½at²", "v² = u² + 2as" },
-            correctAnswerIndex = 0
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "A car brakes and comes to a stop. What type of acceleration does it experience?",
-            choices = new string[] { "Positive acceleration", "Negative acceleration", "Zero acceleration", "Variable acceleration" },
-            correctAnswerIndex = 1
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "If initial velocity is 15 m/s and final velocity is 35 m/s after 10 seconds, what is the acceleration?",
-            choices = new string[] { "1 m/s²", "2 m/s²", "3.5 m/s²", "20 m/s²" },
-            correctAnswerIndex = 1
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "What is displacement if a car travels 80m north, then 60m south?",
-            choices = new string[] { "20m north", "140m", "20m south", "0m" },
-            correctAnswerIndex = 0
-        },
-        new RacingQuizQuestion
-        {
-            questionText = "In free fall (ignoring air resistance), all objects fall with the same:",
-            choices = new string[] { "Velocity", "Force", "Acceleration", "Mass" },
-            correctAnswerIndex = 2
-        }
-    };
+    [Header("Database Integration")]
+    public DatabaseManager databaseManager;
+    public int quizId = 7; // set the Quiz ID
+    private RacingQuizQuestion[] questions;
 
     // Game State Variables
     private int currentQuestionIndex = 0;
@@ -219,7 +99,7 @@ public class RacingQuiz : MonoBehaviour
 
     void Start()
     {
-        // Hide quiz panels initially and let dialogue system start itself
+        LoadQuestionsFromDatabase();
         SetQuizPanelsActive(false);
         InitializeGameVariables();
     }
@@ -250,6 +130,7 @@ public class RacingQuiz : MonoBehaviour
     // ===================================================================
     void StartQuiz()
     {
+        
         quizStarted = true;
         SetQuizPanelsActive(true);
         SetupQuizUI();
@@ -267,6 +148,7 @@ public class RacingQuiz : MonoBehaviour
     // ===================================================================
     void ResetQuizFromStart()
     {
+        LoadQuestionsFromDatabase();
         StopAllCoroutines();
         ResetGameState();
         SetQuizPanelsActive(false);
@@ -702,6 +584,33 @@ public class RacingQuiz : MonoBehaviour
 
             ResetAllButtonColors();
             LoadCurrentQuestion();
+        }
+    }
+
+    private void LoadQuestionsFromDatabase()
+    {
+        if (databaseManager != null)
+        {
+            List<MultipleChoice.MultipleChoiceQuestions> mcqList = 
+                databaseManager.GetRandomUnusedQuestions(quizId);
+
+            Debug.Log("Questions fetched: " + mcqList.Count);
+
+            questions = new RacingQuizQuestion[mcqList.Count];
+
+            for (int i = 0; i < mcqList.Count; i++)
+            {
+                questions[i] = new RacingQuizQuestion
+                {
+                    questionText = mcqList[i].question,
+                    choices = mcqList[i].options,
+                    correctAnswerIndex = mcqList[i].correctIndex
+                };
+            }
+        }
+        else
+        {
+            Debug.LogError("DatabaseManager is null! Assign it in the Inspector.");
         }
     }
 

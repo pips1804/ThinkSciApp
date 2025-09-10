@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Linq;
 
 [System.Serializable]
 public class Question
@@ -106,9 +107,9 @@ public class HeatTheMetal : MonoBehaviour
     public DragHeater dragHeaterScript;
 
     // Private variables
-    private Question[] questionsScenario1;
-    private Question[] questionsScenario2;
-    private Question[] questionsScenario3;
+    private MultipleChoice.MultipleChoiceQuestions[] questionsScenario1;
+    private MultipleChoice.MultipleChoiceQuestions[] questionsScenario2;
+    private MultipleChoice.MultipleChoiceQuestions[] questionsScenario3;    
 
     private int currentQuestionIndex = 0;
     private bool isHeating = false;
@@ -202,7 +203,7 @@ public class HeatTheMetal : MonoBehaviour
     public void RetakeEntireQuiz()
     {
         Debug.Log("Retaking entire quiz - full reset");
-
+        LoadQuestions();
         // Hide all modals
         if (passedModal != null) passedModal.SetActive(false);
         if (failedModal != null) failedModal.SetActive(false);
@@ -278,9 +279,9 @@ public class HeatTheMetal : MonoBehaviour
     {
         if (dbManager != null)
         {
-            questionsScenario1 = dbManager.LoadRandomQuestions(9, "Multiple Choice Scene 1", 4).ToArray();
-            questionsScenario2 = dbManager.LoadRandomQuestions(9, "Multiple Choice Scene 2", 3).ToArray();
-            questionsScenario3 = dbManager.LoadRandomQuestions(9, "Multiple Choice Scene 3", 3).ToArray();
+            questionsScenario1 = dbManager.GetRandomUnusedQuestions(9, "Multiple Choice Conduction", 5).ToArray();
+            questionsScenario2 = dbManager.GetRandomUnusedQuestions(9, "Multiple Choice Convection", 5).ToArray();
+            questionsScenario3 = dbManager.GetRandomUnusedQuestions(9, "Multiple Choice Radiation", 5).ToArray();
         }
         else
         {
@@ -461,7 +462,7 @@ public class HeatTheMetal : MonoBehaviour
     }
 
     // FIXED: Unified question display method
-    void ShowQuestion(Question[] questions, string scenarioName)
+    void ShowQuestion(MultipleChoice.MultipleChoiceQuestions[] questions, string scenarioName)
     {
         if (questions == null || questions.Length == 0)
         {
@@ -475,10 +476,10 @@ public class HeatTheMetal : MonoBehaviour
             return;
         }
 
-        Question q = questions[currentQuestionIndex];
+        MultipleChoice.MultipleChoiceQuestions q = questions[currentQuestionIndex];
         if (questionTextUI != null)
         {
-            questionTextUI.text = q.questionText;
+            questionTextUI.text = q.question;
         }
 
         // FIXED: Reset button state properly
@@ -493,8 +494,8 @@ public class HeatTheMetal : MonoBehaviour
 
         StartQuestionTimer();
 
-        Debug.Log($"Showing {scenarioName} question {currentQuestionIndex + 1}: {q.questionText}");
-        Debug.Log($"Correct answer index: {q.correctAnswerIndex}");
+        Debug.Log($"Showing {scenarioName} question {currentQuestionIndex + 1}: {q.question}");
+        Debug.Log($"Correct answer index: {q.correctIndex}");
     }
 
     // FIXED: New method to safely clear all button listeners
@@ -513,67 +514,52 @@ public class HeatTheMetal : MonoBehaviour
     }
 
     // DIAGNOSTIC: Debug method to identify which physical button was clicked
-    void SetupAnswerButtons(Question q)
+    void SetupAnswerButtons(MultipleChoice.MultipleChoiceQuestions q)
+{
+    if (answerButtons == null || q.options == null)
     {
-        if (answerButtons == null || q.choices == null)
-        {
-            Debug.LogError("Answer buttons or question choices are null!");
-            return;
-        }
+        Debug.LogError("Answer buttons or question options are null!");
+        return;
+    }
 
-        Debug.Log("=== BUTTON SETUP DEBUG ===");
-        Debug.Log($"Question: {q.questionText}");
-        Debug.Log($"Choices count: {q.choices.Length}");
-        Debug.Log($"Correct answer index: {q.correctAnswerIndex}");
-        Debug.Log($"Available buttons: {answerButtons.Length}");
+    Debug.Log("=== BUTTON SETUP DEBUG ===");
+    Debug.Log($"Question: {q.question}");
+    Debug.Log($"Choices count: {q.options.Length}");
+    Debug.Log($"Correct answer index: {q.correctIndex}");
+    Debug.Log($"Available buttons: {answerButtons.Length}");
 
-        // Set up buttons with choices
-        for (int i = 0; i < answerButtons.Length; i++)
+    for (int i = 0; i < answerButtons.Length; i++)
+    {
+        if (answerButtons[i] != null)
         {
-            if (answerButtons[i] != null)
+            if (i < q.options.Length)
             {
-                if (i < q.choices.Length)
+                answerButtons[i].gameObject.SetActive(true);
+                answerButtons[i].interactable = true;
+
+                if (answerButtonTexts != null && i < answerButtonTexts.Length && answerButtonTexts[i] != null)
                 {
-                    // Show and setup button
-                    answerButtons[i].gameObject.SetActive(true);
-                    answerButtons[i].interactable = true;
-
-                    // Set button text
-                    if (answerButtonTexts != null && i < answerButtonTexts.Length && answerButtonTexts[i] != null)
-                    {
-                        answerButtonTexts[i].text = q.choices[i];
-                        Debug.Log($"Button {i} text set to: '{q.choices[i]}'");
-                    }
-
-                    // DIAGNOSTIC: Add button name for identification
-                    answerButtons[i].name = $"AnswerButton_{i}";
-
-                    // Create a component to track which button was actually clicked
-                    ButtonClickTracker tracker = answerButtons[i].GetComponent<ButtonClickTracker>();
-                    if (tracker == null)
-                    {
-                        tracker = answerButtons[i].gameObject.AddComponent<ButtonClickTracker>();
-                    }
-                    tracker.buttonIndex = i;
-                    tracker.quizManager = this;
-
-                    Debug.Log($"Setup button {i} with tracker, name: {answerButtons[i].name}");
+                    answerButtonTexts[i].text = q.options[i];
                 }
-                else
+
+                ButtonClickTracker tracker = answerButtons[i].GetComponent<ButtonClickTracker>();
+                if (tracker == null)
                 {
-                    // Hide unused buttons
-                    answerButtons[i].gameObject.SetActive(false);
-                    Debug.Log($"Hidden unused button {i}");
+                    tracker = answerButtons[i].gameObject.AddComponent<ButtonClickTracker>();
                 }
+                tracker.buttonIndex = i;
+                tracker.quizManager = this;
             }
             else
             {
-                Debug.LogWarning($"Answer button at index {i} is null!");
+                answerButtons[i].gameObject.SetActive(false);
             }
         }
-
-        Debug.Log("=== END BUTTON SETUP ===");
     }
+
+    Debug.Log("=== END BUTTON SETUP ===");
+}
+
 
     // DIAGNOSTIC: Method called by ButtonClickTracker
     public void OnButtonClicked(int buttonIndex, GameObject buttonObject)
@@ -608,60 +594,62 @@ public class HeatTheMetal : MonoBehaviour
 
     // FIXED: Improved answer selection with better debugging
     public void SelectAnswer(int index)
+{
+    if (!buttonsInteractable)
     {
-        if (!buttonsInteractable)
-        {
-            Debug.Log("Buttons not interactable, ignoring click");
-            return;
-        }
-
-        Debug.Log($"SelectAnswer called with index: {index}");
-
-        StopQuestionTimer();
-        buttonsInteractable = false;
-
-        Question q = GetCurrentQuestion();
-        if (q == null)
-        {
-            Debug.LogError("Current question is null!");
-            return;
-        }
-
-        // FIXED: Add bounds checking for the selected index
-        if (index < 0 || index >= q.choices.Length)
-        {
-            Debug.LogError($"Selected index {index} is out of bounds for question with {q.choices.Length} choices!");
-            return;
-        }
-
-        bool isCorrect = index == q.correctAnswerIndex;
-
-        Debug.Log($"Question: {q.questionText}");
-        Debug.Log($"Selected choice {index}: {q.choices[index]}");
-        Debug.Log($"Correct answer index: {q.correctAnswerIndex}");
-        Debug.Log($"Correct answer: {q.choices[q.correctAnswerIndex]}");
-        Debug.Log($"Answer is correct: {isCorrect}");
-
-        // Update score
-        totalQuestionsAnswered++;
-        totalQuestionsInGame++;
-        if (isCorrect)
-        {
-            currentScenarioScore++;
-            totalCorrectAnswers++;
-        }
-
-        UpdateScoreDisplay();
-
-        StartCoroutine(HandleAnswerFeedback(index, q.correctAnswerIndex, isCorrect, () =>
-        {
-            currentQuestionIndex++;
-            if (ShouldShowNextQuestion())
-                ShowNextQuestion();
-            else
-                EndCurrentScenario();
-        }));
+        Debug.Log("Buttons not interactable, ignoring click");
+        return;
     }
+
+    Debug.Log($"SelectAnswer called with index: {index}");
+
+    StopQuestionTimer();
+    buttonsInteractable = false;
+
+    // Use MultipleChoiceQuestions instead of Question
+    MultipleChoice.MultipleChoiceQuestions q = GetCurrentQuestion();
+    if (q == null)
+    {
+        Debug.LogError("Current question is null!");
+        return;
+    }
+
+    // Bounds check for safety
+    if (index < 0 || index >= q.options.Length)
+    {
+        Debug.LogError($"Selected index {index} is out of bounds for question with {q.options.Length} options!");
+        return;
+    }
+
+    bool isCorrect = index == q.correctIndex;
+
+    Debug.Log($"Question: {q.question}");
+    Debug.Log($"Selected choice {index}: {q.options[index]}");
+    Debug.Log($"Correct answer index: {q.correctIndex}");
+    Debug.Log($"Correct answer: {q.options[q.correctIndex]}");
+    Debug.Log($"Answer is correct: {isCorrect}");
+
+    // Update score
+    totalQuestionsAnswered++;
+    totalQuestionsInGame++;
+    if (isCorrect)
+    {
+        currentScenarioScore++;
+        totalCorrectAnswers++;
+    }
+
+    UpdateScoreDisplay();
+
+    StartCoroutine(HandleAnswerFeedback(index, q.correctIndex, isCorrect, () =>
+    {
+        currentQuestionIndex++;
+        if (ShouldShowNextQuestion())
+            ShowNextQuestion();
+        else
+            EndCurrentScenario();
+    }));
+}
+
 
     // FIXED: Improved feedback handling with better validation
     IEnumerator HandleAnswerFeedback(int selectedIndex, int correctIndex, bool isCorrect, System.Action onComplete)
@@ -794,9 +782,9 @@ public class HeatTheMetal : MonoBehaviour
     }
 
     // FIXED: Better question retrieval with validation
-    Question GetCurrentQuestion()
+   MultipleChoice.MultipleChoiceQuestions GetCurrentQuestion()
     {
-        Question[] currentQuestions = null;
+        MultipleChoice.MultipleChoiceQuestions[] currentQuestions = null;
         string scenarioName = "";
 
         switch (currentScenario)
@@ -818,9 +806,9 @@ public class HeatTheMetal : MonoBehaviour
                 return null;
         }
 
-        if (currentQuestions == null)
+        if (currentQuestions == null || currentQuestions.Length == 0)
         {
-            Debug.LogError($"Questions array for {scenarioName} is null!");
+            Debug.LogError($"Questions array for {scenarioName} is null or empty!");
             return null;
         }
 
@@ -1122,7 +1110,7 @@ public class HeatTheMetal : MonoBehaviour
         }
     }
 
-    void OnQuestionTimeout()
+   void OnQuestionTimeout()
     {
         if (!buttonsInteractable) return;
 
@@ -1130,14 +1118,14 @@ public class HeatTheMetal : MonoBehaviour
         buttonsInteractable = false;
         questionTimerActive = false;
 
-        Question q = GetCurrentQuestion();
+        MultipleChoice.MultipleChoiceQuestions q = GetCurrentQuestion();
         if (q != null)
         {
             totalQuestionsAnswered++;
             totalQuestionsInGame++;
             UpdateScoreDisplay();
 
-            StartCoroutine(HandleAnswerFeedback(-1, q.correctAnswerIndex, false, () =>
+            StartCoroutine(HandleAnswerFeedback(-1, q.correctIndex, false, () =>
             {
                 currentQuestionIndex++;
                 if (ShouldShowNextQuestion())
@@ -1147,6 +1135,7 @@ public class HeatTheMetal : MonoBehaviour
             }));
         }
     }
+
 
     void UpdateScoreDisplay()
     {

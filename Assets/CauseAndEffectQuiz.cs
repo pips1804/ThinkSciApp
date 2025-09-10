@@ -73,9 +73,13 @@ public class CauseAndEffectQuiz : MonoBehaviour
 
     private Coroutine timerPopRoutine;
 
+    [SerializeField] private DatabaseManager databaseManager;
+    [SerializeField] private int quizId = 4;
+    [SerializeField] private int questionLimit = 15;
+
     private void Start()
     {
-        InitializeQuestions();
+        LoadQuestionsFromDatabase();
         StartDialogueSequence();
 
         if (timerText != null)
@@ -90,6 +94,7 @@ public class CauseAndEffectQuiz : MonoBehaviour
         if (questions != null && questions.Count > 0)
         {
             ResetQuiz();
+            LoadQuestionsFromDatabase();
             StartDialogueSequence();
         }
     }
@@ -142,80 +147,6 @@ public class CauseAndEffectQuiz : MonoBehaviour
         }
     }
 
-    private void InitializeQuestions()
-    {
-        // Only initialize questions if they haven't been initialized yet
-        if (questions != null && questions.Count > 0) return;
-
-        questions = new List<CauseEffectQuestions>
-        {
-            new CauseEffectQuestions("A soccer ball is kicked harder than before.",
-                "The ball slows down", "The ball speeds up more", "The ball stops immediately", 1),
-
-            new CauseEffectQuestions("A heavy box is pushed with the same force as a light box.",
-                "Both boxes move at the same speed", "The heavy box moves slower", "The heavy box moves faster", 1),
-
-            new CauseEffectQuestions("A car applies its brakes while driving.",
-                "The car speeds up", "The car slows down", "The car maintains speed", 1),
-
-            new CauseEffectQuestions("A ball is thrown upward against gravity.",
-                "The ball accelerates upward continuously", "The ball slows down as it rises", "The ball maintains constant speed", 1),
-
-            new CauseEffectQuestions("Two people push a cart in opposite directions with equal force.",
-                "The cart moves forward", "The cart moves backward", "The cart remains stationary", 2),
-
-            new CauseEffectQuestions("A skateboarder pushes off the ground with their foot.",
-                "The skateboard slows down", "The skateboard accelerates forward", "The skateboard stops", 1),
-
-            new CauseEffectQuestions("A book is placed on a frictionless surface and given a push.",
-                "The book gradually slows down", "The book continues moving at constant speed", "The book immediately stops", 1),
-
-            new CauseEffectQuestions("A parachutist opens their parachute while falling.",
-                "The fall speed increases", "The fall speed decreases", "The fall speed remains the same", 1),
-
-            new CauseEffectQuestions("A bowling ball and tennis ball are dropped from the same height (ignoring air resistance).",
-                "The bowling ball hits the ground first", "The tennis ball hits the ground first", "Both hit the ground at the same time", 2),
-
-            new CauseEffectQuestions("A rocket fires its engines in space.",
-                "The rocket slows down", "The rocket accelerates", "The rocket maintains constant speed", 1),
-
-            new CauseEffectQuestions("A hockey puck is hit with a stick on ice with minimal friction.",
-                "The puck stops immediately", "The puck moves at nearly constant speed", "The puck accelerates continuously", 1),
-
-            new CauseEffectQuestions("A person jumps off a diving board.",
-                "They fall at constant speed", "They accelerate downward", "They slow down while falling", 1),
-
-            new CauseEffectQuestions("A train applies emergency brakes.",
-                "The train speeds up", "The train slows down", "The train maintains speed", 1),
-
-            new CauseEffectQuestions("An object is pushed up a rough inclined plane.",
-                "It moves up at constant speed", "It slows down due to friction and gravity", "It speeds up", 1),
-
-            new CauseEffectQuestions("A satellite orbits Earth with no external forces acting on it.",
-                "It spirals inward", "It maintains its orbital path", "It flies off into space", 1)
-        };
-
-        // Shuffle questions for variety
-        ShuffleQuestions();
-
-        // Trim to required number of questions
-        if (questions.Count > totalQuestionsInGame)
-        {
-            questions = questions.GetRange(0, totalQuestionsInGame);
-        }
-    }
-
-    private void ShuffleQuestions()
-    {
-        for (int i = 0; i < questions.Count; i++)
-        {
-            var temp = questions[i];
-            int randomIndex = Random.Range(i, questions.Count);
-            questions[i] = questions[randomIndex];
-            questions[randomIndex] = temp;
-        }
-    }
-
     private void ResetQuiz()
     {
         // Reset all quiz state
@@ -230,8 +161,6 @@ public class CauseAndEffectQuiz : MonoBehaviour
         if (gameOverModal != null) gameOverModal.SetActive(false);
         if (quizPanel != null) quizPanel.SetActive(false);
 
-        // Reshuffle questions
-        ShuffleQuestions();
     }
 
     private void StartQuiz()
@@ -446,6 +375,7 @@ public class CauseAndEffectQuiz : MonoBehaviour
     public void RestartQuiz()
     {
         ResetQuiz();
+        LoadQuestionsFromDatabase();
         StartDialogueSequence();
     }
 
@@ -454,4 +384,43 @@ public class CauseAndEffectQuiz : MonoBehaviour
         // Implement quit functionality (return to main menu, etc.)
         Debug.Log("Quit Quiz");
     }
+    
+    private void LoadQuestionsFromDatabase()
+{
+    if (databaseManager == null)
+    {
+        Debug.LogError("DatabaseManager not assigned!");
+        return;
+    }
+
+    // Fetch questions from DB
+    List<MultipleChoice.MultipleChoiceQuestions> dbQuestions = databaseManager.GetRandomUnusedQuestions(quizId: quizId, limit: questionLimit);
+
+    // Clear current question list
+    questions = new List<CauseEffectQuestions>();
+
+    // Convert to CauseEffectQuestions format
+    foreach (var dbQ in dbQuestions)
+    {
+        // Assuming your DB options are structured as Cause + 3 effects
+        if (dbQ.options.Length < 3)
+        {
+            Debug.LogWarning($"Question '{dbQ.question}' has less than 3 options. Skipping.");
+            continue;
+        }
+
+        CauseEffectQuestions newQ = new CauseEffectQuestions(
+            dbQ.question,
+            dbQ.options[0],
+            dbQ.options[1],
+            dbQ.options[2],
+            dbQ.correctIndex
+        );
+
+        questions.Add(newQ);
+    }
+
+        Debug.Log($"Loaded {questions.Count} Cause & Effect questions from DB.");
+    }
+
 }

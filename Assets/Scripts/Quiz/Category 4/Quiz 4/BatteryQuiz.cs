@@ -448,7 +448,7 @@ public class BatteryQuiz : MonoBehaviour
         }
 
         // Fetch from DB
-        var dbQuestions = dbManager.GetRandomUnusedQuestions(quizId, questionLimit);
+        var dbQuestions = dbManager.GetRandomUnusedQuestions(quizId: quizId, limit: questionLimit);
         questions.Clear();
 
         foreach (var dbQ in dbQuestions)

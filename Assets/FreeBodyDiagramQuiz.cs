@@ -78,6 +78,10 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
     public AudioClip failed;
     public AudioClip correct;
     public AudioClip wrong;
+
+    [SerializeField] private DatabaseManager databaseManager; // drag in inspector
+    [SerializeField] private int quizId = 3; // ID of the quiz in your DB
+    [SerializeField] private int questionLimit = 15; // number of questions to fetch
     private void Start()
     {
         hasInitialized = true;
@@ -170,6 +174,8 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
 
     private void InitializeGame()
     {
+        LoadQuestionsFromDatabase();
+        
         currentQuestionIndex = 0;
         boxPosition = 0;
         correctAnswers = 0;
@@ -515,6 +521,7 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
     // Public methods for UI buttons
     public void RestartGame()
     {
+        LoadQuestionsFromDatabase();
         InitializeGame();
     }
 
@@ -539,7 +546,7 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
     // Reset game specifically for retake functionality
     private void ResetGameForRetake()
     {
-        // Reset all game variables to initial state
+        LoadQuestionsFromDatabase();
         currentQuestionIndex = 0;
         boxPosition = 0;
         correctAnswers = 0;
@@ -594,42 +601,32 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
         Debug.Log("Game retake initiated - All progress reset!");
     }
 
-    // Sample questions for Free Body Diagrams (you can replace with your own)
-    private void CreateSampleQuestions()
+    private void LoadQuestionsFromDatabase()
     {
+        if (databaseManager == null)
+        {
+            Debug.LogError("DatabaseManager not assigned!");
+            return;
+        }
+
+        // Fetch questions from DB
+        List<MultipleChoice.MultipleChoiceQuestions> dbQuestions = databaseManager.GetRandomUnusedQuestions(quizId: quizId, limit: questionLimit);
+
         questions.Clear();
 
-        // Sample Question 1
-        FreeBodyQuizQuestion q1 = new FreeBodyQuizQuestion();
-        q1.questionText = "A box is at rest on a horizontal surface. What forces act on the box?";
-        q1.answerOptions = new string[] {
-            "Weight and Normal Force",
-            "Only Weight",
-            "Weight, Normal Force, and Friction",
-            "Only Normal Force"
-        };
-        q1.correctAnswerIndex = 0;
-        questions.Add(q1);
+        // Convert to FreeBodyQuizQuestion
+        foreach (var dbQ in dbQuestions)
+        {
+            FreeBodyQuizQuestion newQ = new FreeBodyQuizQuestion();
+            newQ.questionText = dbQ.question;
+            newQ.answerOptions = dbQ.options;
+            newQ.correctAnswerIndex = dbQ.correctIndex;
 
-        // Sample Question 2
-        FreeBodyQuizQuestion q2 = new FreeBodyQuizQuestion();
-        q2.questionText = "A book slides across a table with constant velocity. What is the net force?";
-        q2.answerOptions = new string[] {
-            "Greater than zero in the direction of motion",
-            "Zero",
-            "Greater than zero opposite to motion",
-            "Cannot be determined"
-        };
-        q2.correctAnswerIndex = 1;
-        questions.Add(q2);
+            questions.Add(newQ);
+        }
 
-        // Add more questions as needed...
+        Debug.Log($"Loaded {questions.Count} questions from DB.");
     }
 
-    // Call this in inspector or Start() to populate sample questions
-    [ContextMenu("Create Sample Questions")]
-    public void GenerateSampleQuestions()
-    {
-        CreateSampleQuestions();
-    }
+    
 }

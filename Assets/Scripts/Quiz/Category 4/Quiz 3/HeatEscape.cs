@@ -46,7 +46,7 @@ public class HeatEscape : MonoBehaviour
 
     private int currentQuestionIndex = 0;
     private int currentScore = 0;
-    private int totalQuestions = 10;
+    private int totalQuestions = 15;
     private List<Question> dbQuestions;
     private bool quizCompleted = false;
 
@@ -178,7 +178,7 @@ public class HeatEscape : MonoBehaviour
             quizProgressSlider.value = 0;
         }
 
-        dbQuestions = dbManager.LoadRandomQuestions(13, "Multiple Choice", totalQuestions);
+        LoadQuizQuestions();
 
         currentQuestionIndex = 0;
         currentScore = 0;
@@ -189,6 +189,23 @@ public class HeatEscape : MonoBehaviour
         totalQuestionsAnswered = 0;
 
         ShowQuestion();
+    }
+
+    private void LoadQuizQuestions()
+    {
+        // Fetch unused questions from database
+        var mcqList = dbManager.GetRandomUnusedQuestions(13, "Multiple Choice", totalQuestions);
+
+        // Convert to Question objects
+        dbQuestions = new List<Question>();
+        foreach (var mcq in mcqList)
+        {
+            Question q = new Question();
+            q.questionText = mcq.question;
+            q.choices = mcq.options;
+            q.correctAnswerIndex = mcq.correctIndex;
+            dbQuestions.Add(q);
+        }
     }
 
     private void ShowQuestion()
