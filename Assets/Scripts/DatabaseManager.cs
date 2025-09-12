@@ -178,7 +178,7 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
-    public (string, string, string, int) GetUser()
+    public (string, string, string, int, int) GetUser()
     {
         using (var connection = new SqliteConnection(dbPath))
         {
@@ -186,19 +186,19 @@ public class DatabaseManager : MonoBehaviour
 
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT first_name, middle_name, last_name, coins FROM users LIMIT 1";
+                command.CommandText = "SELECT first_name, middle_name, last_name, coins, energy FROM users LIMIT 1";
 
                 using (IDataReader reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        return (reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3));
+                        return (reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4));
                     }
                 }
             }
         }
 
-        return ("", "", "", 0);
+        return ("", "", "", 0, 0);
     }
 
     public void SavePlayerStats(int coins)
@@ -1142,78 +1142,78 @@ public class DatabaseManager : MonoBehaviour
 
     // Purchase item (deduct coins + insert into User_Items)
     public bool PurchaseItem(int userId, int itemId)
-{
-    using (var conn = new SqliteConnection(dbPath))
     {
-        conn.Open();
-        using (var trans = conn.BeginTransaction())
+        using (var conn = new SqliteConnection(dbPath))
         {
-            // 1. Check if user already owns the item
-            using (var checkCmd = conn.CreateCommand())
+            conn.Open();
+            using (var trans = conn.BeginTransaction())
             {
-                checkCmd.Transaction = trans;
-                checkCmd.CommandText = "SELECT COUNT(*) FROM User_Items WHERE User_ID = @uid AND Item_ID = @iid";
-                checkCmd.Parameters.AddWithValue("@uid", userId);
-                checkCmd.Parameters.AddWithValue("@iid", itemId);
-
-                long count = (long)checkCmd.ExecuteScalar();
-                if (count > 0)
+                // 1. Check if user already owns the item
+                using (var checkCmd = conn.CreateCommand())
                 {
-                    Debug.LogWarning("User already owns this item.");
-                    return false; // don't deduct coins, don't insert
+                    checkCmd.Transaction = trans;
+                    checkCmd.CommandText = "SELECT COUNT(*) FROM User_Items WHERE User_ID = @uid AND Item_ID = @iid";
+                    checkCmd.Parameters.AddWithValue("@uid", userId);
+                    checkCmd.Parameters.AddWithValue("@iid", itemId);
+
+                    long count = (long)checkCmd.ExecuteScalar();
+                    if (count > 0)
+                    {
+                        Debug.LogWarning("User already owns this item.");
+                        return false; // don't deduct coins, don't insert
+                    }
                 }
-            }
 
-            // 2. Check user coins & item price
-            int coins = 0, price = 0;
-            using (var cmd = conn.CreateCommand())
-            {
-                cmd.Transaction = trans;
-                cmd.CommandText = "SELECT coins FROM users WHERE id = @uid";
-                cmd.Parameters.AddWithValue("@uid", userId);
-                coins = Convert.ToInt32(cmd.ExecuteScalar());
-            }
-            using (var cmd = conn.CreateCommand())
-            {
-                cmd.Transaction = trans;
-                cmd.CommandText = "SELECT Price FROM Items WHERE Item_ID = @iid";
-                cmd.Parameters.AddWithValue("@iid", itemId);
-                price = Convert.ToInt32(cmd.ExecuteScalar());
-            }
+                // 2. Check user coins & item price
+                int coins = 0, price = 0;
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.Transaction = trans;
+                    cmd.CommandText = "SELECT coins FROM users WHERE id = @uid";
+                    cmd.Parameters.AddWithValue("@uid", userId);
+                    coins = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.Transaction = trans;
+                    cmd.CommandText = "SELECT Price FROM Items WHERE Item_ID = @iid";
+                    cmd.Parameters.AddWithValue("@iid", itemId);
+                    price = Convert.ToInt32(cmd.ExecuteScalar());
+                }
 
-            if (coins < price)
-            {
-                Debug.LogWarning("Not enough coins to purchase item.");
-                return false;
-            }
+                if (coins < price)
+                {
+                    Debug.LogWarning("Not enough coins to purchase item.");
+                    return false;
+                }
 
-            // 3. Deduct coins
-            using (var cmd = conn.CreateCommand())
-            {
-                cmd.Transaction = trans;
-                cmd.CommandText = "UPDATE users SET coins = coins - @price WHERE id = @uid";
-                cmd.Parameters.AddWithValue("@price", price);
-                cmd.Parameters.AddWithValue("@uid", userId);
-                cmd.ExecuteNonQuery();
-            }
+                // 3. Deduct coins
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.Transaction = trans;
+                    cmd.CommandText = "UPDATE users SET coins = coins - @price WHERE id = @uid";
+                    cmd.Parameters.AddWithValue("@price", price);
+                    cmd.Parameters.AddWithValue("@uid", userId);
+                    cmd.ExecuteNonQuery();
+                }
 
-            // 4. Add item to User_Items
-            using (var cmd = conn.CreateCommand())
-            {
-                cmd.Transaction = trans;
-                cmd.CommandText = "INSERT INTO User_Items (User_ID, Item_ID) VALUES (@uid, @iid)";
-                cmd.Parameters.AddWithValue("@uid", userId);
-                cmd.Parameters.AddWithValue("@iid", itemId);
-                cmd.ExecuteNonQuery();
-            }
+                // 4. Add item to User_Items
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.Transaction = trans;
+                    cmd.CommandText = "INSERT INTO User_Items (User_ID, Item_ID) VALUES (@uid, @iid)";
+                    cmd.Parameters.AddWithValue("@uid", userId);
+                    cmd.Parameters.AddWithValue("@iid", itemId);
+                    cmd.ExecuteNonQuery();
+                }
 
-            trans.Commit();
+                trans.Commit();
+            }
         }
-    }
 
-    Debug.Log("Item purchased successfully!");
-    return true;
-}
+        Debug.Log("Item purchased successfully!");
+        return true;
+    }
 
 
     public bool CheckIfOwned(int userId, int itemId)

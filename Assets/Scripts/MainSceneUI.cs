@@ -9,6 +9,7 @@ public class MainSceneUI : MonoBehaviour
     public Text petBaseHealth; // Text object to show the name
     public Text petBaseDamage; // Text object to show the name
     public Text playerCoinCount; // Text object to show the name
+    public Text playerEnergyCount; // Text object to show the name
     public Slider healthSlider;
     public Slider damageSlider;
 
@@ -32,7 +33,7 @@ public class MainSceneUI : MonoBehaviour
 
     public void UpdateUI()
     {
-        var (firstName, middleName, lastName, coin) = dbManager.GetUser();
+        var (firstName, middleName, lastName, coin, energy) = dbManager.GetUser();
         var (name, baseHealth, baseDamage) = dbManager.GetPetStats(userID);
 
         if (healthSlider != null)
@@ -59,6 +60,8 @@ public class MainSceneUI : MonoBehaviour
             petBaseDamage.text = $"{baseDamage}/50";
         if (playerCoinCount != null)
             playerCoinCount.text = $"{coin}";
+        if (playerEnergyCount != null)
+            playerEnergyCount.text = $"{energy}";
 
     }
 
