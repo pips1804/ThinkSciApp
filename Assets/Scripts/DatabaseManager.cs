@@ -29,6 +29,15 @@ public class Badge
     public bool IsDone => IsUnlocked && IsClaimed;
 }
 
+public class ItemData
+{
+    public int ItemId;
+    public string Name;
+    public string Type;
+    public int Price;
+    public string SpritePath;
+}
+
 public class DatabaseManager : MonoBehaviour
 {
     private string dbPath;
@@ -851,117 +860,117 @@ public class DatabaseManager : MonoBehaviour
     }
 
     public List<MultipleChoice.MultipleChoiceQuestions> GetRandomUnusedQuestions(int quizId, string questionType = null, int limit = 15)
-{
-    List<MultipleChoice.MultipleChoiceQuestions> questionList = new List<MultipleChoice.MultipleChoiceQuestions>();
-
-    using (var connection = new SqliteConnection(dbPath))
     {
-        connection.Open();
+        List<MultipleChoice.MultipleChoiceQuestions> questionList = new List<MultipleChoice.MultipleChoiceQuestions>();
 
-        // Step 1: Count unused with optional type filter
-        int unusedCount = 0;
-        using (var checkCmd = connection.CreateCommand())
+        using (var connection = new SqliteConnection(dbPath))
         {
-            checkCmd.CommandText = @"SELECT COUNT(*) 
-                                     FROM Questions 
-                                     WHERE Quiz_ID = @quizId AND Is_Used = 0" 
-                                     + (questionType != null ? " AND Question_Type = @qType" : "");
-            checkCmd.Parameters.AddWithValue("@quizId", quizId);
-            if (questionType != null)
-                checkCmd.Parameters.AddWithValue("@qType", questionType);
+            connection.Open();
 
-            unusedCount = Convert.ToInt32(checkCmd.ExecuteScalar());
-        }
-
-        // Step 2: Reset if not enough unused
-        if (unusedCount < limit)
-        {
-            using (var resetCmd = connection.CreateCommand())
+            // Step 1: Count unused with optional type filter
+            int unusedCount = 0;
+            using (var checkCmd = connection.CreateCommand())
             {
-                resetCmd.CommandText = @"UPDATE Questions 
-                                         SET Is_Used = 0 
-                                         WHERE Quiz_ID = @quizId" 
+                checkCmd.CommandText = @"SELECT COUNT(*)
+                                     FROM Questions
+                                     WHERE Quiz_ID = @quizId AND Is_Used = 0"
                                          + (questionType != null ? " AND Question_Type = @qType" : "");
-                resetCmd.Parameters.AddWithValue("@quizId", quizId);
+                checkCmd.Parameters.AddWithValue("@quizId", quizId);
                 if (questionType != null)
-                    resetCmd.Parameters.AddWithValue("@qType", questionType);
+                    checkCmd.Parameters.AddWithValue("@qType", questionType);
 
-                resetCmd.ExecuteNonQuery();
+                unusedCount = Convert.ToInt32(checkCmd.ExecuteScalar());
             }
-        }
 
-        // Step 3: Select random unused with optional type filter
-        using (var cmd = connection.CreateCommand())
-        {
-            cmd.CommandText = @"SELECT Question_ID, Question_Text
+            // Step 2: Reset if not enough unused
+            if (unusedCount < limit)
+            {
+                using (var resetCmd = connection.CreateCommand())
+                {
+                    resetCmd.CommandText = @"UPDATE Questions
+                                         SET Is_Used = 0
+                                         WHERE Quiz_ID = @quizId"
+                                             + (questionType != null ? " AND Question_Type = @qType" : "");
+                    resetCmd.Parameters.AddWithValue("@quizId", quizId);
+                    if (questionType != null)
+                        resetCmd.Parameters.AddWithValue("@qType", questionType);
+
+                    resetCmd.ExecuteNonQuery();
+                }
+            }
+
+            // Step 3: Select random unused with optional type filter
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = @"SELECT Question_ID, Question_Text
                                 FROM Questions
-                                WHERE Quiz_ID = @quizId AND Is_Used = 0" 
-                                + (questionType != null ? " AND Question_Type = @qType" : "") +
-                                " ORDER BY RANDOM() LIMIT @limit";
-            cmd.Parameters.AddWithValue("@quizId", quizId);
-            cmd.Parameters.AddWithValue("@limit", limit);
-            if (questionType != null)
-                cmd.Parameters.AddWithValue("@qType", questionType);
+                                WHERE Quiz_ID = @quizId AND Is_Used = 0"
+                                    + (questionType != null ? " AND Question_Type = @qType" : "") +
+                                    " ORDER BY RANDOM() LIMIT @limit";
+                cmd.Parameters.AddWithValue("@quizId", quizId);
+                cmd.Parameters.AddWithValue("@limit", limit);
+                if (questionType != null)
+                    cmd.Parameters.AddWithValue("@qType", questionType);
 
-            List<int> selectedIds = new List<int>();
+                List<int> selectedIds = new List<int>();
 
-            using (var reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
+                using (var reader = cmd.ExecuteReader())
                 {
-                    int questionId = reader.GetInt32(0);
-                    string questionText = reader.GetString(1);
-                    selectedIds.Add(questionId);
-
-                    var q = new MultipleChoice.MultipleChoiceQuestions();
-                    q.question = questionText;
-
-                    // Fetch options
-                    using (var optCmd = connection.CreateCommand())
+                    while (reader.Read())
                     {
-                        optCmd.CommandText = "SELECT Option_Text, Is_Correct, Explanation FROM MCQ_Options WHERE Question_ID = @qid";
-                        optCmd.Parameters.AddWithValue("@qid", questionId);
+                        int questionId = reader.GetInt32(0);
+                        string questionText = reader.GetString(1);
+                        selectedIds.Add(questionId);
 
-                        using (var optReader = optCmd.ExecuteReader())
+                        var q = new MultipleChoice.MultipleChoiceQuestions();
+                        q.question = questionText;
+
+                        // Fetch options
+                        using (var optCmd = connection.CreateCommand())
                         {
-                            List<string> options = new List<string>();
-                            while (optReader.Read())
+                            optCmd.CommandText = "SELECT Option_Text, Is_Correct, Explanation FROM MCQ_Options WHERE Question_ID = @qid";
+                            optCmd.Parameters.AddWithValue("@qid", questionId);
+
+                            using (var optReader = optCmd.ExecuteReader())
                             {
-                                string optionText = optReader.GetString(0);
-                                int isCorrect = optReader.GetInt32(1);
-                                string explanation = optReader.GetString(2);
-
-                                options.Add(optionText);
-
-                                if (isCorrect == 1)
+                                List<string> options = new List<string>();
+                                while (optReader.Read())
                                 {
-                                    q.correctIndex = options.Count - 1;
-                                    q.explanationText = explanation;
+                                    string optionText = optReader.GetString(0);
+                                    int isCorrect = optReader.GetInt32(1);
+                                    string explanation = optReader.GetString(2);
+
+                                    options.Add(optionText);
+
+                                    if (isCorrect == 1)
+                                    {
+                                        q.correctIndex = options.Count - 1;
+                                        q.explanationText = explanation;
+                                    }
                                 }
+                                q.options = options.ToArray();
                             }
-                            q.options = options.ToArray();
                         }
-                    }   
 
-                    questionList.Add(q);
+                        questionList.Add(q);
+                    }
                 }
-            }
 
-            // Step 4: Mark selected as used
-            foreach (int qid in selectedIds)
-            {
-                using (var updateCmd = connection.CreateCommand())
+                // Step 4: Mark selected as used
+                foreach (int qid in selectedIds)
                 {
-                    updateCmd.CommandText = "UPDATE Questions SET Is_Used = 1 WHERE Question_ID = @qid";
-                    updateCmd.Parameters.AddWithValue("@qid", qid);
-                    updateCmd.ExecuteNonQuery();
+                    using (var updateCmd = connection.CreateCommand())
+                    {
+                        updateCmd.CommandText = "UPDATE Questions SET Is_Used = 1 WHERE Question_ID = @qid";
+                        updateCmd.Parameters.AddWithValue("@qid", qid);
+                        updateCmd.ExecuteNonQuery();
+                    }
                 }
             }
         }
-    }
 
-    return questionList;
-}   
+        return questionList;
+    }
 
     public MultipleChoice.MultipleChoiceQuestions GetRandomUnusedQuestion(int quizId)
     {
@@ -1062,6 +1071,129 @@ public class DatabaseManager : MonoBehaviour
 
         return q;
     }
+    public List<ItemData> GetAllItems()
+    {
+        List<ItemData> items = new List<ItemData>();
 
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT Item_ID, Item_Name, Item_Type, Price, Sprite_Path FROM Items";
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        items.Add(new ItemData
+                        {
+                            ItemId = reader.GetInt32(0),
+                            Name = reader.GetString(1),
+                            Type = reader.GetString(2),
+                            Price = reader.GetInt32(3),
+                            SpritePath = reader.GetString(4)
+                        });
+                    }
+                }
+            }
+        }
 
+        return items;
+    }
+
+    // Fetch user-owned items
+    public List<ItemData> GetUserItems(int userId)
+    {
+        List<ItemData> items = new List<ItemData>();
+
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = @"
+                SELECT i.Item_ID, i.Item_Name, i.Item_Type, i.Price, i.Sprite_Path
+                FROM Items i
+                JOIN User_Items ui ON i.Item_ID = ui.Item_ID
+                WHERE ui.User_ID = @uid";
+                cmd.Parameters.AddWithValue("@uid", userId);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        items.Add(new ItemData
+                        {
+                            ItemId = reader.GetInt32(0),
+                            Name = reader.GetString(1),
+                            Type = reader.GetString(2),
+                            Price = reader.GetInt32(3),
+                            SpritePath = reader.GetString(4)
+                        });
+                    }
+                }
+            }
+        }
+
+        return items;
+    }
+
+    // Purchase item (deduct coins + insert into User_Items)
+    public bool PurchaseItem(int userId, int itemId)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+            using (var trans = conn.BeginTransaction())
+            {
+                // 1. Check user coins & item price
+                int coins = 0, price = 0;
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.Transaction = trans;
+                    cmd.CommandText = "SELECT coins FROM users WHERE id = @uid";
+                    cmd.Parameters.AddWithValue("@uid", userId);
+                    coins = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.Transaction = trans;
+                    cmd.CommandText = "SELECT Price FROM Items WHERE Item_ID = @iid";
+                    cmd.Parameters.AddWithValue("@iid", itemId);
+                    price = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+
+                if (coins < price)
+                {
+                    Debug.LogWarning("Not enough coins to purchase item.");
+                    return false;
+                }
+
+                // 2. Deduct coins
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.Transaction = trans;
+                    cmd.CommandText = "UPDATE users SET coins = coins - @price WHERE id = @uid";
+                    cmd.Parameters.AddWithValue("@price", price);
+                    cmd.Parameters.AddWithValue("@uid", userId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                // 3. Add item to User_Items
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.Transaction = trans;
+                    cmd.CommandText = "INSERT INTO User_Items (User_ID, Item_ID) VALUES (@uid, @iid)";
+                    cmd.Parameters.AddWithValue("@uid", userId);
+                    cmd.Parameters.AddWithValue("@iid", itemId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                trans.Commit();
+            }
+        }
+
+        Debug.Log("Item purchased successfully!");
+        return true;
+    }
 }
