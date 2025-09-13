@@ -6,15 +6,28 @@ using System.Collections.Generic;
 public class RocketAsteroidGame : MonoBehaviour
 {
     [Header("UI Elements")]
-    public Slider energyMeter;
+    public Slider fuelMeter;
+    public Slider lifeMeter;
+    public Slider progressMeter;
     public Text scoreText;
-    public GameObject[] hearts;
     public Text waveText;
 
     [Header("Player Rocket")]
     public RectTransform rocket;
     public float rocketMoveSpeed = 600f;
     public RectTransform rocketCatchZone;
+
+    [Header("NEW: Rocket Sprites for Different Life States")]
+    [Tooltip("Rocket sprite when life is full/high (75-100%)")]
+    public Sprite rocketHealthySprite;
+    [Tooltip("Rocket sprite when life is medium (50-75%)")]
+    public Sprite rocketDamagedSprite;
+    [Tooltip("Rocket sprite when life is low (25-50%)")]
+    public Sprite rocketBadlyDamagedSprite;
+    [Tooltip("Rocket sprite when life is critical (0-25%)")]
+    public Sprite rocketCriticalSprite;
+
+    public Image rocketImage;
 
     [Header("Game Area")]
     public RectTransform gameArea;
@@ -35,10 +48,45 @@ public class RocketAsteroidGame : MonoBehaviour
     [Header("Game Settings")]
     public float fallDuration = 4f;
     public float spawnInterval = 1.5f;
-    public int maxEnergyPoints = 100;
-    public int deviceEnergyValue = 10;
+    public int asteroidMinHealth = 2;
     public int asteroidMaxHealth = 3;
     public int targetScore = 100;
+
+    [Header("NEW: Animation Settings")]
+    [Tooltip("Animation curves for smooth transitions")]
+    public AnimationCurve easeCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+    [Tooltip("Falling animation curve for objects")]
+    public AnimationCurve fallCurve = new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(1f, 1f, 2f, 2f));
+    [Tooltip("Enable smooth rocket movement with momentum")]
+    public bool enableSmoothRocketMovement = true;
+    [Tooltip("Rocket movement acceleration")]
+    public float rocketAcceleration = 1200f;
+    [Tooltip("Rocket movement drag")]
+    public float rocketDrag = 8f;
+    [Tooltip("Rocket tilt angle when moving")]
+    public float rocketTiltAngle = 15f;
+    [Tooltip("Enable rotating asteroids")]
+    public bool enableRotatingAsteroids = true;
+    [Tooltip("Asteroid rotation speed range")]
+    public Vector2 asteroidRotationSpeed = new Vector2(30f, 120f);
+
+    [Header("NEW: Fuel System")]
+    [Tooltip("Maximum fuel capacity")]
+    public float maxFuel = 100f;
+    [Tooltip("How much fuel decreases per second during gameplay (calculated to last exactly 60 seconds)")]
+    public float fuelConsumptionRate = 3.3333f;
+    [Tooltip("How many asteroids need to be destroyed to refill fuel")]
+    public int asteroidsForFuelRefill = 5;
+    [Tooltip("How many devices need to be caught to refill fuel")]
+    public int devicesForFuelRefill = 3;
+    [Tooltip("Amount of fuel restored when refill conditions are met")]
+    public float fuelRefillAmount = 15f;
+
+    [Header("NEW: Life System")]
+    [Tooltip("Maximum life capacity")]
+    public float maxLife = 100f;
+    [Tooltip("Life lost when answering question incorrectly after asteroid hit")]
+    public float lifeLossOnWrongAnswer = 20f;
 
     [Header("Configurable Scoring")]
     [Tooltip("Points gained for destroying an asteroid")]
@@ -77,10 +125,10 @@ public class RocketAsteroidGame : MonoBehaviour
     public Button[] answerButtons;
     public Text[] answerTexts;
     public Image[] answerButtonImages;
+    [Tooltip("Points gained for correct answer after asteroid hit")]
     public int correctAnswerPoints = 15;
+    [Tooltip("Points lost for wrong answer (life is also lost)")]
     public int wrongAnswerPenalty = -5;
-    public int asteroidsNeededForQuestion = 7;
-    public int devicesNeededForQuestion = 3;
 
     [Header("Dynamic Difficulty System")]
     [Tooltip("How much faster asteroids fall after wrong answers (multiplier)")]
@@ -109,15 +157,18 @@ public class RocketAsteroidGame : MonoBehaviour
     public Text pauseText;
 
     [Header("Game State")]
-    private int currentHealth = 3;
+    private float currentFuel = 100f;
+    private float currentLife = 100f;
     private int score = 0;
-    private int energyPoints = 0;
     private int asteroidsDestroyed = 0;
     private int devicesCaught = 0;
+    private int asteroidsFuelCounter = 0;
+    private int devicesFuelCounter = 0;
     private List<GameObject> activeObjects = new List<GameObject>();
     private bool isGameActive = false;
     private bool isInvulnerable = false;
     private bool isQuestionActive = false;
+    private bool isWaitingForQuestionAnswer = false;
     private float invulnerabilityTime = 1.0f;
     private Vector2 originalRocketPosition;
 
@@ -134,7 +185,13 @@ public class RocketAsteroidGame : MonoBehaviour
     private Dictionary<GameObject, int> asteroidHealthDict = new Dictionary<GameObject, int>();
     private Dictionary<GameObject, float> asteroidTimeDict = new Dictionary<GameObject, float>();
     private Dictionary<GameObject, Vector2> asteroidStartPosDict = new Dictionary<GameObject, Vector2>();
+    private Dictionary<GameObject, float> asteroidRotationSpeedDict = new Dictionary<GameObject, float>();
     private Vector2 catchZoneOffset;
+
+    // Enhanced rocket movement
+    private Vector2 rocketVelocity = Vector2.zero;
+    private float currentRocketTilt = 0f;
+    private float targetRocketTilt = 0f;
 
     // Dynamic difficulty variables
     private float currentDifficultyMultiplier = 1f;
@@ -147,20 +204,30 @@ public class RocketAsteroidGame : MonoBehaviour
     private float baseSpawnInterval;
     private float baseFollowStrength;
 
-    // NEW: Pause system variables
+    // Pause system variables
     private bool isGamePaused = false;
     private bool wasPausedBeforeQuestion = false;
     private float pausedTimeScale = 0f;
 
+    // Animation tracking
+    private Dictionary<GameObject, Coroutine> activeAnimations = new Dictionary<GameObject, Coroutine>();
+
     public DatabaseManager dbManager;
     public int quizId = 12;
     private MultipleChoice.MultipleChoiceQuestions currentQuestion;
+
+    private bool isProcessingQuestion = false;
+    private Coroutine currentQuestionCoroutine = null;
+
 
     [Header("Sound Effects")]
     public AudioClip passed;
     public AudioClip failed;
     public AudioClip correct;
     public AudioClip wrong;
+    public AudioClip fuelLow;
+    public AudioClip fuelRefill;
+    public AudioClip lifeLow;
 
     [System.Serializable]
     public class GameQuestion
@@ -169,6 +236,7 @@ public class RocketAsteroidGame : MonoBehaviour
         public string[] answers = new string[4];
         public int correctAnswerIndex;
     }
+
     void Start()
     {
         Debug.Log("=== ROCKET ASTEROID GAME STARTED ===");
@@ -191,7 +259,6 @@ public class RocketAsteroidGame : MonoBehaviour
         victoryPanel.SetActive(false);
         questionPanel.SetActive(false);
 
-        // NEW: Initialize pause system
         InitializePauseSystem();
 
         for (int i = 0; i < answerButtons.Length; i++)
@@ -211,47 +278,38 @@ public class RocketAsteroidGame : MonoBehaviour
         }
     }
 
-    // NEW: Initialize pause system UI
     void InitializePauseSystem()
     {
-        // Hide pause elements initially
         if (settingsModal != null)
             settingsModal.SetActive(false);
 
         if (pauseOverlay != null)
             pauseOverlay.SetActive(false);
 
-        // Setup pause button
         if (pauseButton != null)
         {
             pauseButton.onClick.AddListener(PauseGame);
         }
 
-        // Setup resume button
         if (resumeButton != null)
         {
             resumeButton.onClick.AddListener(ResumeGame);
         }
 
-        // Update pause text
         if (pauseText != null)
         {
             pauseText.gameObject.SetActive(false);
         }
     }
 
-    // NEW: Pause the game
     public void PauseGame()
     {
         if (!isGameActive || isGamePaused) return;
 
         Debug.Log("Game Paused");
         isGamePaused = true;
-
-        // Store whether we were in a question before pausing
         wasPausedBeforeQuestion = isQuestionActive;
 
-        // Show pause UI
         if (settingsModal != null)
             settingsModal.SetActive(true);
 
@@ -264,13 +322,10 @@ public class RocketAsteroidGame : MonoBehaviour
             pauseText.text = "PAUSED";
         }
 
-        // Optionally reduce time scale for dramatic effect
         Time.timeScale = 0.1f;
-
-        UpdateWaveDisplay(); // Update UI to show pause status
+        UpdateWaveDisplay();
     }
 
-    // NEW: Resume the game
     public void ResumeGame()
     {
         if (!isGamePaused) return;
@@ -278,7 +333,6 @@ public class RocketAsteroidGame : MonoBehaviour
         Debug.Log("Game Resumed");
         isGamePaused = false;
 
-        // Hide pause UI
         if (settingsModal != null)
             settingsModal.SetActive(false);
 
@@ -290,13 +344,10 @@ public class RocketAsteroidGame : MonoBehaviour
             pauseText.gameObject.SetActive(false);
         }
 
-        // Restore time scale
         Time.timeScale = 1f;
-
-        UpdateWaveDisplay(); // Update UI to remove pause status
+        UpdateWaveDisplay();
     }
 
-    // NEW: Toggle pause (useful for keyboard input)
     public void TogglePause()
     {
         if (isGamePaused)
@@ -318,34 +369,134 @@ public class RocketAsteroidGame : MonoBehaviour
         gameUI.SetActive(true);
         isGameActive = true;
         isInvulnerable = false;
-        isQuestionActive = false;
-        isGamePaused = false; // NEW: Ensure game is not paused when starting
+
+        // IMPORTANT: Reset all question states
+        ResetQuestionStates();
+
+        isGamePaused = false;
         asteroidsDestroyed = 0;
         devicesCaught = 0;
+        asteroidsFuelCounter = 0;
+        devicesFuelCounter = 0;
 
-        // Reset difficulty
+        // Reset rocket movement
+        currentRocketTilt = 0f;
+        targetRocketTilt = 0f;
+
+        currentFuel = maxFuel;
+        currentLife = maxLife;
+
         ResetDifficulty();
 
-        if (energyMeter != null)
+        if (fuelMeter != null)
         {
-            energyMeter.minValue = 0;
-            energyMeter.maxValue = targetScore; // Changed from maxEnergyPoints to targetScore
-            energyMeter.value = 0;
+            fuelMeter.minValue = 0;
+            fuelMeter.maxValue = maxFuel;
+            fuelMeter.value = currentFuel;
         }
 
-        UpdateHealthDisplay();
+        if (lifeMeter != null)
+        {
+            lifeMeter.minValue = 0;
+            lifeMeter.maxValue = maxLife;
+            lifeMeter.value = currentLife;
+        }
+
+        if (progressMeter != null)
+        {
+            progressMeter.minValue = 0;
+            progressMeter.maxValue = targetScore;
+            progressMeter.value = score;
+        }
+
+        // Ensure question panel is hidden
+        if (questionPanel != null)
+        {
+            questionPanel.SetActive(false);
+        }
+
+        UpdateRocketSprite();
         UpdateScore();
         UpdateWaveDisplay();
         StartCoroutine(SpawnObjects());
         StartCoroutine(ManageDifficulty());
+        StartCoroutine(ManageFuelConsumption());
     }
 
-    // Difficulty management coroutine
+    IEnumerator ManageFuelConsumption()
+    {
+        bool lowFuelWarningPlayed = false;
+
+        while (isGameActive)
+        {
+            if (!isGamePaused && !isQuestionActive)
+            {
+                currentFuel -= fuelConsumptionRate * Time.deltaTime;
+                currentFuel = Mathf.Clamp(currentFuel, 0f, maxFuel);
+
+                UpdateFuelMeter();
+
+                if (currentFuel <= maxFuel * 0.2f && !lowFuelWarningPlayed)
+                {
+                    if (fuelLow != null)
+                        AudioManager.Instance.PlaySFX(fuelLow);
+                    lowFuelWarningPlayed = true;
+                    StartCoroutine(LowFuelWarning());
+                }
+
+                if (currentFuel > maxFuel * 0.3f)
+                {
+                    lowFuelWarningPlayed = false;
+                }
+
+                if (currentFuel <= 0f)
+                {
+                    Debug.Log("Game Over: Fuel depleted!");
+                    GameOver();
+                    yield break;
+                }
+            }
+
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    IEnumerator LowFuelWarning()
+    {
+        Image fuelFill = fuelMeter.fillRect?.GetComponent<Image>();
+        if (fuelFill == null) yield break;
+
+        Color originalColor = fuelFill.color;
+
+        for (int i = 0; i < 5; i++)
+        {
+            fuelFill.color = Color.red;
+            yield return new WaitForSeconds(0.2f);
+            fuelFill.color = originalColor;
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+
+    IEnumerator LowLifeWarning()
+    {
+        Image lifeFill = lifeMeter.fillRect?.GetComponent<Image>();
+        if (lifeFill == null) yield break;
+
+        Color originalColor = lifeFill.color;
+
+        for (int i = 0; i < 3; i++)
+        {
+            lifeFill.color = Color.red;
+            yield return new WaitForSeconds(0.3f);
+            lifeFill.color = originalColor;
+            yield return new WaitForSeconds(0.3f);
+        }
+    }
+
     IEnumerator ManageDifficulty()
     {
         while (isGameActive)
         {
-            // NEW: Skip difficulty management when paused
             if (!isGamePaused && isDifficultyActive && Time.time >= difficultyEndTime)
             {
                 ResetDifficulty();
@@ -355,12 +506,10 @@ public class RocketAsteroidGame : MonoBehaviour
         }
     }
 
-    // Apply difficulty increase
     void ApplyDifficultyIncrease()
     {
         consecutiveWrongAnswers++;
 
-        // Calculate difficulty multiplier based on consecutive wrong answers
         float additionalMultiplier = enableConsecutiveWrongPunishment ?
             1f + (consecutiveWrongAnswers - 1) * 0.3f : 1f;
 
@@ -369,7 +518,6 @@ public class RocketAsteroidGame : MonoBehaviour
             maxDifficultyMultiplier
         );
 
-        // Apply the difficulty changes
         fallDuration = baseFallDuration / currentDifficultyMultiplier;
         spawnInterval = baseSpawnInterval * wrongAnswerSpawnMultiplier / currentDifficultyMultiplier;
 
@@ -382,13 +530,9 @@ public class RocketAsteroidGame : MonoBehaviour
         difficultyEndTime = Time.time + difficultyDuration;
 
         Debug.Log($"Difficulty increased! Multiplier: {currentDifficultyMultiplier:F2}, Consecutive wrong: {consecutiveWrongAnswers}");
-        Debug.Log($"New fall duration: {fallDuration:F2}s, spawn interval: {spawnInterval:F2}s, follow strength: {followStrength:F2}");
-
-        // Visual feedback for difficulty increase
         StartCoroutine(ShowDifficultyIncreaseEffect());
     }
 
-    // Reset difficulty to normal
     void ResetDifficulty()
     {
         currentDifficultyMultiplier = 1f;
@@ -398,7 +542,6 @@ public class RocketAsteroidGame : MonoBehaviour
         isDifficultyActive = false;
     }
 
-    // Visual effect when difficulty increases
     IEnumerator ShowDifficultyIncreaseEffect()
     {
         Image gameAreaImage = gameArea.GetComponent<Image>();
@@ -406,7 +549,6 @@ public class RocketAsteroidGame : MonoBehaviour
         {
             Color originalColor = gameAreaImage.color;
 
-            // Flash red to indicate danger
             for (int i = 0; i < 3; i++)
             {
                 gameAreaImage.color = new Color(1f, 0f, 0f, 0.4f);
@@ -419,13 +561,16 @@ public class RocketAsteroidGame : MonoBehaviour
 
     void Update()
     {
-        // NEW: Don't update game logic when paused
         if (!isGameActive || isGamePaused) return;
 
-        // Also skip if question is active (unless we were paused before the question)
+        // Debug question state periodically
+        if (Time.frameCount % 300 == 0) // Every 5 seconds at 60fps
+        {
+            Debug.Log($"Game State - isQuestionActive: {isQuestionActive}, isWaitingForQuestionAnswer: {isWaitingForQuestionAnswer}, questionPanel active: {questionPanel != null && questionPanel.activeSelf}");
+        }
+
         if (isQuestionActive && !wasPausedBeforeQuestion) return;
 
-        // NEW: Handle pause input (ESC key or P key)
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
         {
             TogglePause();
@@ -437,7 +582,6 @@ public class RocketAsteroidGame : MonoBehaviour
         CheckCollisions();
         UpdateBullets();
     }
-
     void HandleRocketMovement()
     {
         float move = Input.GetAxis("Horizontal");
@@ -453,14 +597,39 @@ public class RocketAsteroidGame : MonoBehaviour
                 Vector2 localPos;
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(
                     gameArea, touchPos, null, out localPos);
+
+                // Direct movement - no smooth acceleration
                 newRocketPos = new Vector2(localPos.x, newRocketPos.y);
             }
         }
         else if (move != 0)
         {
+            // Direct keyboard movement
             newRocketPos.x += move * rocketMoveSpeed * Time.deltaTime;
+
+            // Optional: Keep tilt for keyboard input only
+            if (enableSmoothRocketMovement)
+            {
+                targetRocketTilt = -move * rocketTiltAngle;
+                currentRocketTilt = Mathf.LerpAngle(currentRocketTilt, targetRocketTilt, Time.deltaTime * 5f);
+
+                Vector3 currentRotation = rocket.localEulerAngles;
+                currentRotation.z = currentRocketTilt;
+                rocket.localEulerAngles = currentRotation;
+            }
+        }
+        else if (enableSmoothRocketMovement)
+        {
+            // Reset tilt when no input
+            targetRocketTilt = 0f;
+            currentRocketTilt = Mathf.LerpAngle(currentRocketTilt, targetRocketTilt, Time.deltaTime * 5f);
+
+            Vector3 currentRotation = rocket.localEulerAngles;
+            currentRotation.z = currentRocketTilt;
+            rocket.localEulerAngles = currentRotation;
         }
 
+        // Apply position changes and clamp
         if (move != 0 || Input.touchCount > 0)
         {
             float halfWidth = gameArea.rect.width / 2f;
@@ -520,10 +689,36 @@ public class RocketAsteroidGame : MonoBehaviour
         }
 
         bulletRect.anchoredPosition = spawnPosition;
+
+        // NEW: Animate bullet spawn
+        bulletRect.localScale = Vector3.zero;
+        StartCoroutine(AnimateBulletSpawn(bulletRect));
+
         bullet.SetActive(true);
 
         activeBullets.Add(bullet);
         StartCoroutine(MoveBullet(bulletRect, bullet));
+    }
+
+    // NEW: Smooth bullet spawn animation
+    IEnumerator AnimateBulletSpawn(RectTransform bulletRect)
+    {
+        if (bulletRect == null) yield break;
+
+        float duration = 0.1f;
+        float elapsed = 0f;
+
+        while (elapsed < duration && bulletRect != null)
+        {
+            float t = elapsed / duration;
+            float scale = easeCurve.Evaluate(t);
+            bulletRect.localScale = Vector3.one * scale;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (bulletRect != null)
+            bulletRect.localScale = Vector3.one;
     }
 
     IEnumerator MoveBullet(RectTransform bulletRect, GameObject bulletObj)
@@ -533,7 +728,6 @@ public class RocketAsteroidGame : MonoBehaviour
         float timeAlive = 0f;
         while (bulletObj != null && bulletRect != null && timeAlive < 5f)
         {
-            // NEW: Pause bullet movement when game is paused
             if (isGamePaused)
             {
                 yield return null;
@@ -571,7 +765,6 @@ public class RocketAsteroidGame : MonoBehaviour
     {
         while (isGameActive)
         {
-            // NEW: Don't spawn when paused or during questions (unless paused before question)
             if (isGamePaused || (isQuestionActive && !wasPausedBeforeQuestion))
             {
                 yield return new WaitForSeconds(0.1f);
@@ -579,7 +772,7 @@ public class RocketAsteroidGame : MonoBehaviour
             }
 
             SpawnSingleObject();
-            yield return new WaitForSeconds(spawnInterval); // This now uses the modified spawn interval
+            yield return new WaitForSeconds(spawnInterval);
         }
     }
 
@@ -609,12 +802,22 @@ public class RocketAsteroidGame : MonoBehaviour
     {
         GameObject newObject = Instantiate(prefab, gameArea);
 
-        // Track object data
         isAsteroidDict[newObject] = isAsteroid;
         if (isAsteroid)
         {
-            asteroidHealthDict[newObject] = asteroidMaxHealth;
+            int randomHealth = Random.Range(asteroidMinHealth, asteroidMaxHealth + 1);
+            asteroidHealthDict[newObject] = randomHealth;
             asteroidTimeDict[newObject] = 0f;
+
+            // NEW: Add rotation speed for asteroids
+            if (enableRotatingAsteroids)
+            {
+                float rotSpeed = Random.Range(asteroidRotationSpeed.x, asteroidRotationSpeed.y);
+                if (Random.value < 0.5f) rotSpeed = -rotSpeed; // Random direction
+                asteroidRotationSpeedDict[newObject] = rotSpeed;
+            }
+
+            Debug.Log($"Spawned asteroid with {randomHealth} health");
         }
 
         RectTransform objectRect = newObject.GetComponent<RectTransform>();
@@ -629,7 +832,42 @@ public class RocketAsteroidGame : MonoBehaviour
 
         activeObjects.Add(newObject);
 
-        StartCoroutine(AnimateObjectFalling(objectRect, newObject));
+        // NEW: Smooth spawn animation
+        StartCoroutine(AnimateObjectSpawn(objectRect, newObject, isAsteroid));
+    }
+
+    // NEW: Smooth object spawn animation
+    IEnumerator AnimateObjectSpawn(RectTransform objectRect, GameObject objectObj, bool isAsteroid)
+    {
+        if (objectRect == null || objectObj == null) yield break;
+
+        // Start small and grow
+        Vector3 targetScale = objectRect.localScale;
+        objectRect.localScale = Vector3.zero;
+
+        float growDuration = 0.3f;
+        float elapsed = 0f;
+
+        while (elapsed < growDuration && objectObj != null && objectRect != null)
+        {
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
+            float t = elapsed / growDuration;
+            float scale = easeCurve.Evaluate(t);
+            objectRect.localScale = targetScale * scale;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (objectRect != null)
+            objectRect.localScale = targetScale;
+
+        // Start the falling animation
+        StartCoroutine(AnimateObjectFalling(objectRect, objectObj));
     }
 
     IEnumerator AnimateObjectFalling(RectTransform objectRect, GameObject objectObj)
@@ -640,28 +878,26 @@ public class RocketAsteroidGame : MonoBehaviour
         float elapsedTime = 0f;
         bool isAsteroid = isAsteroidDict.ContainsKey(objectObj) ? isAsteroidDict[objectObj] : false;
 
-        // Use current fall duration (which may be modified by difficulty)
         float currentFallDuration = fallDuration;
 
         while (elapsedTime < currentFallDuration && objectObj != null && objectRect != null)
         {
-            // NEW: Pause object movement when game is paused or during questions
             if (isGamePaused || (isQuestionActive && !wasPausedBeforeQuestion))
             {
                 yield return null;
                 continue;
             }
 
+            // NEW: Use animation curve for smoother falling
             float t = elapsedTime / currentFallDuration;
-            float currentY = Mathf.Lerp(startY, endY, t);
+            float curveT = fallCurve.Evaluate(t);
+            float currentY = Mathf.Lerp(startY, endY, curveT);
             float currentX = startPos.x;
 
-            // Enhanced movement for asteroids
             if (isAsteroid && asteroidTimeDict.ContainsKey(objectObj))
             {
                 asteroidTimeDict[objectObj] = elapsedTime;
 
-                // Zigzag movement (more intense during difficulty)
                 if (enableZigzagMovement)
                 {
                     float zigzagIntensity = isDifficultyActive ? zigzagAmplitude * 1.3f : zigzagAmplitude;
@@ -670,16 +906,23 @@ public class RocketAsteroidGame : MonoBehaviour
                     currentX += zigzagOffset;
                 }
 
-                // Player following (stronger during difficulty)
                 if (enablePlayerFollowing && rocket != null)
                 {
                     float rocketX = rocket.anchoredPosition.x;
-                    float currentFollowStrength = followStrength; // This uses the modified follow strength
+                    float currentFollowStrength = followStrength;
                     float directionToPlayer = (rocketX - currentX) * currentFollowStrength * t;
                     currentX += directionToPlayer * Time.deltaTime;
                 }
 
-                // Keep within bounds
+                // NEW: Rotate asteroids
+                if (enableRotatingAsteroids && asteroidRotationSpeedDict.ContainsKey(objectObj))
+                {
+                    float rotSpeed = asteroidRotationSpeedDict[objectObj];
+                    Vector3 currentRotation = objectRect.localEulerAngles;
+                    currentRotation.z += rotSpeed * Time.deltaTime;
+                    objectRect.localEulerAngles = currentRotation;
+                }
+
                 float halfWidth = gameArea.rect.width / 2f - 50f;
                 currentX = Mathf.Clamp(currentX, -halfWidth, halfWidth);
             }
@@ -709,6 +952,14 @@ public class RocketAsteroidGame : MonoBehaviour
             asteroidTimeDict.Remove(obj);
         if (asteroidStartPosDict.ContainsKey(obj))
             asteroidStartPosDict.Remove(obj);
+        if (asteroidRotationSpeedDict.ContainsKey(obj))
+            asteroidRotationSpeedDict.Remove(obj);
+        if (activeAnimations.ContainsKey(obj))
+        {
+            if (activeAnimations[obj] != null)
+                StopCoroutine(activeAnimations[obj]);
+            activeAnimations.Remove(obj);
+        }
     }
 
     void CheckCollisions()
@@ -721,6 +972,8 @@ public class RocketAsteroidGame : MonoBehaviour
 
     void CheckRocketCollisions()
     {
+        if (rocket == null) return;
+
         Vector2 rocketPos = rocket.anchoredPosition;
         Vector2 catchPos = rocketCatchZone != null ? rocketCatchZone.anchoredPosition : rocketPos;
         float catchRadius = rocketCatchZone != null ? rocketCatchZone.rect.width / 2 : rocket.rect.width / 2;
@@ -728,17 +981,28 @@ public class RocketAsteroidGame : MonoBehaviour
         for (int i = activeObjects.Count - 1; i >= 0; i--)
         {
             GameObject obj = activeObjects[i];
-            if (obj == null || !isAsteroidDict.ContainsKey(obj))
+
+            // Enhanced null checks
+            if (obj == null)
             {
-                if (obj != null && activeObjects.Count > i)
-                {
-                    activeObjects.RemoveAt(i);
-                }
+                activeObjects.RemoveAt(i);
+                continue;
+            }
+
+            // Check if object still exists and has required components
+            if (!isAsteroidDict.ContainsKey(obj))
+            {
+                activeObjects.RemoveAt(i);
                 continue;
             }
 
             RectTransform objectRect = obj.GetComponent<RectTransform>();
-            if (objectRect == null) continue;
+            if (objectRect == null)
+            {
+                activeObjects.RemoveAt(i);
+                RemoveObjectData(obj);
+                continue;
+            }
 
             Vector2 objectPos = objectRect.anchoredPosition;
             float distance = Vector2.Distance(catchPos, objectPos);
@@ -749,20 +1013,14 @@ public class RocketAsteroidGame : MonoBehaviour
 
                 if (isAsteroid)
                 {
-                    if (!isInvulnerable)
-                    {
-                        StartCoroutine(ProcessAsteroidHit(obj));
-                    }
+                    StartCoroutine(ProcessAsteroidHit(obj));
                 }
                 else
                 {
                     StartCoroutine(ProcessDeviceCatch(obj));
                 }
 
-                if (activeObjects.Count > i)
-                {
-                    activeObjects.RemoveAt(i);
-                }
+                activeObjects.RemoveAt(i);
                 break;
             }
         }
@@ -780,22 +1038,39 @@ public class RocketAsteroidGame : MonoBehaviour
             }
 
             RectTransform bulletRect = bullet.GetComponent<RectTransform>();
+            if (bulletRect == null)
+            {
+                activeBullets.RemoveAt(b);
+                if (bullet != null) Destroy(bullet);
+                continue;
+            }
+
             Vector2 bulletPos = bulletRect.anchoredPosition;
 
             for (int i = activeObjects.Count - 1; i >= 0; i--)
             {
                 GameObject obj = activeObjects[i];
-                if (obj == null || !isAsteroidDict.ContainsKey(obj))
+
+                // Enhanced null checks
+                if (obj == null)
                 {
-                    if (obj != null && activeObjects.Count > i)
-                    {
-                        activeObjects.RemoveAt(i);
-                    }
+                    activeObjects.RemoveAt(i);
+                    continue;
+                }
+
+                if (!isAsteroidDict.ContainsKey(obj))
+                {
+                    activeObjects.RemoveAt(i);
                     continue;
                 }
 
                 RectTransform objectRect = obj.GetComponent<RectTransform>();
-                if (objectRect == null) continue;
+                if (objectRect == null)
+                {
+                    activeObjects.RemoveAt(i);
+                    RemoveObjectData(obj);
+                    continue;
+                }
 
                 Vector2 objectPos = objectRect.anchoredPosition;
                 float distance = Vector2.Distance(bulletPos, objectPos);
@@ -806,31 +1081,30 @@ public class RocketAsteroidGame : MonoBehaviour
 
                     if (isAsteroid)
                     {
-                        // Damage asteroid
-                        int currentHealth = asteroidHealthDict[obj];
-                        currentHealth--;
-                        asteroidHealthDict[obj] = currentHealth;
+                        if (asteroidHealthDict.ContainsKey(obj))
+                        {
+                            int currentHealth = asteroidHealthDict[obj];
+                            currentHealth--;
+                            asteroidHealthDict[obj] = currentHealth;
 
-                        if (currentHealth <= 0)
-                        {
-                            // Asteroid destroyed
-                            ProcessAsteroidDestroyed();
-                            if (activeObjects.Count > i)
+                            if (currentHealth <= 0)
                             {
+                                ProcessAsteroidDestroyed();
                                 activeObjects.RemoveAt(i);
+                                RemoveObjectData(obj);
+                                StartCoroutine(AnimateAsteroidDestruction(obj));
+                                Debug.Log("Asteroid destroyed by bullet!");
                             }
-                            RemoveObjectData(obj);
-                            Destroy(obj);
-                        }
-                        else
-                        {
-                            // Show damage feedback
-                            StartCoroutine(ShowAsteroidDamage(obj));
+                            else
+                            {
+                                StartCoroutine(ShowEnhancedAsteroidDamage(obj));
+                                Debug.Log($"Asteroid hit! Health remaining: {currentHealth}");
+                            }
                         }
 
                         activeBullets.RemoveAt(b);
-                        Destroy(bullet);
-                        StartCoroutine(ShowExplosionEffect());
+                        StartCoroutine(AnimateBulletDestruction(bullet));
+                        StartCoroutine(ShowEnhancedExplosionEffect(objectPos));
                         return;
                     }
                 }
@@ -838,84 +1112,602 @@ public class RocketAsteroidGame : MonoBehaviour
         }
     }
 
-    IEnumerator ShowAsteroidDamage(GameObject asteroid)
+    // NEW: Enhanced asteroid damage animation
+    IEnumerator ShowEnhancedAsteroidDamage(GameObject asteroid)
     {
-        Image asteroidImage = asteroid.GetComponent<Image>();
-        if (asteroidImage != null)
+        if (asteroid == null) yield break;
+
+        RectTransform rect = asteroid.GetComponent<RectTransform>();
+        Image img = asteroid.GetComponent<Image>();
+
+        if (rect == null || img == null) yield break;
+
+        Vector3 originalScale = rect.localScale;
+        Color originalColor = img.color;
+        Vector3 originalRotation = rect.localEulerAngles;
+
+        // Scale punch effect
+        float punchDuration = 0.15f;
+        float elapsed = 0f;
+
+        while (elapsed < punchDuration)
         {
-            Color originalColor = asteroidImage.color;
-            asteroidImage.color = Color.red;
-            yield return new WaitForSeconds(0.2f);
-            if (asteroidImage != null)
+            if (isGamePaused)
             {
-                asteroidImage.color = originalColor;
+                yield return null;
+                continue;
+            }
+
+            float t = elapsed / punchDuration;
+
+            // Scale animation - punch out then back
+            float scaleT = t < 0.5f ? t * 2f : (1f - t) * 2f;
+            float currentScale = 1f + (0.3f * easeCurve.Evaluate(scaleT));
+            rect.localScale = originalScale * currentScale;
+
+            // Rotation shake
+            float shakeAngle = Mathf.Sin(t * Mathf.PI * 8f) * 10f * (1f - t);
+            Vector3 newRotation = originalRotation;
+            newRotation.z += shakeAngle;
+            rect.localEulerAngles = newRotation;
+
+            // Color flash
+            Color flashColor = Color.Lerp(Color.red, originalColor, t);
+            img.color = flashColor;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Reset to slightly damaged appearance
+        if (asteroid != null && rect != null && img != null)
+        {
+            rect.localScale = originalScale;
+            rect.localEulerAngles = originalRotation;
+            Color damagedColor = originalColor * 0.8f;
+            damagedColor.a = originalColor.a;
+            img.color = damagedColor;
+        }
+    }
+
+    // NEW: Enhanced asteroid destruction animation
+    IEnumerator AnimateAsteroidDestruction(GameObject asteroid)
+    {
+        if (asteroid == null) yield break;
+
+        RectTransform rect = asteroid.GetComponent<RectTransform>();
+        Image img = asteroid.GetComponent<Image>();
+
+        if (rect == null || img == null)
+        {
+            Destroy(asteroid);
+            yield break;
+        }
+
+        Vector3 originalScale = rect.localScale;
+        Color originalColor = img.color;
+
+        float duration = 0.4f;
+        float elapsed = 0f;
+
+        while (elapsed < duration && asteroid != null)
+        {
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
+            float t = elapsed / duration;
+
+            // Scale up then shrink
+            float scaleT = t < 0.3f ? t / 0.3f : (1f - t) / 0.7f;
+            float currentScale = scaleT < 1f ? Mathf.Lerp(1f, 1.5f, scaleT) : Mathf.Lerp(1.5f, 0f, (t - 0.3f) / 0.7f);
+            rect.localScale = originalScale * currentScale;
+
+            // Fade out
+            Color fadeColor = originalColor;
+            fadeColor.a = Mathf.Lerp(originalColor.a, 0f, t);
+            img.color = fadeColor;
+
+            // Rotation
+            Vector3 rotation = rect.localEulerAngles;
+            rotation.z += 360f * Time.deltaTime;
+            rect.localEulerAngles = rotation;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (asteroid != null)
+            Destroy(asteroid);
+    }
+
+    // NEW: Enhanced bullet destruction animation
+    IEnumerator AnimateBulletDestruction(GameObject bullet)
+    {
+        if (bullet == null) yield break;
+
+        RectTransform rect = bullet.GetComponent<RectTransform>();
+        Image img = bullet.GetComponent<Image>();
+
+        if (rect == null || img == null)
+        {
+            Destroy(bullet);
+            yield break;
+        }
+
+        Vector3 originalScale = rect.localScale;
+        Color originalColor = img.color;
+
+        float duration = 0.2f;
+        float elapsed = 0f;
+
+        while (elapsed < duration && bullet != null)
+        {
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
+            float t = elapsed / duration;
+
+            // Scale up quickly
+            float scale = Mathf.Lerp(1f, 2f, t);
+            rect.localScale = originalScale * scale;
+
+            // Fade to yellow then white
+            Color flashColor = Color.Lerp(originalColor, Color.yellow, t);
+            flashColor.a = Mathf.Lerp(originalColor.a, 0f, t);
+            img.color = flashColor;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (bullet != null)
+            Destroy(bullet);
+    }
+
+    IEnumerator ProcessAsteroidHit(GameObject asteroid)
+    {
+        Debug.Log("ASTEROID HIT ROCKET - CHECKING IF CAN SHOW QUESTION!");
+
+        // Prevent multiple questions from processing simultaneously
+        if (isProcessingQuestion || isQuestionActive || isWaitingForQuestionAnswer)
+        {
+            Debug.LogWarning("Question already being processed, taking direct damage instead.");
+            if (asteroid != null)
+            {
+                RemoveObjectData(asteroid);
+                Destroy(asteroid);
+            }
+            yield return StartCoroutine(ProcessLifeLoss());
+            yield break;
+        }
+
+        isProcessingQuestion = true;
+        isWaitingForQuestionAnswer = true;
+
+        // Safe cleanup
+        if (asteroid != null)
+        {
+            RemoveObjectData(asteroid);
+            Destroy(asteroid);
+        }
+
+        StartCoroutine(EnhancedScreenShakeEffect());
+
+        // Wait a frame to ensure cleanup is complete
+        yield return new WaitForEndOfFrame();
+
+        // Try to show question, with fallback to damage
+        bool questionShown = TryShowQuestion();
+
+        if (!questionShown)
+        {
+            Debug.LogWarning("Failed to show question, taking damage instead.");
+            isProcessingQuestion = false;
+            isWaitingForQuestionAnswer = false;
+            yield return StartCoroutine(ProcessLifeLoss());
+        }
+    }
+
+
+    bool TryShowQuestion()
+    {
+        Debug.Log("ATTEMPTING TO SHOW QUESTION");
+
+        // Validate all required UI components
+        if (!ValidateQuestionUI())
+        {
+            Debug.LogError("Question UI validation failed!");
+            return false;
+        }
+
+        // Validate database manager
+        if (dbManager == null)
+        {
+            Debug.LogError("DatabaseManager is null!");
+            return false;
+        }
+
+        try
+        {
+            currentQuestion = dbManager.GetRandomUnusedQuestion(quizId);
+            Debug.Log($"Question retrieval result: {(currentQuestion != null ? "SUCCESS" : "NULL")}");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error getting question from database: {e.Message}");
+            return false;
+        }
+
+        if (currentQuestion == null)
+        {
+            Debug.LogWarning("No questions available from database!");
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(currentQuestion.question))
+        {
+            Debug.LogWarning("Question text is empty!");
+            return false;
+        }
+
+        if (currentQuestion.options == null || currentQuestion.options.Length < 2)
+        {
+            Debug.LogWarning("Question options are invalid!");
+            return false;
+        }
+
+        Debug.Log($"Successfully loaded question: {currentQuestion.question}");
+
+        // Set states
+        isQuestionActive = true;
+        wasPausedBeforeQuestion = isGamePaused;
+
+        // Setup and show UI immediately - no animation
+        SetupQuestionUI();
+        questionPanel.SetActive(true);
+
+        Debug.Log("Question panel shown successfully!");
+        return true;
+    }
+
+
+    bool ValidateQuestionUI()
+    {
+        if (questionPanel == null)
+        {
+            Debug.LogError("questionPanel is null!");
+            return false;
+        }
+
+        if (questionText == null)
+        {
+            Debug.LogError("questionText is null!");
+            return false;
+        }
+
+        if (answerButtons == null || answerButtons.Length == 0)
+        {
+            Debug.LogError("answerButtons array is null or empty!");
+            return false;
+        }
+
+        if (answerTexts == null || answerTexts.Length == 0)
+        {
+            Debug.LogError("answerTexts array is null or empty!");
+            return false;
+        }
+
+        // Check individual button components
+        for (int i = 0; i < answerButtons.Length; i++)
+        {
+            if (answerButtons[i] == null)
+            {
+                Debug.LogError($"answerButtons[{i}] is null!");
+                return false;
+            }
+
+            if (answerTexts.Length > i && answerTexts[i] == null)
+            {
+                Debug.LogError($"answerTexts[{i}] is null!");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    void SetupQuestionUI()
+    {
+        questionText.text = currentQuestion.question;
+
+        // Setup answer buttons
+        for (int i = 0; i < answerButtons.Length; i++)
+        {
+            if (i < currentQuestion.options.Length && i < answerTexts.Length)
+            {
+                answerTexts[i].text = currentQuestion.options[i];
+                answerButtons[i].interactable = true;
+                answerButtons[i].gameObject.SetActive(true);
+
+                // Reset colors
+                if (answerButtonImages != null && i < answerButtonImages.Length && answerButtonImages[i] != null)
+                {
+                    answerButtonImages[i].color = Color.white;
+                }
+            }
+            else
+            {
+                // Hide unused buttons
+                answerButtons[i].interactable = false;
+                answerButtons[i].gameObject.SetActive(false);
             }
         }
     }
 
-    // ENHANCED ASTEROID HIT ANIMATION
-    IEnumerator ProcessAsteroidHit(GameObject asteroid)
+    // Replace the ProcessAsteroidHitAnswer method
+    IEnumerator ProcessAsteroidHitAnswer(int selectedIndex)
     {
-        Debug.Log("ASTEROID HIT ROCKET!");
-
-        isInvulnerable = true;
-        currentHealth--;
-        UpdateHealthDisplay();
-
-        // Start screen shake and rocket hit animation simultaneously
-        StartCoroutine(ScreenShakeEffect());
-        StartCoroutine(RocketHitAnimation());
-
-        RemoveObjectData(asteroid);
-        Destroy(asteroid);
-
-        if (currentHealth <= 0)
+        // Disable all buttons immediately
+        for (int i = 0; i < answerButtons.Length; i++)
         {
-            GameOver();
+            if (answerButtons[i] != null)
+                answerButtons[i].interactable = false;
+        }
+
+        if (currentQuestion == null)
+        {
+            Debug.LogError("Current question is null during answer processing!");
+            yield return StartCoroutine(ForceCloseQuestion());
+            yield break;
+        }
+
+        bool isCorrect = (selectedIndex == currentQuestion.correctIndex);
+        int correctAnswerIndex = currentQuestion.correctIndex;
+
+        Debug.Log($"Answer selected: {selectedIndex}, Correct: {correctAnswerIndex}, Is Correct: {isCorrect}");
+
+        if (isCorrect)
+        {
+            Debug.Log("CORRECT ANSWER - NO LIFE LOST!");
+            score += correctAnswerPoints;
+            consecutiveWrongAnswers = 0;
+            UpdateScoreAnimated();
+            if (progressMeter != null) UpdateProgressMeterAnimated();
+
+            // Color feedback
+            SetAnswerButtonColors(selectedIndex, correctAnswerIndex, true);
+
+            if (correct != null && AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(correct);
         }
         else
         {
-            yield return new WaitForSeconds(invulnerabilityTime);
-            isInvulnerable = false;
+            Debug.Log("WRONG ANSWER - LIFE LOST!");
+            score = Mathf.Max(0, score + wrongAnswerPenalty);
+            UpdateScoreAnimated();
+            if (progressMeter != null) UpdateProgressMeterAnimated();
+            ApplyDifficultyIncrease();
+
+            // Color feedback
+            SetAnswerButtonColors(selectedIndex, correctAnswerIndex, false);
+
+            if (wrong != null && AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(wrong);
+
+            // Process life loss
+            StartCoroutine(ProcessLifeLoss());
+        }
+
+        // Wait for feedback
+        yield return new WaitForSeconds(2f);
+
+        // Close the question and reset ALL states
+        yield return StartCoroutine(CompleteQuestionSequence());
+    }
+
+    IEnumerator CompleteQuestionSequence()
+    {
+        Debug.Log("Completing question sequence...");
+
+        // Reset button colors first
+        if (answerButtonImages != null)
+        {
+            for (int i = 0; i < answerButtonImages.Length; i++)
+            {
+                if (answerButtonImages[i] != null)
+                    answerButtonImages[i].color = Color.white;
+            }
+        }
+
+        // Animate panel hide
+        if (questionPanel != null)
+        {
+            yield return StartCoroutine(SafeAnimateQuestionPanelHide());
+        }
+
+        // Reset ALL states at the end
+        ResetAllQuestionStates();
+
+        Debug.Log("Question sequence completed successfully.");
+    }
+
+    void ResetAllQuestionStates()
+    {
+        Debug.Log("Resetting ALL question states...");
+
+        // Reset ALL flags
+        isQuestionActive = false;
+        isWaitingForQuestionAnswer = false;
+        wasPausedBeforeQuestion = false;
+        isProcessingQuestion = false; // This is crucial!
+
+        currentQuestion = null;
+
+        if (currentQuestionCoroutine != null)
+        {
+            StopCoroutine(currentQuestionCoroutine);
+            currentQuestionCoroutine = null;
+        }
+
+        // Ensure UI is properly reset
+        if (questionPanel != null && questionPanel.activeSelf)
+        {
+            questionPanel.SetActive(false);
+        }
+
+        // Re-enable all answer buttons for next time
+        if (answerButtons != null)
+        {
+            for (int i = 0; i < answerButtons.Length; i++)
+            {
+                if (answerButtons[i] != null)
+                {
+                    answerButtons[i].interactable = true;
+                }
+            }
         }
     }
 
-    // ENHANCED DEVICE CATCH ANIMATION
+    IEnumerator CloseQuestionPanel()
+    {
+        Debug.Log("Closing question panel...");
+
+        // Reset button colors
+        if (answerButtonImages != null)
+        {
+            for (int i = 0; i < answerButtonImages.Length; i++)
+            {
+                if (answerButtonImages[i] != null)
+                    answerButtonImages[i].color = Color.white;
+            }
+        }
+
+        // Simply hide the panel - no animation
+        if (questionPanel != null)
+        {
+            questionPanel.SetActive(false);
+        }
+
+        // Reset all states
+        ResetAllQuestionStates();
+        isProcessingQuestion = false;
+
+        Debug.Log("Question panel closed and states reset.");
+        yield break;
+    }
+
+    IEnumerator SafeAnimateQuestionPanelHide()
+    {
+        if (questionPanel == null) yield break;
+
+        RectTransform panelRect = questionPanel.GetComponent<RectTransform>();
+        if (panelRect == null)
+        {
+            questionPanel.SetActive(false);
+            yield break;
+        }
+
+        Vector3 originalScale = panelRect.localScale;
+        float duration = 0.2f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            // Safety checks
+            if (questionPanel == null || panelRect == null) yield break;
+
+            float t = elapsed / duration;
+            float scale = Mathf.Lerp(1f, 0f, easeCurve != null ? easeCurve.Evaluate(t) : t);
+            panelRect.localScale = originalScale * scale;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (questionPanel != null)
+        {
+            questionPanel.SetActive(false);
+            if (panelRect != null)
+                panelRect.localScale = originalScale;
+        }
+    }
+
+    IEnumerator ForceCloseQuestion()
+    {
+        Debug.LogWarning("Force closing question due to error.");
+
+        if (questionPanel != null)
+        {
+            questionPanel.SetActive(false);
+        }
+
+        // Reset ALL states, not just some
+        ResetAllQuestionStates();
+
+        // Take damage as fallback
+        yield return StartCoroutine(ProcessLifeLoss());
+    }
+
+    void SetAnswerButtonColors(int selectedIndex, int correctIndex, bool wasCorrect)
+    {
+        if (answerButtonImages == null) return;
+
+        for (int i = 0; i < answerButtons.Length && i < answerButtonImages.Length; i++)
+        {
+            if (answerButtonImages[i] == null) continue;
+
+            if (i == selectedIndex)
+            {
+                answerButtonImages[i].color = wasCorrect ? Color.green : Color.red;
+            }
+            else if (i == correctIndex && !wasCorrect)
+            {
+                answerButtonImages[i].color = Color.green;
+            }
+            else
+            {
+                answerButtonImages[i].color = Color.white;
+            }
+        }
+    }
     IEnumerator ProcessDeviceCatch(GameObject device)
     {
         Debug.Log("DEVICE CAUGHT!");
 
-        // Start the catch animation before destroying the device
-        StartCoroutine(DeviceCatchAnimation(device));
+        StartCoroutine(EnhancedDeviceCatchAnimation(device));
 
         devicesCaught++;
-        energyPoints += deviceEnergyValue;
+        devicesFuelCounter++;
         score += deviceScoreValue;
-        UpdateScoreSlider(); // Changed from UpdateEnergyMeter to UpdateScoreSlider
-        UpdateScore();
+        UpdateScoreAnimated(); // NEW: Animated score update
+        if (progressMeter != null) UpdateProgressMeterAnimated();
 
-        // Start rocket celebration animation
-        StartCoroutine(RocketCelebrationAnimation());
+        if (devicesFuelCounter >= devicesForFuelRefill)
+        {
+            RefillFuel();
+            devicesFuelCounter = 0;
+        }
 
-        // Wait a bit before removing the object data and checking conditions
+        StartCoroutine(EnhancedRocketCelebrationAnimation());
+
         yield return new WaitForSeconds(0.1f);
 
         RemoveObjectData(device);
 
-        // Check for victory based on SCORE, not energy points
         if (score >= targetScore)
         {
             Victory();
         }
-
-        if (devicesCaught >= devicesNeededForQuestion)
-        {
-            ShowQuestion();
-        }
     }
 
-    // Device catch animation with scaling and fade effect
-    IEnumerator DeviceCatchAnimation(GameObject device)
+    // NEW: Enhanced device catch animation
+    IEnumerator EnhancedDeviceCatchAnimation(GameObject device)
     {
         if (device == null) yield break;
 
@@ -933,7 +1725,6 @@ public class RocketAsteroidGame : MonoBehaviour
 
         while (elapsedTime < deviceCatchAnimDuration && device != null)
         {
-            // NEW: Pause animation when game is paused
             if (isGamePaused)
             {
                 yield return null;
@@ -941,50 +1732,55 @@ public class RocketAsteroidGame : MonoBehaviour
             }
 
             float t = elapsedTime / deviceCatchAnimDuration;
-            float easedT = 1f - (1f - t) * (1f - t); // Ease out quad
 
-            // Scale animation - grow then shrink
-            float scaleProgress = t < 0.5f ? t * 2f : (1f - t) * 2f;
+            // NEW: Use easing curve for smoother movement
+            float easedT = easeCurve.Evaluate(t);
+
+            // Enhanced scale animation
+            float scaleProgress = t < 0.3f ? t / 0.3f : t < 0.7f ? 1f : (1f - t) / 0.3f;
             float currentScale = 1f + (deviceCatchScaleMultiplier - 1f) * scaleProgress;
             deviceRect.localScale = originalScale * currentScale;
 
-            // Move towards rocket
             Vector2 currentPos = Vector2.Lerp(startPos, endPos, easedT);
             deviceRect.anchoredPosition = currentPos;
 
-            // Fade out
+            // NEW: Rotation during catch
+            Vector3 rotation = deviceRect.localEulerAngles;
+            rotation.z += 180f * Time.deltaTime;
+            deviceRect.localEulerAngles = rotation;
+
             if (deviceImage != null)
             {
-                Color fadeColor = originalColor;
-                fadeColor.a = Mathf.Lerp(originalColor.a, 0f, easedT);
-                deviceImage.color = fadeColor;
+                // NEW: Color transition to green then fade
+                Color catchColor = t < 0.5f ? Color.Lerp(originalColor, Color.green, t * 2f) : Color.green;
+                catchColor.a = Mathf.Lerp(originalColor.a, 0f, easedT);
+                deviceImage.color = catchColor;
             }
 
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        // Ensure the device is destroyed
         if (device != null)
         {
             Destroy(device);
         }
     }
 
-    // Rocket celebration animation when catching device
-    IEnumerator RocketCelebrationAnimation()
+    // NEW: Enhanced rocket celebration
+    IEnumerator EnhancedRocketCelebrationAnimation()
     {
         if (rocket == null) yield break;
 
         Vector3 originalScale = rocket.localScale;
         Vector2 originalPos = rocket.anchoredPosition;
+        Vector3 originalRotation = rocket.localEulerAngles;
 
-        float animDuration = 0.3f;
+        float animDuration = 0.5f;
         float elapsedTime = 0f;
 
         while (elapsedTime < animDuration)
         {
-            // NEW: Pause animation when game is paused
             if (isGamePaused)
             {
                 yield return null;
@@ -993,41 +1789,47 @@ public class RocketAsteroidGame : MonoBehaviour
 
             float t = elapsedTime / animDuration;
 
-            // Bounce scale effect
-            float scaleMultiplier = 1f + Mathf.Sin(t * Mathf.PI * 2f) * 0.1f;
+            // NEW: More dynamic celebration
+            float scaleMultiplier = 1f + Mathf.Sin(t * Mathf.PI * 4f) * 0.15f;
             rocket.localScale = originalScale * scaleMultiplier;
 
-            // Subtle upward bounce
-            float yOffset = Mathf.Sin(t * Mathf.PI) * 10f;
+            float yOffset = Mathf.Sin(t * Mathf.PI * 2f) * 15f;
             rocket.anchoredPosition = new Vector2(originalPos.x, originalPos.y + yOffset);
+
+            // NEW: Slight rotation
+            float rotationOffset = Mathf.Sin(t * Mathf.PI * 6f) * 5f;
+            Vector3 newRotation = originalRotation;
+            newRotation.z = rotationOffset;
+            rocket.localEulerAngles = newRotation;
 
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        // Reset to original state
         rocket.localScale = originalScale;
         rocket.anchoredPosition = originalPos;
+        rocket.localEulerAngles = originalRotation;
     }
 
-    // Screen shake effect for asteroid hits
-    IEnumerator ScreenShakeEffect()
+    // NEW: Enhanced screen shake
+    IEnumerator EnhancedScreenShakeEffect()
     {
         if (gameArea == null) yield break;
 
         Vector2 originalPos = gameArea.anchoredPosition;
         float elapsedTime = 0f;
+        float shakeDuration = asteroidHitAnimDuration * 0.6f;
 
-        while (elapsedTime < asteroidHitAnimDuration * 0.5f) // Shake for half the hit duration
+        while (elapsedTime < shakeDuration)
         {
-            // NEW: Pause animation when game is paused
             if (isGamePaused)
             {
                 yield return null;
                 continue;
             }
 
-            float intensity = Mathf.Lerp(shakeIntensity, 0f, elapsedTime / (asteroidHitAnimDuration * 0.5f));
+            float t = elapsedTime / shakeDuration;
+            float intensity = Mathf.Lerp(shakeIntensity, 0f, easeCurve.Evaluate(t));
 
             Vector2 randomOffset = new Vector2(
                 Random.Range(-intensity, intensity),
@@ -1040,102 +1842,197 @@ public class RocketAsteroidGame : MonoBehaviour
             yield return null;
         }
 
-        // Reset position
         gameArea.anchoredPosition = originalPos;
-    }
-
-    // Enhanced rocket hit animation with flashing
-    IEnumerator RocketHitAnimation()
-    {
-        if (rocket == null) yield break;
-
-        Image rocketImage = rocket.GetComponent<Image>();
-        if (rocketImage == null) yield break;
-
-        Color originalColor = rocketImage.color;
-        float flashInterval = asteroidHitAnimDuration / invulnerabilityFlashes;
-
-        for (int i = 0; i < invulnerabilityFlashes; i++)
-        {
-            // NEW: Handle pause during flashing
-            if (isGamePaused)
-            {
-                yield return null;
-                i--; // Don't count this flash
-                continue;
-            }
-
-            // Flash red
-            rocketImage.color = Color.red;
-            yield return new WaitForSeconds(flashInterval * 0.3f);
-
-            if (isGamePaused)
-            {
-                yield return null;
-                continue;
-            }
-
-            // Flash semi-transparent
-            Color flashColor = originalColor;
-            flashColor.a = 0.3f;
-            rocketImage.color = flashColor;
-            yield return new WaitForSeconds(flashInterval * 0.7f);
-        }
-
-        // Reset to original color
-        rocketImage.color = originalColor;
     }
 
     void ProcessAsteroidDestroyed()
     {
         asteroidsDestroyed++;
+        asteroidsFuelCounter++;
         score += asteroidScoreValue;
-        UpdateScore();
-        UpdateScoreSlider(); // NEW: Update slider when asteroids are destroyed
+        UpdateScoreAnimated(); // NEW: Animated score update
+        if (progressMeter != null) UpdateProgressMeterAnimated();
+
+        if (asteroidsFuelCounter >= asteroidsForFuelRefill)
+        {
+            RefillFuel();
+            asteroidsFuelCounter = 0;
+        }
 
         Debug.Log("Asteroid destroyed! Score: " + score);
 
         if (score >= targetScore)
         {
             Victory();
-            return;
-        }
-
-        if (asteroidsDestroyed >= asteroidsNeededForQuestion)
-        {
-            ShowQuestion();
         }
     }
 
-    void ShowQuestion()
+    void RefillFuel()
     {
-        Debug.Log("SHOWING QUESTION");
+        currentFuel = Mathf.Min(currentFuel + fuelRefillAmount, maxFuel);
+        UpdateFuelMeterAnimated(); // NEW: Animated fuel update
 
-        asteroidsDestroyed = 0;
-        devicesCaught = 0;
-        isQuestionActive = true;
-        wasPausedBeforeQuestion = isGamePaused;
+        if (fuelRefill != null)
+            AudioManager.Instance.PlaySFX(fuelRefill);
 
-        // ✅ Use the dragged-in DatabaseManager
+        StartCoroutine(ShowEnhancedFuelRefillEffect());
+        Debug.Log($"Fuel refilled! Current fuel: {currentFuel:F1}/{maxFuel}");
+    }
+
+    // NEW: Enhanced fuel refill effect
+    IEnumerator ShowEnhancedFuelRefillEffect()
+    {
+        Image fuelFill = fuelMeter.fillRect?.GetComponent<Image>();
+        if (fuelFill == null) yield break;
+
+        Color originalColor = fuelFill.color;
+
+        for (int i = 0; i < 4; i++)
+        {
+            // Pulse to cyan
+            float duration = 0.15f;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                float t = elapsed / duration;
+                Color pulseColor = Color.Lerp(originalColor, Color.cyan, easeCurve.Evaluate(t));
+                fuelFill.color = pulseColor;
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            // Return to original
+            elapsed = 0f;
+            while (elapsed < duration)
+            {
+                float t = elapsed / duration;
+                Color returnColor = Color.Lerp(Color.cyan, originalColor, easeCurve.Evaluate(t));
+                fuelFill.color = returnColor;
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+        }
+    }
+
+    void ShowAsteroidHitQuestion()
+    {
+        Debug.Log("SHOWING ASTEROID HIT QUESTION");
+        Debug.Log($"UI Check: questionPanel null? {questionPanel == null}, questionText null? {questionText == null}");
+
+        // Add null checks for UI elements
+        if (questionPanel == null || questionText == null || answerButtons == null || answerTexts == null)
+        {
+            Debug.LogWarning("Question UI elements are missing! Defaulting to life loss.");
+            ResetQuestionStates();
+            StartCoroutine(ProcessLifeLoss());
+            return;
+        }
+
+        // Add null check for database manager
+        if (dbManager == null)
+        {
+            Debug.LogWarning("DatabaseManager is null! Cannot get questions.");
+            ResetQuestionStates();
+            StartCoroutine(ProcessLifeLoss());
+            return;
+        }
+
         currentQuestion = dbManager.GetRandomUnusedQuestion(quizId);
 
         if (currentQuestion == null)
         {
-            Debug.LogWarning("No questions available!");
-            isQuestionActive = false;
+            Debug.LogWarning("No questions available! Taking damage instead.");
+            ResetQuestionStates();
+            StartCoroutine(ProcessLifeLoss());
             return;
         }
 
-        // Fill UI
+        Debug.Log($"Setting up question: {currentQuestion.question}");
+
+        // Set question states
+        isQuestionActive = true;
+        wasPausedBeforeQuestion = isGamePaused;
+
         questionText.text = currentQuestion.question;
 
-        for (int i = 0; i < answerButtons.Length && i < currentQuestion.options.Length; i++)
+        // Reset and setup answer buttons
+        for (int i = 0; i < answerButtons.Length; i++)
         {
-            answerTexts[i].text = currentQuestion.options[i];
-            answerButtons[i].interactable = true;
+            if (i < currentQuestion.options.Length && answerTexts[i] != null && answerButtons[i] != null)
+            {
+                answerTexts[i].text = currentQuestion.options[i];
+                answerButtons[i].interactable = true;
+
+                // Reset button colors
+                if (answerButtonImages != null && i < answerButtonImages.Length)
+                    answerButtonImages[i].color = Color.white;
+            }
+            else if (answerButtons[i] != null)
+            {
+                answerButtons[i].interactable = false;
+            }
+        }
+
+        // Animate question panel appearance with null checks
+        StartCoroutine(AnimateQuestionPanelShow());
+    }
+
+    void ResetQuestionStates()
+    {
+        Debug.Log("Resetting all question states...");
+        isQuestionActive = false;
+        isWaitingForQuestionAnswer = false;
+        wasPausedBeforeQuestion = false;
+        isProcessingQuestion = false;
+        currentQuestion = null;
+
+        if (currentQuestionCoroutine != null)
+        {
+            StopCoroutine(currentQuestionCoroutine);
+            currentQuestionCoroutine = null;
+        }
+    }
+
+    // NEW: Smooth question panel animation
+    IEnumerator AnimateQuestionPanelShow()
+    {
+        if (questionPanel == null)
+        {
+            Debug.LogError("Cannot animate show - questionPanel is null!");
+            yield break;
         }
 
         questionPanel.SetActive(true);
+
+        RectTransform panelRect = questionPanel.GetComponent<RectTransform>();
+        if (panelRect == null) yield break;
+
+        Vector3 originalScale = panelRect.localScale;
+        panelRect.localScale = Vector3.zero;
+
+        float duration = 0.3f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            // Check if objects still exist
+            if (questionPanel == null || panelRect == null)
+            {
+                Debug.LogWarning("Question panel destroyed during animation!");
+                yield break;
+            }
+
+            float t = elapsed / duration;
+            float scale = easeCurve != null ? easeCurve.Evaluate(t) : t;
+            panelRect.localScale = originalScale * scale;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (panelRect != null)
+            panelRect.localScale = originalScale;
     }
 
     void OnAnswerSelected(int selectedIndex)
@@ -1145,162 +2042,479 @@ public class RocketAsteroidGame : MonoBehaviour
             answerButtons[i].interactable = false;
         }
 
-        StartCoroutine(ProcessAnswer(selectedIndex));
+        StartCoroutine(ProcessAsteroidHitAnswer(selectedIndex));
     }
 
-    // Process answer with difficulty changes
-    IEnumerator ProcessAnswer(int selectedIndex)
+    // NEW: Smooth question panel hide animation
+    IEnumerator AnimateQuestionPanelHide()
     {
-        bool isCorrect = (selectedIndex == currentQuestion.correctIndex);
-        int correctAnswerIndex = currentQuestion.correctIndex;
+        if (questionPanel == null) yield break;
 
-        if (isCorrect)
+        RectTransform panelRect = questionPanel.GetComponent<RectTransform>();
+        if (panelRect == null)
         {
-            Debug.Log("CORRECT ANSWER!");
-            score += correctAnswerPoints;
-            consecutiveWrongAnswers = 0;
-
-            for (int i = 0; i < answerButtons.Length && i < answerButtonImages.Length; i++)
-            {
-                answerButtonImages[i].color = (i == selectedIndex) ? Color.green : Color.white;
-            }
-            AudioManager.Instance.PlaySFX(correct);
-        }
-        else
-        {
-            Debug.Log("WRONG ANSWER!");
-            score += wrongAnswerPenalty;
-            ApplyDifficultyIncrease();
-
-            for (int i = 0; i < answerButtons.Length && i < answerButtonImages.Length; i++)
-            {
-                if (i == selectedIndex)
-                    answerButtonImages[i].color = Color.red;
-                else if (i == correctAnswerIndex)
-                    answerButtonImages[i].color = Color.green;
-                else
-                    answerButtonImages[i].color = Color.white;
-            }
-            AudioManager.Instance.PlaySFX(wrong);
+            questionPanel.SetActive(false);
+            yield break;
         }
 
-        UpdateScore();
-        UpdateScoreSlider();
-        yield return new WaitForSeconds(2f);
+        Vector3 originalScale = panelRect.localScale;
 
-        // Reset button colors
-        for (int i = 0; i < answerButtons.Length; i++)
+        float duration = 0.2f;
+        float elapsed = 0f;
+
+        while (elapsed < duration && questionPanel != null && panelRect != null)
         {
-            if (answerButtonImages != null && i < answerButtonImages.Length)
-                answerButtonImages[i].color = Color.white;
+            float t = elapsed / duration;
+            float scale = Mathf.Lerp(1f, 0f, easeCurve.Evaluate(t));
+
+            if (panelRect != null)
+                panelRect.localScale = originalScale * scale;
+
+            elapsed += Time.deltaTime;
+            yield return null;
         }
 
-        questionPanel.SetActive(false);
-        isQuestionActive = false;
-        wasPausedBeforeQuestion = false;
+        if (questionPanel != null)
+        {
+            questionPanel.SetActive(false);
+            if (panelRect != null)
+                panelRect.localScale = originalScale;
+        }
+
+        // DON'T reset states here - they're handled in ProcessAsteroidHitAnswer
     }
 
-    IEnumerator ShowExplosionEffect()
+
+
+    IEnumerator ProcessLifeLoss()
+    {
+        currentLife -= lifeLossOnWrongAnswer;
+        currentLife = Mathf.Clamp(currentLife, 0f, maxLife);
+
+        UpdateLifeMeterAnimated(); // NEW: Animated life update
+        UpdateRocketSpriteAnimated(); // NEW: Animated sprite change
+
+        if (currentLife <= maxLife * 0.25f && lifeLow != null)
+        {
+            AudioManager.Instance.PlaySFX(lifeLow);
+            StartCoroutine(LowLifeWarning());
+        }
+
+        StartCoroutine(EnhancedRocketHitAnimation());
+
+        if (currentLife <= 0f)
+        {
+            Debug.Log("Game Over: Rocket destroyed!");
+            GameOver();
+        }
+
+        yield return null;
+    }
+
+    // NEW: Enhanced rocket hit animation
+    IEnumerator EnhancedRocketHitAnimation()
+    {
+        if (rocketImage == null) yield break;
+
+        RectTransform rocketRect = rocket;
+        Color originalColor = rocketImage.color;
+        Vector3 originalScale = rocketRect.localScale;
+        Vector3 originalRotation = rocketRect.localEulerAngles;
+        float flashInterval = asteroidHitAnimDuration / invulnerabilityFlashes;
+
+        for (int i = 0; i < invulnerabilityFlashes; i++)
+        {
+            if (isGamePaused)
+            {
+                yield return null;
+                i--;
+                continue;
+            }
+
+            // Flash red with scale punch
+            rocketImage.color = Color.red;
+            rocketRect.localScale = originalScale * 1.1f;
+
+            // Small rotation shake
+            Vector3 shakeRotation = originalRotation;
+            shakeRotation.z += Random.Range(-5f, 5f);
+            rocketRect.localEulerAngles = shakeRotation;
+
+            yield return new WaitForSeconds(flashInterval * 0.3f);
+
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
+            // Fade to transparent
+            Color flashColor = originalColor;
+            flashColor.a = 0.3f;
+            rocketImage.color = flashColor;
+            rocketRect.localScale = originalScale;
+            rocketRect.localEulerAngles = originalRotation;
+
+            yield return new WaitForSeconds(flashInterval * 0.7f);
+        }
+
+        rocketImage.color = originalColor;
+        rocketRect.localScale = originalScale;
+        rocketRect.localEulerAngles = originalRotation;
+    }
+
+    // NEW: Animated sprite change
+    IEnumerator UpdateRocketSpriteAnimated()
+    {
+        if (rocketImage == null) yield break;
+
+        float lifePercentage = currentLife / maxLife;
+        Sprite newSprite = null;
+
+        if (lifePercentage >= 0.75f)
+            newSprite = rocketHealthySprite;
+        else if (lifePercentage >= 0.5f)
+            newSprite = rocketDamagedSprite;
+        else if (lifePercentage >= 0.25f)
+            newSprite = rocketBadlyDamagedSprite;
+        else
+            newSprite = rocketCriticalSprite;
+
+        if (newSprite != null && rocketImage.sprite != newSprite)
+        {
+            // Brief flash effect during sprite change
+            Color originalColor = rocketImage.color;
+            rocketImage.color = Color.white;
+            yield return new WaitForSeconds(0.1f);
+
+            rocketImage.sprite = newSprite;
+            rocketImage.color = originalColor;
+        }
+    }
+
+    void UpdateRocketSprite()
+    {
+        StartCoroutine(UpdateRocketSpriteAnimated());
+    }
+
+    // NEW: Animated meter updates
+    void UpdateFuelMeterAnimated()
+    {
+        if (fuelMeter != null)
+        {
+            StartCoroutine(AnimateSliderValue(fuelMeter, currentFuel));
+            UpdateFuelMeterColor();
+        }
+    }
+
+    void UpdateLifeMeterAnimated()
+    {
+        if (lifeMeter != null)
+        {
+            StartCoroutine(AnimateSliderValue(lifeMeter, currentLife));
+            UpdateLifeMeterColor();
+        }
+    }
+
+    void UpdateProgressMeterAnimated()
+    {
+        if (progressMeter != null)
+        {
+            float clampedScore = Mathf.Clamp(score, 0, targetScore);
+            StartCoroutine(AnimateSliderValue(progressMeter, clampedScore));
+            UpdateProgressMeterColor();
+        }
+    }
+
+    // NEW: Generic slider animation
+    IEnumerator AnimateSliderValue(Slider slider, float targetValue)
+    {
+        if (slider == null) yield break;
+
+        float startValue = slider.value;
+        float duration = 0.3f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
+            float t = elapsed / duration;
+            float currentValue = Mathf.Lerp(startValue, targetValue, easeCurve.Evaluate(t));
+            slider.value = currentValue;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        slider.value = targetValue;
+    }
+
+    // NEW: Animated score update with scale punch
+    void UpdateScoreAnimated()
+    {
+        if (scoreText != null)
+        {
+            scoreText.text = score.ToString();
+            StartCoroutine(AnimateScorePunch());
+        }
+        UpdateWaveDisplay();
+    }
+
+    IEnumerator AnimateScorePunch()
+    {
+        if (scoreText == null) yield break;
+
+        RectTransform textRect = scoreText.GetComponent<RectTransform>();
+        if (textRect == null) yield break;
+
+        Vector3 originalScale = textRect.localScale;
+
+        float punchDuration = 0.2f;
+        float elapsed = 0f;
+
+        while (elapsed < punchDuration)
+        {
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
+            float t = elapsed / punchDuration;
+            float scaleT = t < 0.5f ? t * 2f : (1f - t) * 2f;
+            float currentScale = 1f + (0.3f * easeCurve.Evaluate(scaleT));
+            textRect.localScale = originalScale * currentScale;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        textRect.localScale = originalScale;
+    }
+
+    // NEW: Enhanced explosion effect
+    IEnumerator ShowEnhancedExplosionEffect(Vector2 position)
     {
         Image gameAreaImage = gameArea.GetComponent<Image>();
         if (gameAreaImage != null)
         {
             Color originalColor = gameAreaImage.color;
-            gameAreaImage.color = new Color(1f, 1f, 0f, 0.3f);
 
-            // NEW: Handle pause during explosion effect
-            float waitTime = 0f;
-            while (waitTime < 0.1f)
+            // Flash effect
+            gameAreaImage.color = new Color(1f, 1f, 0f, 0.4f);
+
+            float duration = 0.15f;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
             {
                 if (!isGamePaused)
                 {
-                    waitTime += Time.deltaTime;
+                    elapsed += Time.deltaTime;
                 }
                 yield return null;
             }
 
             gameAreaImage.color = originalColor;
         }
+
+        // Create explosion particles effect
+        StartCoroutine(CreateExplosionParticles(position));
     }
 
-    void UpdateHealthDisplay()
+    // NEW: Simple explosion particles
+    IEnumerator CreateExplosionParticles(Vector2 center)
     {
-        for (int i = 0; i < hearts.Length; i++)
+        List<GameObject> particles = new List<GameObject>();
+
+        // Create simple particle objects
+        for (int i = 0; i < 8; i++)
         {
-            hearts[i].SetActive(i < currentHealth);
+            GameObject particle = new GameObject("ExplosionParticle");
+            particle.transform.SetParent(gameArea.transform, false);
+
+            RectTransform particleRect = particle.AddComponent<RectTransform>();
+            Image particleImage = particle.AddComponent<Image>();
+
+            particleRect.sizeDelta = new Vector2(10f, 10f);
+            particleRect.anchoredPosition = center;
+            particleImage.color = Color.yellow;
+
+            particles.Add(particle);
+        }
+
+        // Animate particles
+        float duration = 0.5f;
+        float elapsed = 0f;
+
+        while (elapsed < duration && particles.Count > 0)
+        {
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
+            float t = elapsed / duration;
+
+            for (int i = particles.Count - 1; i >= 0; i--)
+            {
+                if (particles[i] == null)
+                {
+                    particles.RemoveAt(i);
+                    continue;
+                }
+
+                RectTransform rect = particles[i].GetComponent<RectTransform>();
+                Image img = particles[i].GetComponent<Image>();
+
+                if (rect == null || img == null) continue;
+
+                // Move outward
+                float angle = (i * 45f) * Mathf.Deg2Rad;
+                Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                Vector2 currentPos = center + direction * (t * 100f);
+                rect.anchoredPosition = currentPos;
+
+                // Fade out
+                Color color = img.color;
+                color.a = Mathf.Lerp(1f, 0f, t);
+                img.color = color;
+
+                // Scale down
+                rect.localScale = Vector3.one * Mathf.Lerp(1f, 0f, t);
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Clean up particles
+        foreach (GameObject particle in particles)
+        {
+            if (particle != null)
+                Destroy(particle);
         }
     }
 
-    void UpdateEnergyMeter()
+    void UpdateFuelMeter()
     {
-        if (energyMeter != null)
+        UpdateFuelMeterAnimated();
+    }
+
+    void UpdateLifeMeter()
+    {
+        UpdateLifeMeterAnimated();
+    }
+
+    void UpdateProgressMeter()
+    {
+        UpdateProgressMeterAnimated();
+    }
+
+    void UpdateFuelMeterColor()
+    {
+        if (fuelMeter != null)
         {
-            energyMeter.value = energyPoints;
+            Image fuelFill = fuelMeter.fillRect?.GetComponent<Image>();
+            if (fuelFill != null)
+            {
+                float fuelPercentage = currentFuel / maxFuel;
+
+                if (fuelPercentage <= 0.2f)
+                    fuelFill.color = Color.red;
+                else if (fuelPercentage <= 0.4f)
+                    fuelFill.color = new Color(1f, 0.5f, 0f);
+                else if (fuelPercentage <= 0.6f)
+                    fuelFill.color = Color.yellow;
+                else
+                    fuelFill.color = Color.green;
+            }
         }
     }
 
-    // NEW: Update slider based on score progress toward target
-    void UpdateScoreSlider()
+    void UpdateLifeMeterColor()
     {
-        if (energyMeter != null)
+        if (lifeMeter != null)
         {
-            energyMeter.value = Mathf.Clamp(score, 0, targetScore);
+            Image lifeFill = lifeMeter.fillRect?.GetComponent<Image>();
+            if (lifeFill != null)
+            {
+                float lifePercentage = currentLife / maxLife;
 
-            // Optional: Change slider color based on progress
-            Image sliderFill = energyMeter.fillRect?.GetComponent<Image>();
-            if (sliderFill != null)
+                if (lifePercentage <= 0.25f)
+                    lifeFill.color = Color.red;
+                else if (lifePercentage <= 0.5f)
+                    lifeFill.color = new Color(1f, 0.5f, 0f);
+                else if (lifePercentage <= 0.75f)
+                    lifeFill.color = Color.yellow;
+                else
+                    lifeFill.color = Color.green;
+            }
+        }
+    }
+
+    void UpdateProgressMeterColor()
+    {
+        if (progressMeter != null)
+        {
+            Image progressFill = progressMeter.fillRect?.GetComponent<Image>();
+            if (progressFill != null)
             {
                 float progress = (float)score / targetScore;
 
                 if (progress < 0.33f)
                 {
-                    // Red for low progress (0-33%)
-                    sliderFill.color = Color.Lerp(Color.red, Color.yellow, progress * 3f);
+                    progressFill.color = Color.Lerp(Color.red, Color.yellow, progress * 3f);
                 }
                 else if (progress < 0.66f)
                 {
-                    // Yellow to green for medium progress (33-66%)
-                    sliderFill.color = Color.Lerp(Color.yellow, Color.green, (progress - 0.33f) * 3f);
+                    progressFill.color = Color.Lerp(Color.yellow, Color.green, (progress - 0.33f) * 3f);
                 }
                 else
                 {
-                    // Green to bright green for high progress (66-100%)
-                    sliderFill.color = Color.Lerp(Color.green, new Color(0f, 1f, 0f, 1f), (progress - 0.66f) * 3f);
+                    progressFill.color = Color.Lerp(Color.green, new Color(0f, 1f, 0f, 1f), (progress - 0.66f) * 3f);
                 }
 
-                // Special effect when close to victory
                 if (progress >= 0.9f)
                 {
-                    // Pulsing gold effect when very close to winning
                     float pulse = Mathf.Sin(Time.time * 8f) * 0.3f + 0.7f;
-                    sliderFill.color = Color.Lerp(Color.green, Color.yellow, pulse);
+                    progressFill.color = Color.Lerp(Color.green, Color.yellow, pulse);
                 }
             }
         }
     }
 
+    IEnumerator ShowExplosionEffect()
+    {
+        // Use enhanced explosion effect instead
+        yield return StartCoroutine(ShowEnhancedExplosionEffect(Vector2.zero));
+    }
+
     void UpdateScore()
     {
-        if (scoreText != null)
-        {
-            scoreText.text = score.ToString();
-        }
-        UpdateWaveDisplay(); // Update wave display when score changes
+        UpdateScoreAnimated();
     }
 
     void UpdateWaveDisplay()
     {
         if (waveText != null)
         {
-            // Show difficulty status and pause status in wave display
             string difficultyStatus = isDifficultyActive ? " [HARD MODE]" : "";
             string pauseStatus = isGamePaused ? " [PAUSED]" : "";
 
-            // NEW: Calculate and show percentage progress
             float progressPercentage = ((float)score / targetScore) * 100f;
             progressPercentage = Mathf.Clamp(progressPercentage, 0f, 100f);
 
-            waveText.text = $"Score: {score}/{targetScore} ({progressPercentage:F0}%){difficultyStatus}{pauseStatus}";
+            float fuelPercentage = (currentFuel / maxFuel) * 100f;
+            float lifePercentage = (currentLife / maxLife) * 100f;
+
+            waveText.text = $"Score: {score}/{targetScore} ({progressPercentage:F0}%) | Fuel: {fuelPercentage:F0}% | Life: {lifePercentage:F0}%{difficultyStatus}{pauseStatus}";
         }
     }
 
@@ -1308,14 +2522,13 @@ public class RocketAsteroidGame : MonoBehaviour
     {
         Debug.Log("VICTORY!");
         isGameActive = false;
-        isGamePaused = false; // NEW: Ensure we're not paused when victory occurs
+        isGamePaused = false;
         CleanupGame();
 
         gameUI.SetActive(false);
         victoryPanel.SetActive(true);
         AudioManager.Instance.PlaySFX(passed);
 
-        // NEW: Hide pause elements if they were visible
         if (settingsModal != null)
             settingsModal.SetActive(false);
         if (pauseOverlay != null)
@@ -1331,14 +2544,13 @@ public class RocketAsteroidGame : MonoBehaviour
     {
         Debug.Log("GAME OVER!");
         isGameActive = false;
-        isGamePaused = false; // NEW: Ensure we're not paused when game over occurs
+        isGamePaused = false;
         CleanupGame();
 
         gameUI.SetActive(false);
         gameOverPanel.SetActive(true);
         AudioManager.Instance.PlaySFX(failed);
 
-        // NEW: Hide pause elements if they were visible
         if (settingsModal != null)
             settingsModal.SetActive(false);
         if (pauseOverlay != null)
@@ -1352,53 +2564,83 @@ public class RocketAsteroidGame : MonoBehaviour
 
     void CleanupGame()
     {
-        foreach (GameObject obj in activeObjects)
+        Debug.Log("Cleaning up game...");
+
+        // Stop all coroutines to prevent MissingReferenceExceptions
+        StopAllCoroutines();
+
+        // Reset question states first
+        ResetQuestionStates();
+
+        // Clean up active objects safely
+        if (activeObjects != null)
         {
-            if (obj != null)
+            for (int i = activeObjects.Count - 1; i >= 0; i--)
             {
-                RemoveObjectData(obj);
-                Destroy(obj);
+                GameObject obj = activeObjects[i];
+                if (obj != null)
+                {
+                    RemoveObjectData(obj);
+                    Destroy(obj);
+                }
             }
+            activeObjects.Clear();
         }
-        activeObjects.Clear();
 
-        foreach (GameObject bullet in activeBullets)
+        // Clean up bullets safely
+        if (activeBullets != null)
         {
-            if (bullet != null) Destroy(bullet);
+            for (int i = activeBullets.Count - 1; i >= 0; i--)
+            {
+                GameObject bullet = activeBullets[i];
+                if (bullet != null)
+                    Destroy(bullet);
+            }
+            activeBullets.Clear();
         }
-        activeBullets.Clear();
 
-        isAsteroidDict.Clear();
-        asteroidHealthDict.Clear();
-        asteroidTimeDict.Clear();
-        asteroidStartPosDict.Clear();
+        // Clear dictionaries
+        if (isAsteroidDict != null) isAsteroidDict.Clear();
+        if (asteroidHealthDict != null) asteroidHealthDict.Clear();
+        if (asteroidTimeDict != null) asteroidTimeDict.Clear();
+        if (asteroidStartPosDict != null) asteroidStartPosDict.Clear();
+        if (asteroidRotationSpeedDict != null) asteroidRotationSpeedDict.Clear();
+        if (activeAnimations != null) activeAnimations.Clear();
 
+        // Hide question panel safely
         if (questionPanel != null)
         {
             questionPanel.SetActive(false);
         }
-        isQuestionActive = false;
 
-        // NEW: Reset time scale in case it was modified
         Time.timeScale = 1f;
-    }
 
+        Debug.Log("Game cleanup complete.");
+    }
     public void RestartGame()
     {
-        currentHealth = 3;
-        energyPoints = 0;
         score = 0;
         isInvulnerable = false;
         asteroidsDestroyed = 0;
         devicesCaught = 0;
+        asteroidsFuelCounter = 0;
+        devicesFuelCounter = 0;
         consecutiveWrongAnswers = 0;
-        isGamePaused = false; // NEW: Ensure game isn't paused on restart
+        isGamePaused = false;
+        isWaitingForQuestionAnswer = false;
+
+        // Reset rocket movement
+        rocketVelocity = Vector2.zero;
+        currentRocketTilt = 0f;
+        targetRocketTilt = 0f;
+
+        currentFuel = maxFuel;
+        currentLife = maxLife;
 
         gameOverPanel.SetActive(false);
         victoryPanel.SetActive(false);
         questionPanel.SetActive(false);
 
-        // NEW: Hide pause elements
         if (settingsModal != null)
             settingsModal.SetActive(false);
         if (pauseOverlay != null)
@@ -1408,8 +2650,9 @@ public class RocketAsteroidGame : MonoBehaviour
         asteroidHealthDict.Clear();
         asteroidTimeDict.Clear();
         asteroidStartPosDict.Clear();
+        asteroidRotationSpeedDict.Clear();
+        activeAnimations.Clear();
 
-        // NEW: Reset time scale
         Time.timeScale = 1f;
 
         BeginGame();
@@ -1417,18 +2660,11 @@ public class RocketAsteroidGame : MonoBehaviour
 
     public void ReturnToMenu()
     {
-        // NEW: Ensure time scale is reset when returning to menu
         Time.timeScale = 1f;
         isGamePaused = false;
-
         Debug.Log("Returning to menu...");
     }
 
-    // NEW: Public methods for external UI elements to call
-
-    /// <summary>
-    /// Call this method when opening any modal/settings panel
-    /// </summary>
     public void OpenModal()
     {
         if (isGameActive && !isGamePaused)
@@ -1437,9 +2673,6 @@ public class RocketAsteroidGame : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Call this method when closing any modal/settings panel
-    /// </summary>
     public void CloseModal()
     {
         if (isGameActive && isGamePaused)
@@ -1448,17 +2681,11 @@ public class RocketAsteroidGame : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Check if the game is currently paused
-    /// </summary>
     public bool IsGamePaused()
     {
         return isGamePaused;
     }
 
-    /// <summary>
-    /// Check if the game is currently active
-    /// </summary>
     public bool IsGameActive()
     {
         return isGameActive;
