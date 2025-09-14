@@ -37,11 +37,16 @@ public class ItemData
     public int Price;
     public string SpritePath;
     public string Description;
+    public int Quantity;  // ✅ add this
+    public int EnergyValue;
 }
 
 public class DatabaseManager : MonoBehaviour
 {
     private string dbPath;
+
+    public delegate void UserDataChangedHandler();
+    public static event UserDataChangedHandler OnUserDataChanged;
     void Awake()
     {
         dbPath = "URI=file:" + Path.Combine(Application.persistentDataPath, "UserDatabase.db");
@@ -238,6 +243,28 @@ public class DatabaseManager : MonoBehaviour
         return 200;
     }
 
+    public int LoadPlayerEnergy()
+    {
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT energy FROM users WHERE id = 1;";
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return reader.GetInt32(0); // return energy value
+                    }
+                }
+            }
+        }
+
+        return 0; // default if not found
+    }
+
     public void SaveQuizAndScore(int userId, int quizId, int score)
     {
         using (var connection = new SqliteConnection(dbPath))
@@ -349,6 +376,58 @@ public class DatabaseManager : MonoBehaviour
         }
 
         Debug.Log("Lesson unlocked!");
+    }
+
+    public int? GetRequiredCollectibleForLesson(int lessonId)
+    {
+        using (IDbConnection dbConn = new SqliteConnection(dbPath))
+        {
+            dbConn.Open();
+            using (IDbCommand cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT Item_ID FROM Items WHERE Lesson_ID = @lessonId LIMIT 1";
+                cmd.Parameters.Add(new SqliteParameter("@lessonId", lessonId));
+
+                object result = cmd.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                    return Convert.ToInt32(result);
+
+                return null; // No collectible required
+            }
+        }
+    }
+
+    public string GetItemName(int itemId)
+    {
+        using (IDbConnection dbConn = new SqliteConnection(dbPath))
+        {
+            dbConn.Open();
+            using (IDbCommand cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT Item_Name FROM Items WHERE Item_ID = @itemId";
+                cmd.Parameters.Add(new SqliteParameter("@itemId", itemId));
+
+                object result = cmd.ExecuteScalar();
+                return result?.ToString() ?? "Unknown Item";
+            }
+        }
+    }
+
+    public bool HasCollectible(int userId, int itemId)
+    {
+        using (IDbConnection dbConn = new SqliteConnection(dbPath))
+        {
+            dbConn.Open();
+            using (IDbCommand cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT COUNT(*) FROM User_Items WHERE User_ID = @userId AND Item_ID = @itemId";
+                cmd.Parameters.Add(new SqliteParameter("@userId", userId));
+                cmd.Parameters.Add(new SqliteParameter("@itemId", itemId));
+
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                return count > 0;
+            }
+        }
     }
 
     public List<Badge> GetUserBadges(int userId)
@@ -545,6 +624,63 @@ public class DatabaseManager : MonoBehaviour
                 cmd.ExecuteNonQuery();
             }
         }
+        OnUserDataChanged?.Invoke();
+    }
+
+    public void AddEnergy(int userId, int energyToAdd)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+
+            using (IDbCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = @"UPDATE users
+                                SET energy = energy + @energyToAdd
+                                WHERE id = @userId";
+
+                var param1 = cmd.CreateParameter();
+                param1.ParameterName = "@energyToAdd";
+                param1.Value = energyToAdd;
+                cmd.Parameters.Add(param1);
+
+                var param2 = cmd.CreateParameter();
+                param2.ParameterName = "@userId";
+                param2.Value = userId;
+                cmd.Parameters.Add(param2);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+        OnUserDataChanged?.Invoke();
+    }
+
+    public void SpendEnergy(int userId, int energyToSpend)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+
+            using (IDbCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = @"UPDATE users
+                    SET energy = MAX(energy - @energyToSpend, 0)
+                    WHERE id = @userId";
+
+                var param1 = cmd.CreateParameter();
+                param1.ParameterName = "@energyToSpend";
+                param1.Value = energyToSpend;
+                cmd.Parameters.Add(param1);
+
+                var param2 = cmd.CreateParameter();
+                param2.ParameterName = "@userId";
+                param2.Value = userId;
+                cmd.Parameters.Add(param2);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+        OnUserDataChanged?.Invoke();
     }
 
     public bool HasReceivedStatBonus(int userId, int quizId)
@@ -1114,7 +1250,7 @@ public class DatabaseManager : MonoBehaviour
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = @"
-                SELECT i.Item_ID, i.Item_Name, i.Item_Type, i.Price, i.Sprite_Path
+                SELECT i.Item_ID, i.Item_Name, i.Item_Type, i.Price, i.Sprite_Path, ui.Quantity, i.Description, i.EnergyValue
                 FROM Items i
                 JOIN User_Items ui ON i.Item_ID = ui.Item_ID
                 WHERE ui.User_ID = @uid";
@@ -1130,7 +1266,10 @@ public class DatabaseManager : MonoBehaviour
                             Name = reader.GetString(1),
                             Type = reader.GetString(2),
                             Price = reader.GetInt32(3),
-                            SpritePath = reader.GetString(4)
+                            SpritePath = reader.IsDBNull(4) ? null : reader.GetString(4),
+                            Quantity = reader.GetInt32(5),
+                            Description = reader.GetString(6),
+                            EnergyValue = reader.IsDBNull(7) ? 0 : reader.GetInt32(7)
                         });
                     }
                 }
@@ -1140,6 +1279,7 @@ public class DatabaseManager : MonoBehaviour
         return items;
     }
 
+
     // Purchase item (deduct coins + insert into User_Items)
     public bool PurchaseItem(int userId, int itemId)
     {
@@ -1148,37 +1288,39 @@ public class DatabaseManager : MonoBehaviour
             conn.Open();
             using (var trans = conn.BeginTransaction())
             {
-                // 1. Check if user already owns the item
-                using (var checkCmd = conn.CreateCommand())
-                {
-                    checkCmd.Transaction = trans;
-                    checkCmd.CommandText = "SELECT COUNT(*) FROM User_Items WHERE User_ID = @uid AND Item_ID = @iid";
-                    checkCmd.Parameters.AddWithValue("@uid", userId);
-                    checkCmd.Parameters.AddWithValue("@iid", itemId);
+                // 1. Get item type & price
+                string itemType = "";
+                int price = 0;
 
-                    long count = (long)checkCmd.ExecuteScalar();
-                    if (count > 0)
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.Transaction = trans;
+                    cmd.CommandText = "SELECT Item_Type, Price FROM Items WHERE Item_ID = @iid";
+                    cmd.Parameters.AddWithValue("@iid", itemId);
+
+                    using (var reader = cmd.ExecuteReader())
                     {
-                        Debug.LogWarning("User already owns this item.");
-                        return false; // don't deduct coins, don't insert
+                        if (reader.Read())
+                        {
+                            itemType = reader.GetString(0);
+                            price = reader.GetInt32(1);
+                        }
+                        else
+                        {
+                            Debug.LogError("Item not found in database!");
+                            return false;
+                        }
                     }
                 }
 
-                // 2. Check user coins & item price
-                int coins = 0, price = 0;
+                // 2. Check user coins
+                int coins = 0;
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.Transaction = trans;
                     cmd.CommandText = "SELECT coins FROM users WHERE id = @uid";
                     cmd.Parameters.AddWithValue("@uid", userId);
                     coins = Convert.ToInt32(cmd.ExecuteScalar());
-                }
-                using (var cmd = conn.CreateCommand())
-                {
-                    cmd.Transaction = trans;
-                    cmd.CommandText = "SELECT Price FROM Items WHERE Item_ID = @iid";
-                    cmd.Parameters.AddWithValue("@iid", itemId);
-                    price = Convert.ToInt32(cmd.ExecuteScalar());
                 }
 
                 if (coins < price)
@@ -1197,14 +1339,72 @@ public class DatabaseManager : MonoBehaviour
                     cmd.ExecuteNonQuery();
                 }
 
-                // 4. Add item to User_Items
-                using (var cmd = conn.CreateCommand())
+                // 4. Insert or update User_Items
+                if (itemType == "Collectible")
                 {
-                    cmd.Transaction = trans;
-                    cmd.CommandText = "INSERT INTO User_Items (User_ID, Item_ID) VALUES (@uid, @iid)";
-                    cmd.Parameters.AddWithValue("@uid", userId);
-                    cmd.Parameters.AddWithValue("@iid", itemId);
-                    cmd.ExecuteNonQuery();
+                    // Check if already owned
+                    using (var checkCmd = conn.CreateCommand())
+                    {
+                        checkCmd.Transaction = trans;
+                        checkCmd.CommandText = "SELECT COUNT(*) FROM User_Items WHERE User_ID = @uid AND Item_ID = @iid";
+                        checkCmd.Parameters.AddWithValue("@uid", userId);
+                        checkCmd.Parameters.AddWithValue("@iid", itemId);
+
+                        long count = (long)checkCmd.ExecuteScalar();
+                        if (count > 0)
+                        {
+                            Debug.LogWarning("User already owns this collectible.");
+                            return false;
+                        }
+                    }
+
+                    // Insert collectible
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.Transaction = trans;
+                        cmd.CommandText = "INSERT INTO User_Items (User_ID, Item_ID, Quantity) VALUES (@uid, @iid, 1)";
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        cmd.Parameters.AddWithValue("@iid", itemId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                else if (itemType == "Food")
+                {
+                    // Check if food already exists
+                    long count = 0;
+                    using (var checkCmd = conn.CreateCommand())
+                    {
+                        checkCmd.Transaction = trans;
+                        checkCmd.CommandText = "SELECT COUNT(*) FROM User_Items WHERE User_ID = @uid AND Item_ID = @iid";
+                        checkCmd.Parameters.AddWithValue("@uid", userId);
+                        checkCmd.Parameters.AddWithValue("@iid", itemId);
+                        count = (long)checkCmd.ExecuteScalar();
+                    }
+
+                    if (count > 0)
+                    {
+                        // ✅ Update quantity
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            cmd.Transaction = trans;
+                            cmd.CommandText = "UPDATE User_Items SET Quantity = Quantity + 1 WHERE User_ID = @uid AND Item_ID = @iid";
+                            cmd.Parameters.AddWithValue("@uid", userId);
+                            cmd.Parameters.AddWithValue("@iid", itemId);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    else
+                    {
+                        // ✅ Insert new row with Quantity = 1
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            cmd.Transaction = trans;
+                            cmd.CommandText = "INSERT INTO User_Items (User_ID, Item_ID, Quantity) VALUES (@uid, @iid, 1)";
+                            cmd.Parameters.AddWithValue("@uid", userId);
+                            cmd.Parameters.AddWithValue("@iid", itemId);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
                 }
 
                 trans.Commit();
@@ -1212,26 +1412,53 @@ public class DatabaseManager : MonoBehaviour
         }
 
         Debug.Log("Item purchased successfully!");
+        OnUserDataChanged?.Invoke();
         return true;
     }
 
-
-    public bool CheckIfOwned(int userId, int itemId)
+    public void ReduceItemQuantity(int userId, int itemId, int amount)
     {
-        using (var conn = new SqliteConnection(dbPath)) // or MySqlConnection
+        using (var conn = new SqliteConnection(dbPath))
         {
             conn.Open();
 
-            string query = "SELECT COUNT(*) FROM User_Items WHERE User_ID = @userId AND Item_ID = @itemId";
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = @"
+                UPDATE User_Items
+                SET Quantity = Quantity - @amount
+                WHERE User_ID = @uid AND Item_ID = @iid;
+
+                DELETE FROM User_Items
+                WHERE User_ID = @uid AND Item_ID = @iid AND Quantity <= 0;";
+                cmd.Parameters.AddWithValue("@amount", amount);
+                cmd.Parameters.AddWithValue("@uid", userId);
+                cmd.Parameters.AddWithValue("@iid", itemId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+    }
+
+    public int CheckIfOwned(int userId, int itemId)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+
+            string query = "SELECT Quantity FROM User_Items WHERE User_ID = @userId AND Item_ID = @itemId";
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = query;
                 cmd.Parameters.AddWithValue("@userId", userId);
                 cmd.Parameters.AddWithValue("@itemId", itemId);
 
-                long count = (long)cmd.ExecuteScalar();
-                return count > 0;
+                object result = cmd.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                    return Convert.ToInt32(result);
             }
         }
+
+        return 0; // not owned
     }
+
 }

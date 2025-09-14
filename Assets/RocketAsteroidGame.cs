@@ -218,6 +218,7 @@ public class RocketAsteroidGame : MonoBehaviour
 
     private bool isProcessingQuestion = false;
     private Coroutine currentQuestionCoroutine = null;
+    private bool hasBeenInitialized = false;
 
 
     [Header("Sound Effects")]
@@ -246,6 +247,7 @@ public class RocketAsteroidGame : MonoBehaviour
         baseSpawnInterval = spawnInterval;
         baseFollowStrength = followStrength;
 
+        // Initialize catch zone offset
         if (rocketCatchZone != null && rocket != null)
         {
             catchZoneOffset = rocketCatchZone.anchoredPosition - rocket.anchoredPosition;
@@ -254,19 +256,51 @@ public class RocketAsteroidGame : MonoBehaviour
         // Store original rocket position for animations
         originalRocketPosition = rocket.anchoredPosition;
 
-        gameUI.SetActive(false);
-        gameOverPanel.SetActive(false);
-        victoryPanel.SetActive(false);
-        questionPanel.SetActive(false);
+        InitializeGame();
+        hasBeenInitialized = true;
+    }
 
-        InitializePauseSystem();
-
-        for (int i = 0; i < answerButtons.Length; i++)
+    void OnEnable()
+    {
+        // Only restart if this isn't the first time being enabled
+        if (hasBeenInitialized)
         {
-            int buttonIndex = i;
-            answerButtons[i].onClick.AddListener(() => OnAnswerSelected(buttonIndex));
+            Debug.Log("=== GAME OBJECT RE-ENABLED - RESTARTING GAME ===");
+            // Use a coroutine to ensure proper timing
+            StartCoroutine(RestartGameAfterEnable());
+        }
+    }
+
+    IEnumerator RestartGameAfterEnable()
+    {
+        // Wait a frame to ensure all components are ready
+        yield return new WaitForEndOfFrame();
+
+        // Reset time scale
+        Time.timeScale = 1f;
+
+        // Stop any running coroutines
+        StopAllCoroutines();
+
+        // Start this coroutine again since we just stopped all
+        StartCoroutine(RestartGameAfterEnable_Internal());
+    }
+
+    IEnumerator RestartGameAfterEnable_Internal()
+    {
+        // Full game reset
+        ResetGameToInitialState();
+
+        // Wait another frame to ensure cleanup is complete
+        yield return new WaitForEndOfFrame();
+
+        // Re-initialize catch zone offset (might have been lost)
+        if (rocketCatchZone != null && rocket != null)
+        {
+            catchZoneOffset = rocketCatchZone.anchoredPosition - rocket.anchoredPosition;
         }
 
+        // Start the game from the beginning
         if (dialogues != null)
         {
             dialogues.StartDialogue(0);
@@ -277,6 +311,236 @@ public class RocketAsteroidGame : MonoBehaviour
             BeginGame();
         }
     }
+
+    void ResetGameToInitialState()
+    {
+        Debug.Log("Resetting game to initial state...");
+
+        // Reset all game flags
+        isGameActive = false;
+        isGamePaused = false;
+        isInvulnerable = false;
+        isQuestionActive = false;
+        isWaitingForQuestionAnswer = false;
+        isProcessingQuestion = false;
+        wasPausedBeforeQuestion = false;
+
+        // Reset game statistics
+        score = 0;
+        asteroidsDestroyed = 0;
+        devicesCaught = 0;
+        asteroidsFuelCounter = 0;
+        devicesFuelCounter = 0;
+        consecutiveWrongAnswers = 0;
+
+        // Reset difficulty
+        currentDifficultyMultiplier = 1f;
+        isDifficultyActive = false;
+        ResetDifficulty();
+
+        // Reset player resources
+        currentFuel = maxFuel;
+        currentLife = maxLife;
+
+        // Reset rocket movement
+        rocketVelocity = Vector2.zero;
+        currentRocketTilt = 0f;
+        targetRocketTilt = 0f;
+
+        // IMPORTANT: Reset rocket position properly
+        if (rocket != null)
+        {
+            rocket.anchoredPosition = originalRocketPosition;
+            rocket.localEulerAngles = Vector3.zero;
+            rocket.localScale = Vector3.one;
+
+            // Also reset catch zone position
+            if (rocketCatchZone != null)
+            {
+                rocketCatchZone.anchoredPosition = originalRocketPosition + catchZoneOffset;
+            }
+        }
+
+        // Reset question state
+        currentQuestion = null;
+        if (currentQuestionCoroutine != null)
+        {
+            StopCoroutine(currentQuestionCoroutine);
+            currentQuestionCoroutine = null;
+        }
+
+        // Clear all active objects and bullets
+        CleanupActiveObjects();
+
+        // Reset UI panels
+        ResetUIPanels();
+
+        // Update UI elements (without animations to avoid conflicts)
+        UpdateAllUIImmediate();
+
+    }
+
+    void CleanupActiveObjects()
+    {
+        // Clean up active objects
+        if (activeObjects != null)
+        {
+            for (int i = activeObjects.Count - 1; i >= 0; i--)
+            {
+                GameObject obj = activeObjects[i];
+                if (obj != null)
+                {
+                    RemoveObjectData(obj);
+                    Destroy(obj);
+                }
+            }
+            activeObjects.Clear();
+        }
+
+        // Clean up bullets
+        if (activeBullets != null)
+        {
+            for (int i = activeBullets.Count - 1; i >= 0; i--)
+            {
+                GameObject bullet = activeBullets[i];
+                if (bullet != null)
+                    Destroy(bullet);
+            }
+            activeBullets.Clear();
+        }
+
+        // Clear all dictionaries
+        if (isAsteroidDict != null) isAsteroidDict.Clear();
+        if (asteroidHealthDict != null) asteroidHealthDict.Clear();
+        if (asteroidTimeDict != null) asteroidTimeDict.Clear();
+        if (asteroidStartPosDict != null) asteroidStartPosDict.Clear();
+        if (asteroidRotationSpeedDict != null) asteroidRotationSpeedDict.Clear();
+        if (activeAnimations != null) activeAnimations.Clear();
+    }
+
+    void ResetUIPanels()
+    {
+        // Hide all game panels
+        if (gameUI != null) gameUI.SetActive(false);
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (victoryPanel != null) victoryPanel.SetActive(false);
+        if (questionPanel != null) questionPanel.SetActive(false);
+        if (settingsModal != null) settingsModal.SetActive(false);
+        if (pauseOverlay != null) pauseOverlay.SetActive(false);
+
+        // Reset pause text
+        if (pauseText != null)
+        {
+            pauseText.gameObject.SetActive(false);
+        }
+
+        // Reset answer button colors and states
+        if (answerButtonImages != null)
+        {
+            for (int i = 0; i < answerButtonImages.Length; i++)
+            {
+                if (answerButtonImages[i] != null)
+                    answerButtonImages[i].color = Color.white;
+            }
+        }
+
+        if (answerButtons != null)
+        {
+            for (int i = 0; i < answerButtons.Length; i++)
+            {
+                if (answerButtons[i] != null)
+                    answerButtons[i].interactable = true;
+            }
+        }
+    }
+
+    void UpdateAllUIImmediate()
+    {
+        // Update rocket sprite
+        UpdateRocketSpriteImmediate();
+
+        // Update all meters immediately
+        if (fuelMeter != null)
+        {
+            fuelMeter.minValue = 0;
+            fuelMeter.maxValue = maxFuel;
+            fuelMeter.value = currentFuel;
+            UpdateFuelMeterColor();
+        }
+
+        if (lifeMeter != null)
+        {
+            lifeMeter.minValue = 0;
+            lifeMeter.maxValue = maxLife;
+            lifeMeter.value = currentLife;
+            UpdateLifeMeterColor();
+        }
+
+        if (progressMeter != null)
+        {
+            progressMeter.minValue = 0;
+            progressMeter.maxValue = targetScore;
+            progressMeter.value = score;
+            UpdateProgressMeterColor();
+        }
+
+        // Update score and wave display
+        if (scoreText != null)
+            scoreText.text = score.ToString();
+
+        UpdateWaveDisplay();
+    }
+
+    void UpdateRocketSpriteImmediate()
+    {
+        if (rocketImage == null) return;
+
+        float lifePercentage = currentLife / maxLife;
+        Sprite newSprite = null;
+
+        if (lifePercentage >= 0.75f)
+            newSprite = rocketHealthySprite;
+        else if (lifePercentage >= 0.5f)
+            newSprite = rocketDamagedSprite;
+        else if (lifePercentage >= 0.25f)
+            newSprite = rocketBadlyDamagedSprite;
+        else
+            newSprite = rocketCriticalSprite;
+
+        if (newSprite != null)
+            rocketImage.sprite = newSprite;
+    }
+
+    void InitializeGame()
+    {
+        // Set up UI panels
+        gameUI.SetActive(false);
+        gameOverPanel.SetActive(false);
+        victoryPanel.SetActive(false);
+        questionPanel.SetActive(false);
+
+        InitializePauseSystem();
+
+        // Set up answer button listeners
+        for (int i = 0; i < answerButtons.Length; i++)
+        {
+            int buttonIndex = i;
+            answerButtons[i].onClick.RemoveAllListeners(); // Clear existing listeners
+            answerButtons[i].onClick.AddListener(() => OnAnswerSelected(buttonIndex));
+        }
+
+        // Start initial dialogue or game
+        if (dialogues != null)
+        {
+            dialogues.StartDialogue(0);
+            StartCoroutine(WaitForDialogueThenStartGame());
+        }
+        else
+        {
+            BeginGame();
+        }
+    }
+
 
     void InitializePauseSystem()
     {
