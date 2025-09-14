@@ -6,11 +6,11 @@ public class ShopManager : MonoBehaviour
 {
     public Transform itemContainer;
     public GameObject itemPrefab;
-    public DatabaseManager Database;   
-    private int currentUserId = 1;  
+    public DatabaseManager Database;
+    private int currentUserId = 1;
 
     [Header("Player Info")]
-    public Text coinsText;   
+    public Text coinsText;
 
     [Header("Buy Panel")]
     public GameObject buyPanel;
@@ -125,11 +125,12 @@ public class ShopManager : MonoBehaviour
         panelItemDescription.text = item.Description;
 
         buyPanel.SetActive(true);
-
         panelBuyButton.onClick.RemoveAllListeners();
 
-        // ✅ Check ownership before allowing purchase
-        if (Database.CheckIfOwned(currentUserId, selectedItemId))
+        // ✅ Only block purchase if it's a collectible
+        int ownedQty = Database.CheckIfOwned(currentUserId, selectedItemId);
+
+        if (item.Type == "Collectible" && ownedQty > 0)
         {
             panelBuyButton.interactable = false;
             panelBuyButton.GetComponentInChildren<Text>().text = "Owned";
@@ -142,24 +143,34 @@ public class ShopManager : MonoBehaviour
             panelBuyButton.onClick.AddListener(() =>
             {
                 buyPanel.SetActive(false);
-                ShowConfirmPanel();
+                ShowConfirmPanel(item);
             });
         }
     }
 
-    void ShowConfirmPanel()
+    void ShowConfirmPanel(ItemData item)
     {
         confirmPanel.SetActive(true);
 
         confirmBuyButton.onClick.RemoveAllListeners();
         confirmBuyButton.onClick.AddListener(() =>
         {
-            // ✅ Double-check ownership here
-            if (Database.CheckIfOwned(currentUserId, selectedItemId))
+            int ownedQty = Database.CheckIfOwned(currentUserId, selectedItemId);
+
+            if (item.Type == "Collectible" && ownedQty > 0)
             {
-                confirmPanel.SetActive(false);
-                ShowErrorPanel("You already own this item!");
-                return;
+                panelBuyButton.interactable = false;
+                panelBuyButton.GetComponentInChildren<Text>().text = "Owned";
+            }
+            else
+            {
+                panelBuyButton.interactable = true;
+                panelBuyButton.GetComponentInChildren<Text>().text = "Buy";
+
+                if (item.Type == "Food" && ownedQty > 0)
+                {
+                    panelItemDescription.text += $"\nYou already have {ownedQty} in your inventory.";
+                }
             }
 
             bool success = Database.PurchaseItem(currentUserId, selectedItemId);

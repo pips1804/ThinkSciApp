@@ -103,7 +103,7 @@ public class PetIntroManager : MonoBehaviour
         clickToContinueHint.gameObject.SetActive(true);
         introPanel.SetActive(true);
 
-        (string fname, string _, string _, int _) = dbManager.GetUser();
+        (string fname, string _, string _, int _, int _) = dbManager.GetUser();
         dialogLines[0] = $"Hello there, {fname}!";
 
         if (typingCoroutine != null)

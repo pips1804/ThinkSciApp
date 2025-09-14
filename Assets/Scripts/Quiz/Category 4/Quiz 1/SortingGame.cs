@@ -89,9 +89,44 @@ public class SortingGame : MonoBehaviour
     public int userID;
     public int rewardItemID;
 
+    // NEW: Track if this is the first enable or a re-enable
+    private bool hasBeenInitialized = false;
+
     void Start()
     {
-        Debug.Log("=== SORTING GAME STARTED ===");
+        Debug.Log("=== SORTING GAME START ===");
+        InitializeGame();
+    }
+
+    // NEW: Called when the GameObject is enabled
+    void OnEnable()
+    {
+        Debug.Log("=== SORTING GAME ENABLED ===");
+
+        // If this has been initialized before, it means we're re-enabling after being disabled
+        if (hasBeenInitialized)
+        {
+            Debug.Log("Re-enabling game - performing full restart");
+            PerformFullRestart();
+        }
+    }
+
+    // NEW: Called when the GameObject is disabled
+    void OnDisable()
+    {
+        Debug.Log("=== SORTING GAME DISABLED ===");
+
+        // Stop all coroutines and clean up when disabled
+        StopAllCoroutines();
+
+        // Clean up active icons
+        CleanupActiveIcons();
+    }
+
+    // NEW: Initialize the game for the first time
+    void InitializeGame()
+    {
+        Debug.Log("=== INITIALIZING GAME FOR FIRST TIME ===");
 
         // Calculate catch zone offset relative to bin
         if (binCatchZone != null && binImage != null)
@@ -100,13 +135,11 @@ public class SortingGame : MonoBehaviour
             Debug.Log($"Catch zone offset calculated: {catchZoneOffset}");
         }
 
+        // Reset all game state to initial values
+        ResetGameState();
+
         // Hide all UI elements initially
-        Earth.SetActive(false);
-        SpawnArea.SetActive(false);
-        MainBin.SetActive(false);
-        Score.SetActive(false);
-        WaveInfo.SetActive(false);
-        TargetDisplay.SetActive(false);
+        HideAllGameUI();
 
         // Hide modals initially
         if (passModal != null) passModal.SetActive(false);
@@ -124,6 +157,127 @@ public class SortingGame : MonoBehaviour
             Debug.Log("No dialogue found, starting game immediately");
             BeginGame();
         }
+
+        // Mark as initialized
+        hasBeenInitialized = true;
+    }
+
+    // NEW: Perform a full restart when re-enabling
+    void PerformFullRestart()
+    {
+        Debug.Log("=== PERFORMING FULL RESTART ===");
+
+        // Stop all running coroutines
+        StopAllCoroutines();
+
+        // Clean up any remaining icons
+        CleanupActiveIcons();
+
+        // Reset all game state
+        ResetGameState();
+
+        HideAllGameUI();
+
+        // Hide modals
+        if (passModal != null) passModal.SetActive(false);
+        if (failModal != null) failModal.SetActive(false);
+
+        // Always start from dialogue on restart
+        if (dialogues != null)
+        {
+            Debug.Log("Starting fresh dialogue on restart");
+            // StartDialogue already resets dialogueFinished to false internally
+            dialogues.StartDialogue(0);
+            StartCoroutine(WaitForDialogueThenStartGame());
+        }
+        else
+        {
+            Debug.Log("No dialogue system found, beginning game immediately");
+            BeginGame();
+        }
+    }
+
+    // NEW: Reset all game state variables to their initial values
+    void ResetGameState()
+    {
+        Debug.Log("Resetting all game state variables");
+
+        // Reset core game variables
+        score = 0;
+        currentWave = 0;
+        currentEarthState = 0;
+        targetIconIndex = 0;
+        iconsSpawnedThisWave = 0;
+        targetIconsCaughtThisWave = 0;
+        isSpawning = false;
+        isPaused = false;
+        gameStarted = false;
+
+        // Reset dynamic difficulty values
+        currentFallDuration = baseFallDuration;
+        currentSpawnInterval = baseSpawnInterval;
+
+        // Clear active coroutines list
+        activeCoroutines.Clear();
+
+        // Reset UI elements to initial state
+        ResetUIElements();
+    }
+
+    // NEW: Reset UI elements to their initial state
+    void ResetUIElements()
+    {
+        Debug.Log("Resetting UI elements to initial state");
+
+        // Reset Earth to healthy state
+        if (earthImage != null && earthStates.Length > 0)
+        {
+            earthImage.sprite = earthStates[0];
+            earthImage.color = Color.white;
+            earthImage.rectTransform.localScale = Vector3.one;
+        }
+
+        // Reset score display
+        if (scoreText != null)
+            scoreText.text = "0";
+
+        // Reset wave display
+        if (waveText != null)
+            waveText.text = "1/5";
+
+        // Reset progress slider
+        if (progressSlider != null)
+        {
+            progressSlider.minValue = 0;
+            progressSlider.maxValue = 5;
+            progressSlider.value = 0;
+        }
+
+        // Reset bin color
+        if (binImage != null)
+            binImage.color = Color.white;
+
+        // Clear target display
+        if (targetIconImage != null)
+            targetIconImage.sprite = null;
+
+        if (targetIconNameText != null)
+            targetIconNameText.text = "";
+    }
+
+    // NEW: Clean up all active icons
+    void CleanupActiveIcons()
+    {
+        Debug.Log($"Cleaning up {activeIcons.Count} active icons");
+
+        foreach (GameObject icon in activeIcons)
+        {
+            if (icon != null)
+            {
+                Destroy(icon);
+            }
+        }
+        activeIcons.Clear();
     }
 
     IEnumerator WaitForDialogueThenStartGame()
@@ -138,15 +292,7 @@ public class SortingGame : MonoBehaviour
         Debug.Log("=== BEGINNING GAME ===");
 
         // Show all UI elements
-        Earth.SetActive(true);
-        SpawnArea.SetActive(true);
-        MainBin.SetActive(true);
-        Score.SetActive(true);
-        WaveInfo.SetActive(true);
-        TargetDisplay.SetActive(true);
-        Header.SetActive(true);
-        Settings.SetActive(true);
-        QuizProgress.SetActive(true);
+        ShowAllGameUI();
 
         gameStarted = true;
 
@@ -166,6 +312,22 @@ public class SortingGame : MonoBehaviour
 
         UpdateScore();
         StartNewWave();
+    }
+
+    // NEW: Show all game UI elements
+    void ShowAllGameUI()
+    {
+        Debug.Log("Showing all game UI elements");
+
+        Earth.SetActive(true);
+        SpawnArea.SetActive(true);
+        MainBin.SetActive(true);
+        Score.SetActive(true);
+        WaveInfo.SetActive(true);
+        TargetDisplay.SetActive(true);
+        Header.SetActive(true);
+        Settings.SetActive(true);
+        QuizProgress.SetActive(true);
     }
 
     void Update()
@@ -314,7 +476,8 @@ public class SortingGame : MonoBehaviour
             CorrectAnswer();
             targetIconsCaughtThisWave++;
             StartCoroutine(ShowCorrectFeedback());
-            AudioManager.Instance.PlaySFX(correct);
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(correct);
         }
         else if (iconType.isRenewable && iconType.iconIndex != targetIconIndex)
         {
@@ -322,7 +485,8 @@ public class SortingGame : MonoBehaviour
             Debug.Log("✗ WRONG RENEWABLE TYPE!");
             WrongAnswer();
             StartCoroutine(ShowWrongTypeFeedback());
-            AudioManager.Instance.PlaySFX(wrong);
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(wrong);
         }
         else
         {
@@ -330,7 +494,8 @@ public class SortingGame : MonoBehaviour
             Debug.Log("✗ FOSSIL FUEL CAUGHT!");
             WrongAnswer();
             StartCoroutine(ShowFossilFeedback());
-            AudioManager.Instance.PlaySFX(wrong);
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(wrong);
         }
 
         // Remove the caught icon safely
@@ -854,15 +1019,11 @@ public class SortingGame : MonoBehaviour
         HideAllGameUI();
 
         // Clean up any remaining icons
-        foreach (GameObject icon in activeIcons)
-        {
-            if (icon != null)
-                Destroy(icon);
-        }
-        activeIcons.Clear();
+        CleanupActiveIcons();
 
         // Show pass modal after hiding UI
-        AudioManager.Instance.PlaySFX(passed);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(passed);
         StartCoroutine(ShowPassModalAfterDelay());
     }
 
@@ -874,62 +1035,46 @@ public class SortingGame : MonoBehaviour
         HideAllGameUI();
 
         // Clean up any remaining icons
-        foreach (GameObject icon in activeIcons)
-        {
-            if (icon != null)
-                Destroy(icon);
-        }
-        activeIcons.Clear();
+        CleanupActiveIcons();
 
         // Show fail modal after hiding UI
-        AudioManager.Instance.PlaySFX(failed);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(failed);
         StartCoroutine(ShowFailModalAfterDelay());
     }
 
     public void RestartGame()
     {
-        Debug.Log("=== RESTARTING GAME ===");
+        Debug.Log("=== RESTARTING GAME VIA BUTTON ===");
 
-        // Stop all running coroutines (spawning, animations, etc.)
+        // Stop all running coroutines
         StopAllCoroutines();
 
-        // Destroy all active icons
-        foreach (GameObject icon in activeIcons)
-        {
-            if (icon != null)
-                Destroy(icon);
-        }
-        activeIcons.Clear();
+        // Clean up any remaining icons
+        CleanupActiveIcons();
 
-        // Reset game state variables
-        score = 0;
-        currentWave = 0;
-        currentEarthState = 0;
-        targetIconIndex = 0;
-        iconsSpawnedThisWave = 0;
-        targetIconsCaughtThisWave = 0;
-        isSpawning = false;
-        isPaused = false;
-        gameStarted = false;
+        // Reset all game state
+        ResetGameState();
 
-        // Reset UI
-        if (earthImage != null && earthStates.Length > 0)
-            earthImage.sprite = earthStates[0]; // Reset Earth to healthy state
+        HideAllGameUI();
 
-        if (scoreText != null)
-            scoreText.text = "0";
-
-        if (waveText != null)
-            waveText.text = "1/5";
-
-        if (progressSlider != null)
-            progressSlider.value = 0;
-
+        // Hide modals
         if (passModal != null) passModal.SetActive(false);
         if (failModal != null) failModal.SetActive(false);
 
-        // Restart the game flow
-        BeginGame();
+        // Always restart from dialogue when using restart button
+        if (dialogues != null)
+        {
+            Debug.Log("Restarting from dialogue via button");
+            // StartDialogue already resets dialogueFinished to false internally
+            dialogues.StartDialogue(0);
+            StartCoroutine(WaitForDialogueThenStartGame());
+        }
+        else
+        {
+            Debug.Log("No dialogue system found, beginning game immediately");
+            BeginGame();
+        }
     }
 
     void HideAllGameUI()
@@ -942,10 +1087,12 @@ public class SortingGame : MonoBehaviour
         Score.SetActive(false);
         WaveInfo.SetActive(false);
         TargetDisplay.SetActive(false);
+        // Keep Header, Settings, and QuizProgress visible for navigation
         // Header.SetActive(false);
         // Settings.SetActive(false);
         // QuizProgress.SetActive(false);
     }
+
 
     IEnumerator ShowPassModalAfterDelay()
     {

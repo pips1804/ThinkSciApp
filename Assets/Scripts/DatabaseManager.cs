@@ -37,11 +37,16 @@ public class ItemData
     public int Price;
     public string SpritePath;
     public string Description;
+    public int Quantity;  // ✅ add this
+    public int EnergyValue;
 }
 
 public class DatabaseManager : MonoBehaviour
 {
     private string dbPath;
+
+    public delegate void UserDataChangedHandler();
+    public static event UserDataChangedHandler OnUserDataChanged;
     void Awake()
     {
         dbPath = "URI=file:" + Path.Combine(Application.persistentDataPath, "UserDatabase.db");
@@ -178,7 +183,7 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
-    public (string, string, string, int) GetUser()
+    public (string, string, string, int, int) GetUser()
     {
         using (var connection = new SqliteConnection(dbPath))
         {
@@ -186,19 +191,19 @@ public class DatabaseManager : MonoBehaviour
 
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT first_name, middle_name, last_name, coins FROM users LIMIT 1";
+                command.CommandText = "SELECT first_name, middle_name, last_name, coins, energy FROM users LIMIT 1";
 
                 using (IDataReader reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        return (reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3));
+                        return (reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4));
                     }
                 }
             }
         }
 
-        return ("", "", "", 0);
+        return ("", "", "", 0, 0);
     }
 
     public void SavePlayerStats(int coins)
@@ -236,6 +241,28 @@ public class DatabaseManager : MonoBehaviour
         }
 
         return 200;
+    }
+
+    public int LoadPlayerEnergy()
+    {
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT energy FROM users WHERE id = 1;";
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return reader.GetInt32(0); // return energy value
+                    }
+                }
+            }
+        }
+
+        return 0; // default if not found
     }
 
     public void SaveQuizAndScore(int userId, int quizId, int score)
@@ -349,6 +376,58 @@ public class DatabaseManager : MonoBehaviour
         }
 
         Debug.Log("Lesson unlocked!");
+    }
+
+    public int? GetRequiredCollectibleForLesson(int lessonId)
+    {
+        using (IDbConnection dbConn = new SqliteConnection(dbPath))
+        {
+            dbConn.Open();
+            using (IDbCommand cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT Item_ID FROM Items WHERE Lesson_ID = @lessonId LIMIT 1";
+                cmd.Parameters.Add(new SqliteParameter("@lessonId", lessonId));
+
+                object result = cmd.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                    return Convert.ToInt32(result);
+
+                return null; // No collectible required
+            }
+        }
+    }
+
+    public string GetItemName(int itemId)
+    {
+        using (IDbConnection dbConn = new SqliteConnection(dbPath))
+        {
+            dbConn.Open();
+            using (IDbCommand cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT Item_Name FROM Items WHERE Item_ID = @itemId";
+                cmd.Parameters.Add(new SqliteParameter("@itemId", itemId));
+
+                object result = cmd.ExecuteScalar();
+                return result?.ToString() ?? "Unknown Item";
+            }
+        }
+    }
+
+    public bool HasCollectible(int userId, int itemId)
+    {
+        using (IDbConnection dbConn = new SqliteConnection(dbPath))
+        {
+            dbConn.Open();
+            using (IDbCommand cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT COUNT(*) FROM User_Items WHERE User_ID = @userId AND Item_ID = @itemId";
+                cmd.Parameters.Add(new SqliteParameter("@userId", userId));
+                cmd.Parameters.Add(new SqliteParameter("@itemId", itemId));
+
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                return count > 0;
+            }
+        }
     }
 
     public List<Badge> GetUserBadges(int userId)
@@ -545,6 +624,63 @@ public class DatabaseManager : MonoBehaviour
                 cmd.ExecuteNonQuery();
             }
         }
+        OnUserDataChanged?.Invoke();
+    }
+
+    public void AddEnergy(int userId, int energyToAdd)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+
+            using (IDbCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = @"UPDATE users
+                                SET energy = energy + @energyToAdd
+                                WHERE id = @userId";
+
+                var param1 = cmd.CreateParameter();
+                param1.ParameterName = "@energyToAdd";
+                param1.Value = energyToAdd;
+                cmd.Parameters.Add(param1);
+
+                var param2 = cmd.CreateParameter();
+                param2.ParameterName = "@userId";
+                param2.Value = userId;
+                cmd.Parameters.Add(param2);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+        OnUserDataChanged?.Invoke();
+    }
+
+    public void SpendEnergy(int userId, int energyToSpend)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+
+            using (IDbCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = @"UPDATE users
+                    SET energy = MAX(energy - @energyToSpend, 0)
+                    WHERE id = @userId";
+
+                var param1 = cmd.CreateParameter();
+                param1.ParameterName = "@energyToSpend";
+                param1.Value = energyToSpend;
+                cmd.Parameters.Add(param1);
+
+                var param2 = cmd.CreateParameter();
+                param2.ParameterName = "@userId";
+                param2.Value = userId;
+                cmd.Parameters.Add(param2);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+        OnUserDataChanged?.Invoke();
     }
 
     public bool HasReceivedStatBonus(int userId, int quizId)
@@ -1114,7 +1250,7 @@ public class DatabaseManager : MonoBehaviour
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = @"
-                SELECT i.Item_ID, i.Item_Name, i.Item_Type, i.Price, i.Sprite_Path
+                SELECT i.Item_ID, i.Item_Name, i.Item_Type, i.Price, i.Sprite_Path, ui.Quantity, i.Description, i.EnergyValue
                 FROM Items i
                 JOIN User_Items ui ON i.Item_ID = ui.Item_ID
                 WHERE ui.User_ID = @uid";
@@ -1130,7 +1266,10 @@ public class DatabaseManager : MonoBehaviour
                             Name = reader.GetString(1),
                             Type = reader.GetString(2),
                             Price = reader.GetInt32(3),
-                            SpritePath = reader.GetString(4)
+                            SpritePath = reader.IsDBNull(4) ? null : reader.GetString(4),
+                            Quantity = reader.GetInt32(5),
+                            Description = reader.GetString(6),
+                            EnergyValue = reader.IsDBNull(7) ? 0 : reader.GetInt32(7)
                         });
                     }
                 }
@@ -1139,6 +1278,7 @@ public class DatabaseManager : MonoBehaviour
 
         return items;
     }
+
 
     // Purchase item (deduct coins + insert into User_Items)
     public bool PurchaseItem(int userId, int itemId)
@@ -1215,24 +1355,26 @@ public class DatabaseManager : MonoBehaviour
         return true;
     }
 
-
-    public bool CheckIfOwned(int userId, int itemId)
+    public int CheckIfOwned(int userId, int itemId)
     {
-        using (var conn = new SqliteConnection(dbPath)) // or MySqlConnection
+        using (var conn = new SqliteConnection(dbPath))
         {
             conn.Open();
 
-            string query = "SELECT COUNT(*) FROM User_Items WHERE User_ID = @userId AND Item_ID = @itemId";
+            string query = "SELECT Quantity FROM User_Items WHERE User_ID = @userId AND Item_ID = @itemId";
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = query;
                 cmd.Parameters.AddWithValue("@userId", userId);
                 cmd.Parameters.AddWithValue("@itemId", itemId);
 
-                long count = (long)cmd.ExecuteScalar();
-                return count > 0;
+                object result = cmd.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                    return Convert.ToInt32(result);
             }
         }
+
+        return 0; // not owned
     }
 
     public void AddUserItem(int userId, int itemId, int amount = 1)
@@ -1293,6 +1435,8 @@ public class DatabaseManager : MonoBehaviour
                 return count > 0;
             }
         }
+
+        return 0; // not owned
     }
 
     public bool CanUnlockLesson(int userId, int lessonId)
