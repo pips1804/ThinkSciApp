@@ -1435,8 +1435,6 @@ public class DatabaseManager : MonoBehaviour
                 return count > 0;
             }
         }
-
-        return 0; // not owned
     }
 
     public bool CanUnlockLesson(int userId, int lessonId)
