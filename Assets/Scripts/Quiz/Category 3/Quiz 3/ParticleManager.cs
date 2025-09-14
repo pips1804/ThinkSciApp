@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEditor.Timeline;
 
 public class ParticleManager : MonoBehaviour
 {
@@ -89,6 +90,11 @@ public class ParticleManager : MonoBehaviour
     [Header("Sound Effects")]
     public AudioClip passed;
     public AudioClip failed;
+    public DatabaseManager dbManager;
+    public LessonLocker lessonHandler;
+    public CategoryLocker categoryHandler;
+    public int userID;
+    public int rewardItemID;
 
     void Start()
     {
@@ -371,14 +377,23 @@ public class ParticleManager : MonoBehaviour
         // Show appropriate modal
         if (scorePercentage >= passingScore)
         {
+            dbManager.AddUserItem(userID, rewardItemID);
+            dbManager.UnlockCategoryForUser(userID, 4);
+            categoryHandler.RefreshCategoryLocks();
+            dbManager.CheckAndUnlockAllLessons(userID);
+            lessonHandler.RefreshLessonLocks();
+            dbManager.AddCoin(userID, 100);
             ShowPassModal(scorePercentage);
             AudioManager.Instance.PlaySFX(passed);
         }
         else
         {
+            dbManager.AddCoin(userID, 100);
             ShowFailModal(scorePercentage);
             AudioManager.Instance.PlaySFX(failed);
         }
+
+        dbManager.SaveQuizAndScore(userID, 10, currentScore);
     }
 
     void ShowPassModal(float scorePercentage)

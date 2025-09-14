@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.SocialPlatforms;
 
 [System.Serializable]
 public class ForceQuizQuestion
@@ -29,12 +30,15 @@ public class ForceQuizManager : MonoBehaviour
     public AudioClip correct;
     public AudioClip wrong;
 
-    private List<ForceQuizQuestion> questions;
+    public List<ForceQuizQuestion> questions;
     private int currentQuestionIndex = 0;
     private int score = 0;
     private bool hasAnswered = false;
     private float timeRemaining;
     public DatabaseManager dbManager;
+    public LessonLocker lessonsHandler;
+    public int userID;
+    public int rewardItemID;
 
     private void Start()
     {
@@ -179,7 +183,19 @@ public class ForceQuizManager : MonoBehaviour
     {
         progressSlider.value = 1f;
         bool passed = score >= passingScore;
+        if (passed)
+        {
+            dbManager.AddUserItem(userID, rewardItemID);
+            dbManager.CheckAndUnlockAllLessons(userID);
+            lessonsHandler.RefreshLessonLocks();
+            dbManager.AddCoin(userID, 100);
+        }
+        else
+        {
+            dbManager.AddCoin(userID, 50);
+        }
         FindFirstObjectByType<ForceGameManager>().OnQuizComplete(passed);
+        dbManager.SaveQuizAndScore(userID, 1, score);
     }
 
     public void ResetQuiz()

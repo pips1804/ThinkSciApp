@@ -169,6 +169,8 @@ public class RocketAsteroidGame : MonoBehaviour
         public string[] answers = new string[4];
         public int correctAnswerIndex;
     }
+    public LessonLocker lessonHandler;
+    public int userID;
     void Start()
     {
         Debug.Log("=== ROCKET ASTEROID GAME STARTED ===");
@@ -1306,6 +1308,12 @@ public class RocketAsteroidGame : MonoBehaviour
 
     void Victory()
     {
+        dbManager.AddUserItem(userID, 15);
+        dbManager.AddUserItem(userID, 17);
+        dbManager.CheckAndUnlockAllLessons(userID);
+        lessonHandler.RefreshLessonLocks();
+        dbManager.AddCoin(userID, 100);
+        dbManager.SaveQuizAndScore(userID, quizId, score);
         Debug.Log("VICTORY!");
         isGameActive = false;
         isGamePaused = false; // NEW: Ensure we're not paused when victory occurs
@@ -1329,6 +1337,8 @@ public class RocketAsteroidGame : MonoBehaviour
 
     void GameOver()
     {
+        dbManager.AddCoin(userID, 50);
+        dbManager.SaveQuizAndScore(userID, quizId, score);
         Debug.Log("GAME OVER!");
         isGameActive = false;
         isGamePaused = false; // NEW: Ensure we're not paused when game over occurs

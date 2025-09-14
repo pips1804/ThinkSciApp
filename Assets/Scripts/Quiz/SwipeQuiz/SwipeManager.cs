@@ -58,6 +58,7 @@ public class SwipeManager : MonoBehaviour
     private Vector3 originalScale;
 
     public DatabaseManager dbManager;
+    public LessonLocker lessonHandler;
     public int quizId;
     public int userId = 1;
     public int currentScore;
@@ -116,6 +117,7 @@ public class SwipeManager : MonoBehaviour
 
     public int lessonToUnlock;
     public int categoryToUnlock;
+    public int rewardItemID;
     public int earnedGold;
     public int healthToAdd;
     public int damageToAdd;
@@ -508,20 +510,17 @@ public class SwipeManager : MonoBehaviour
         if (questionText != null)
             questionText.enabled = false; // Changed from questionImage to questionText
 
-        if (score >= 7)
+        if (score >= 10)
         {
+            dbManager.AddUserItem(userId,rewardItemID);
+            dbManager.CheckAndUnlockAllLessons(userId);
+            lessonHandler.RefreshLessonLocks();
+            dbManager.AddCoin(userId, 100);
+            dbManager.SaveQuizAndScore(userId, quizId, score);
+
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySFX(passed);
             passingModal.SetActive(true);
-
-            // if (passingHeader != null && passingScore != null)
-            // {
-            // int earnedGold;
-            // string scoreMsg, goldMsg;
-            // GetResultMessage(score, out earnedGold, out scoreMsg, out goldMsg);
-
-            // passingHeader.text = scoreMsg;
-            // passingScore.text = goldMsg;
 
             bool alreadyGiven = dbManager.HasReceivedStatBonus(userId, quizId);
 
@@ -535,16 +534,11 @@ public class SwipeManager : MonoBehaviour
             if (categoryToUnlock != 0)
             {
                 dbManager.UnlockCategoryForUser(userId, categoryToUnlock);
-                // passingNote.text = "NOTE: Lesson completed, next lesson and new category unlocked!";
             }
-            // else
-            // {
-            //     // passingNote.text = "NOTE: Lesson completed, next lesson unlocked!";
-            // }
-            // }
         }
         else if (battleManager.playerHealth <= 0 || score <= 6)
         {
+            dbManager.AddCoin(userId, 50);
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySFX(failed);
             failingModal.SetActive(true);

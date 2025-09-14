@@ -65,7 +65,7 @@ public class RacingQuiz : MonoBehaviour
     [Header("Database Integration")]
     public DatabaseManager databaseManager;
     public int quizId = 7; // set the Quiz ID
-    private RacingQuizQuestion[] questions;
+    public RacingQuizQuestion[] questions;
 
     // Game State Variables
     private int currentQuestionIndex = 0;
@@ -83,6 +83,12 @@ public class RacingQuiz : MonoBehaviour
     private Color defaultButtonColor = Color.white;
     private Color correctColor = Color.green;
     private Color wrongColor = Color.red;
+
+    public LessonLocker lessonHandler;
+    public CategoryLocker categoryHandler;
+    public int userID;
+    public int categoryToUnlock;
+    public int rewardItemID;
 
     // ===================================================================
     // UNITY LIFECYCLE - RESET ON ENABLE/DISABLE
@@ -522,14 +528,22 @@ public class RacingQuiz : MonoBehaviour
 
         if (playerWon)
         {
+            databaseManager.AddUserItem(userID, rewardItemID);
+            databaseManager.UnlockCategoryForUser(userID, categoryToUnlock);
+            categoryHandler.RefreshCategoryLocks();
+            databaseManager.CheckAndUnlockAllLessons(userID);
+            lessonHandler.RefreshLessonLocks();
+            databaseManager.AddCoin(userID, 100);
             victoryModal.SetActive(true);
             AudioManager.Instance.PlaySFX(victorySound);
         }
         else
         {
+            databaseManager.AddCoin(userID, 100);
             gameOverModal.SetActive(true);
             AudioManager.Instance.PlaySFX(gameOverSound);
         }
+        databaseManager.SaveQuizAndScore(userID, quizId, correctAnswers);
     }
 
     // ===================================================================

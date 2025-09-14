@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -82,6 +83,11 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
     [SerializeField] private DatabaseManager databaseManager; // drag in inspector
     [SerializeField] private int quizId = 3; // ID of the quiz in your DB
     [SerializeField] private int questionLimit = 15; // number of questions to fetch
+
+    public LessonLocker lessonHandler;
+    public int userID;
+    public int lessonToUnlock;
+    public int rewardItemID;
     private void Start()
     {
         hasInitialized = true;
@@ -453,6 +459,12 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
 
     private void Victory(float overallPercentage)
     {
+        databaseManager.AddUserItem(userID, rewardItemID);
+        databaseManager.CheckAndUnlockAllLessons(userID);
+        lessonHandler.RefreshLessonLocks();
+        databaseManager.AddCoin(userID, 100);
+        databaseManager.SaveQuizAndScore(userID, quizId, correctAnswers);
+
         gameEnded = true;
         AudioManager.Instance.PlaySFX(passedsound);
 
@@ -466,7 +478,8 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
                 victoryModalText.text = $"Congratulations! You passed with {overallPercentage:F0}%!\nFinal Score: {correctAnswers}/{totalQuestionsAnswered}";
             }
         }
-        Debug.Log("Player Wins!");
+
+        Debug.Log("Player Wins and data saved in database!");
     }
 
     private void Defeat()
@@ -479,6 +492,8 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
 
     private void Defeat(float overallPercentage)
     {
+        databaseManager.AddCoin(userID, 50);
+        databaseManager.SaveQuizAndScore(userID, quizId, correctAnswers);
         gameEnded = true;
         AudioManager.Instance.PlaySFX(failed);
 
@@ -492,7 +507,7 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
                 gameOverModalText.text = $"You scored {overallPercentage:F0}%. You need {passPercentage:F0}% or higher to pass.\nFinal Score: {correctAnswers}/{totalQuestionsAnswered}";
             }
         }
-        Debug.Log("Enemy Wins!");
+        Debug.Log("Enemy Wins and data saved in database!");
     }
 
     private void Draw()
@@ -540,7 +555,7 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
 
     public void QuitGame()
     {
-        Application.Quit();
+        UnityEngine.Application.Quit();
     }
 
     // Reset game specifically for retake functionality

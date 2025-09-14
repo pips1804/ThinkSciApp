@@ -25,7 +25,11 @@ public class LessonLocker : MonoBehaviour
             if (index >= 0 && index < lessonButtons.Length)
             {
                 Button lessonButton = lessonButtons[index];
-                if (data.IsUnlocked == 1)
+
+                // Check if user can unlock based on required items
+                bool canUnlock = dbManager.CanUnlockLesson(currentUserId, data.LessonID);
+
+                if (data.IsUnlocked == 1 && canUnlock)
                     UnlockLesson(lessonButton);
                 else
                     LockLesson(lessonButton);

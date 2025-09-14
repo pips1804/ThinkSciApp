@@ -88,6 +88,10 @@ public class BatteryQuiz : MonoBehaviour
     public AudioClip failed;
     public AudioClip correct;
     public AudioClip wrong;
+
+    public LessonLocker lessonHandler;
+    public int userID;
+    public int rewardItemID;
     private void Awake()
     {
         // gather arrays for easier handling
@@ -339,6 +343,10 @@ public class BatteryQuiz : MonoBehaviour
 
         if (finalScore >= passThreshold)
         {
+            dbManager.AddUserItem(userID, rewardItemID);
+            dbManager.CheckAndUnlockAllLessons(userID);
+            lessonHandler.RefreshLessonLocks();
+            dbManager.AddCoin(userID, 100);
             // Pass
             if (passPanel != null)
             {
@@ -349,6 +357,7 @@ public class BatteryQuiz : MonoBehaviour
         }
         else
         {
+            dbManager.AddCoin(userID, 50);
             // Fail
             if (failPanel != null)
             {
@@ -357,7 +366,7 @@ public class BatteryQuiz : MonoBehaviour
                 if (failText) failText.text = $"Battery is drained!\n You failed with the score of {percent}%.\nTry again!";
             }
         }
-
+        dbManager.SaveQuizAndScore(userID, quizId, correctAnswers);
         // ensure progress slider is full (all questions completed)
         if (progressSlider) progressSlider.value = progressSlider.maxValue;
     }

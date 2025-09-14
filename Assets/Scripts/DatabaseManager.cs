@@ -1142,78 +1142,78 @@ public class DatabaseManager : MonoBehaviour
 
     // Purchase item (deduct coins + insert into User_Items)
     public bool PurchaseItem(int userId, int itemId)
-{
-    using (var conn = new SqliteConnection(dbPath))
     {
-        conn.Open();
-        using (var trans = conn.BeginTransaction())
+        using (var conn = new SqliteConnection(dbPath))
         {
-            // 1. Check if user already owns the item
-            using (var checkCmd = conn.CreateCommand())
+            conn.Open();
+            using (var trans = conn.BeginTransaction())
             {
-                checkCmd.Transaction = trans;
-                checkCmd.CommandText = "SELECT COUNT(*) FROM User_Items WHERE User_ID = @uid AND Item_ID = @iid";
-                checkCmd.Parameters.AddWithValue("@uid", userId);
-                checkCmd.Parameters.AddWithValue("@iid", itemId);
-
-                long count = (long)checkCmd.ExecuteScalar();
-                if (count > 0)
+                // 1. Check if user already owns the item
+                using (var checkCmd = conn.CreateCommand())
                 {
-                    Debug.LogWarning("User already owns this item.");
-                    return false; // don't deduct coins, don't insert
+                    checkCmd.Transaction = trans;
+                    checkCmd.CommandText = "SELECT COUNT(*) FROM User_Items WHERE User_ID = @uid AND Item_ID = @iid";
+                    checkCmd.Parameters.AddWithValue("@uid", userId);
+                    checkCmd.Parameters.AddWithValue("@iid", itemId);
+
+                    long count = (long)checkCmd.ExecuteScalar();
+                    if (count > 0)
+                    {
+                        Debug.LogWarning("User already owns this item.");
+                        return false; // don't deduct coins, don't insert
+                    }
                 }
-            }
 
-            // 2. Check user coins & item price
-            int coins = 0, price = 0;
-            using (var cmd = conn.CreateCommand())
-            {
-                cmd.Transaction = trans;
-                cmd.CommandText = "SELECT coins FROM users WHERE id = @uid";
-                cmd.Parameters.AddWithValue("@uid", userId);
-                coins = Convert.ToInt32(cmd.ExecuteScalar());
-            }
-            using (var cmd = conn.CreateCommand())
-            {
-                cmd.Transaction = trans;
-                cmd.CommandText = "SELECT Price FROM Items WHERE Item_ID = @iid";
-                cmd.Parameters.AddWithValue("@iid", itemId);
-                price = Convert.ToInt32(cmd.ExecuteScalar());
-            }
+                // 2. Check user coins & item price
+                int coins = 0, price = 0;
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.Transaction = trans;
+                    cmd.CommandText = "SELECT coins FROM users WHERE id = @uid";
+                    cmd.Parameters.AddWithValue("@uid", userId);
+                    coins = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.Transaction = trans;
+                    cmd.CommandText = "SELECT Price FROM Items WHERE Item_ID = @iid";
+                    cmd.Parameters.AddWithValue("@iid", itemId);
+                    price = Convert.ToInt32(cmd.ExecuteScalar());
+                }
 
-            if (coins < price)
-            {
-                Debug.LogWarning("Not enough coins to purchase item.");
-                return false;
-            }
+                if (coins < price)
+                {
+                    Debug.LogWarning("Not enough coins to purchase item.");
+                    return false;
+                }
 
-            // 3. Deduct coins
-            using (var cmd = conn.CreateCommand())
-            {
-                cmd.Transaction = trans;
-                cmd.CommandText = "UPDATE users SET coins = coins - @price WHERE id = @uid";
-                cmd.Parameters.AddWithValue("@price", price);
-                cmd.Parameters.AddWithValue("@uid", userId);
-                cmd.ExecuteNonQuery();
-            }
+                // 3. Deduct coins
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.Transaction = trans;
+                    cmd.CommandText = "UPDATE users SET coins = coins - @price WHERE id = @uid";
+                    cmd.Parameters.AddWithValue("@price", price);
+                    cmd.Parameters.AddWithValue("@uid", userId);
+                    cmd.ExecuteNonQuery();
+                }
 
-            // 4. Add item to User_Items
-            using (var cmd = conn.CreateCommand())
-            {
-                cmd.Transaction = trans;
-                cmd.CommandText = "INSERT INTO User_Items (User_ID, Item_ID) VALUES (@uid, @iid)";
-                cmd.Parameters.AddWithValue("@uid", userId);
-                cmd.Parameters.AddWithValue("@iid", itemId);
-                cmd.ExecuteNonQuery();
-            }
+                // 4. Add item to User_Items
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.Transaction = trans;
+                    cmd.CommandText = "INSERT INTO User_Items (User_ID, Item_ID) VALUES (@uid, @iid)";
+                    cmd.Parameters.AddWithValue("@uid", userId);
+                    cmd.Parameters.AddWithValue("@iid", itemId);
+                    cmd.ExecuteNonQuery();
+                }
 
-            trans.Commit();
+                trans.Commit();
+            }
         }
-    }
 
-    Debug.Log("Item purchased successfully!");
-    return true;
-}
+        Debug.Log("Item purchased successfully!");
+        return true;
+    }
 
 
     public bool CheckIfOwned(int userId, int itemId)
@@ -1234,4 +1234,149 @@ public class DatabaseManager : MonoBehaviour
             }
         }
     }
+
+    public void AddUserItem(int userId, int itemId, int amount = 1)
+    {
+        using (IDbConnection dbConn = new SqliteConnection(dbPath))
+        {
+            dbConn.Open();
+
+            // Check if user already has this item
+            using (IDbCommand checkCmd = dbConn.CreateCommand())
+            {
+                checkCmd.CommandText = "SELECT Quantity FROM User_Items WHERE User_ID = @userId AND Item_ID = @itemId";
+                checkCmd.Parameters.Add(new SqliteParameter("@userId", userId));
+                checkCmd.Parameters.Add(new SqliteParameter("@itemId", itemId));
+
+                object result = checkCmd.ExecuteScalar();
+
+                if (result != null)
+                {
+                    // Update existing
+                    using (IDbCommand updateCmd = dbConn.CreateCommand())
+                    {
+                        updateCmd.CommandText = "UPDATE User_Items SET Quantity = Quantity + @amount WHERE User_ID = @userId AND Item_ID = @itemId";
+                        updateCmd.Parameters.Add(new SqliteParameter("@amount", amount));
+                        updateCmd.Parameters.Add(new SqliteParameter("@userId", userId));
+                        updateCmd.Parameters.Add(new SqliteParameter("@itemId", itemId));
+                        updateCmd.ExecuteNonQuery();
+                    }
+                }
+                else
+                {
+                    // Insert new
+                    using (IDbCommand insertCmd = dbConn.CreateCommand())
+                    {
+                        insertCmd.CommandText = "INSERT INTO User_Items (User_ID, Item_ID, Quantity) VALUES (@userId, @itemId, @amount)";
+                        insertCmd.Parameters.Add(new SqliteParameter("@userId", userId));
+                        insertCmd.Parameters.Add(new SqliteParameter("@itemId", itemId));
+                        insertCmd.Parameters.Add(new SqliteParameter("@amount", amount));
+                        insertCmd.ExecuteNonQuery();
+                    }
+                }
+            }
+        }
+    }
+
+    public bool UserHasItem(int userId, int itemId)
+    {
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT COUNT(*) FROM User_Items WHERE User_ID = @userId AND Item_ID = @itemId AND Quantity > 0";
+                command.Parameters.Add(new SqliteParameter("@userId", userId));
+                command.Parameters.Add(new SqliteParameter("@itemId", itemId));
+
+                int count = Convert.ToInt32(command.ExecuteScalar());
+                return count > 0;
+            }
+        }
+    }
+
+    public bool CanUnlockLesson(int userId, int lessonId)
+    {
+        using (IDbConnection dbConn = new SqliteConnection(dbPath))
+        {
+            dbConn.Open();
+            using (IDbCommand cmd = dbConn.CreateCommand())
+            {
+                // Check if the user owns the required item for this lesson
+                cmd.CommandText = @"
+                SELECT COUNT(*) 
+                FROM Lesson_Requirements lr
+                LEFT JOIN User_Items ui 
+                    ON lr.Required_Item_ID = ui.Item_ID AND ui.User_ID = @userId
+                WHERE lr.Lesson_ID = @lessonId
+                AND (ui.Quantity IS NULL OR ui.Quantity <= 0)";
+
+                cmd.Parameters.Add(new SqliteParameter("@userId", userId));
+                cmd.Parameters.Add(new SqliteParameter("@lessonId", lessonId));
+
+                int missingCount = Convert.ToInt32(cmd.ExecuteScalar());
+
+                // If missingCount == 0 → user has all required items
+                return missingCount == 0;
+            }
+        }
+    }
+
+    public void CheckAndUnlockLesson(int userId, int lessonId)
+    {
+        if (CanUnlockLesson(userId, lessonId))
+        {
+            using (IDbConnection dbConn = new SqliteConnection(dbPath))
+            {
+                dbConn.Open();
+                using (IDbCommand cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                    UPDATE User_Lesson_Unlocks
+                    SET Is_Unlocked = 1
+                    WHERE User_ID = @userId AND Lesson_ID = @lessonId";
+                    cmd.Parameters.Add(new SqliteParameter("@userId", userId));
+                    cmd.Parameters.Add(new SqliteParameter("@lessonId", lessonId));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+    }
+
+    public void CheckAndUnlockAllLessons(int userId)
+    {
+        using (IDbConnection dbConn = new SqliteConnection(dbPath))
+        {
+            dbConn.Open();
+
+            // Get all lessons for this user
+            using (IDbCommand cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT Lesson_ID FROM Lessons_Table";
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int lessonId = reader.GetInt32(0);
+
+                        // Check if user meets requirements
+                        if (CanUnlockLesson(userId, lessonId))
+                        {
+                            using (IDbCommand updateCmd = dbConn.CreateCommand())
+                            {
+                                updateCmd.CommandText = @"
+                                UPDATE User_Lesson_Unlocks
+                                SET Is_Unlocked = 1
+                                WHERE User_ID = @userId AND Lesson_ID = @lessonId";
+                                updateCmd.Parameters.Add(new SqliteParameter("@userId", userId));
+                                updateCmd.Parameters.Add(new SqliteParameter("@lessonId", lessonId));
+                                updateCmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

@@ -148,6 +148,10 @@ public class HeatTheMetal : MonoBehaviour
     public AudioClip correct;
     public AudioClip wrong;
 
+    public LessonLocker lessonHandler;
+    public int userID;
+    public int rewardItemID;
+
     void Start()
     {
         LoadQuestions();
@@ -1049,12 +1053,18 @@ public class HeatTheMetal : MonoBehaviour
 
         if (overallPercentage >= PASSING_PERCENTAGE)
         {
+            dbManager.AddUserItem(userID, rewardItemID);
+            dbManager.CheckAndUnlockAllLessons(userID);
+            lessonHandler.RefreshLessonLocks();
+            dbManager.AddCoin(userID, 100);
             ShowPassedModal();
         }
         else
         {
+            dbManager.AddCoin(userID, 50);
             ShowFailedModal();
         }
+        dbManager.SaveQuizAndScore(userID, 9, totalCorrectAnswers);
     }
 
     // TIMER SYSTEM

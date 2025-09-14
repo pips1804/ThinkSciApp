@@ -84,6 +84,10 @@ public class SortingGame : MonoBehaviour
     public AudioClip failed;
     public AudioClip correct;
     public AudioClip wrong;
+    public DatabaseManager dbManager;
+    public LessonLocker lessonHandler;
+    public int userID;
+    public int rewardItemID;
 
     void Start()
     {
@@ -945,6 +949,11 @@ public class SortingGame : MonoBehaviour
 
     IEnumerator ShowPassModalAfterDelay()
     {
+        dbManager.AddUserItem(userID, rewardItemID);
+        dbManager.CheckAndUnlockAllLessons(userID);
+        lessonHandler.RefreshLessonLocks();
+        dbManager.AddCoin(userID, 100);
+        dbManager.SaveQuizAndScore(userID, 11, score);
         yield return new WaitForSeconds(0.5f); // Small delay for smooth transition
 
         if (passModal != null)
@@ -965,6 +974,8 @@ public class SortingGame : MonoBehaviour
 
     IEnumerator ShowFailModalAfterDelay()
     {
+        dbManager.AddCoin(userID, 100);
+        dbManager.SaveQuizAndScore(userID, 11, score);
         yield return new WaitForSeconds(0.5f); // Small delay for smooth transition
 
         if (failModal != null)

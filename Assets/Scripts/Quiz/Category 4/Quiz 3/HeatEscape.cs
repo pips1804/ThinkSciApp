@@ -60,6 +60,10 @@ public class HeatEscape : MonoBehaviour
     public AudioClip correct;
     public AudioClip wrong;
 
+    public LessonLocker lessonHandler;
+    public int userID;
+    public int rewardItemID;
+
     void Start()
     {
         InitializeGame();
@@ -361,11 +365,18 @@ public class HeatEscape : MonoBehaviour
 
         if (passed)
         {
+            dbManager.AddUserItem(userID, rewardItemID);
+            dbManager.CheckAndUnlockAllLessons(userID);
+            lessonHandler.RefreshLessonLocks();
+            dbManager.AddCoin(userID, 100);
+            dbManager.SaveQuizAndScore(userID, 13, currentScore);
             passedModal.SetActive(true);
             AudioManager.Instance.PlaySFX(passedsound);
         }
         else
         {
+            dbManager.AddCoin(userID, 50);
+            dbManager.SaveQuizAndScore(userID, 13, currentScore);
             failedModal.SetActive(true);
             AudioManager.Instance.PlaySFX(failed);
         }

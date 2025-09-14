@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -63,7 +64,7 @@ public class CauseAndEffectQuiz : MonoBehaviour
     public AudioClip wrong;
 
     // Game State
-    private List<CauseEffectQuestions> questions;
+    public List<CauseEffectQuestions> questions;
     private int currentQuestionIndex = 0;
     private int totalCorrectAnswers = 0;
     private float currentTime;
@@ -76,6 +77,15 @@ public class CauseAndEffectQuiz : MonoBehaviour
     [SerializeField] private DatabaseManager databaseManager;
     [SerializeField] private int quizId = 4;
     [SerializeField] private int questionLimit = 15;
+
+    public LessonLocker lessonHandler;
+    public CategoryLocker categoryHandler;
+    public int userID;
+    public int lessonToUnlock;
+    public int categoryToUnlock;
+    public int rewardItemID;
+
+    
 
     private void Start()
     {
@@ -357,6 +367,12 @@ public class CauseAndEffectQuiz : MonoBehaviour
 
         if (passed)
         {
+            databaseManager.AddUserItem(userID, rewardItemID);
+            databaseManager.UnlockCategoryForUser(userID, 2);
+            categoryHandler.RefreshCategoryLocks();
+            databaseManager.CheckAndUnlockAllLessons(userID);
+            lessonHandler.RefreshLessonLocks();
+            databaseManager.AddCoin(userID, 100);
             if (victoryModal != null) victoryModal.SetActive(true);
             if (victoryText != null)
                 victoryText.text = $"Congratulations! You passed with {overallPercentage:F0}%!\nFinal Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
@@ -364,11 +380,14 @@ public class CauseAndEffectQuiz : MonoBehaviour
         }
         else
         {
+            databaseManager.AddCoin(userID, 50);
             if (gameOverModal != null) gameOverModal.SetActive(true);
             if (gameOverText != null)
                 gameOverText.text = $"You scored {overallPercentage:F0}%. You need 70% or higher to pass.\nFinal Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
             AudioManager.Instance.PlaySFX(failed);
         }
+
+        databaseManager.SaveQuizAndScore(userID, quizId, totalCorrectAnswers);
     }
 
     // Public methods for UI buttons
