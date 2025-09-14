@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public class ShopManager : MonoBehaviour
 {
@@ -35,6 +36,8 @@ public class ShopManager : MonoBehaviour
     public Button allBtn;
     public Button foodBtn;
     public Button collectibleBtn;
+
+    public LessonLocker lessonHandler;
 
     private string currentFilter = "All";
 
@@ -181,6 +184,7 @@ public class ShopManager : MonoBehaviour
                 Debug.Log($"Successfully purchased {selectedItemName}");
                 LoadShopItems();
                 UpdateCoinsDisplay();
+                lessonHandler.RefreshLessonLocks();
             }
             else
             {

@@ -91,7 +91,6 @@ public class BatteryQuiz : MonoBehaviour
 
     public LessonLocker lessonHandler;
     public int userID;
-    public int rewardItemID;
     private void Awake()
     {
         // gather arrays for easier handling
@@ -343,7 +342,6 @@ public class BatteryQuiz : MonoBehaviour
 
         if (finalScore >= passThreshold)
         {
-            dbManager.AddUserItem(userID, rewardItemID);
             dbManager.CheckAndUnlockAllLessons(userID);
             lessonHandler.RefreshLessonLocks();
             dbManager.AddCoin(userID, 100);

@@ -1520,5 +1520,35 @@ public class DatabaseManager : MonoBehaviour
             }
         }
     }
+    public void ReduceItemQuantity(int userId, int itemId, int amount)
+{
+    using (var connection = new SqliteConnection(dbPath))
+    {
+        connection.Open();
+
+        using (var command = connection.CreateCommand())
+        {
+            // Decrease item quantity, but make sure it never goes below 0
+            command.CommandText = @"
+                UPDATE User_Items
+                SET Quantity = MAX(Quantity - @amount, 0)
+                WHERE User_ID = @userId AND Item_ID = @itemId;
+            ";
+
+            command.Parameters.AddWithValue("@amount", amount);
+            command.Parameters.AddWithValue("@userId", userId);
+            command.Parameters.AddWithValue("@itemId", itemId);
+
+            int rowsAffected = command.ExecuteNonQuery();
+
+            // Optional: if item doesn't exist yet, do nothing or throw
+            if (rowsAffected == 0)
+            {
+                Debug.LogWarning($"ReduceItemQuantity: User {userId} doesn’t have item {itemId}.");
+            }
+        }
+    }
+}
+
 
 }
