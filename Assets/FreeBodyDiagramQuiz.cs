@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -181,7 +179,7 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
     private void InitializeGame()
     {
         LoadQuestionsFromDatabase();
-        
+
         currentQuestionIndex = 0;
         boxPosition = 0;
         correctAnswers = 0;
@@ -643,5 +641,5 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
         Debug.Log($"Loaded {questions.Count} questions from DB.");
     }
 
-    
+
 }

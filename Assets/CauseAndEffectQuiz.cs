@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -85,7 +83,7 @@ public class CauseAndEffectQuiz : MonoBehaviour
     public int categoryToUnlock;
     public int rewardItemID;
 
-    
+
 
     private void Start()
     {
@@ -403,41 +401,41 @@ public class CauseAndEffectQuiz : MonoBehaviour
         // Implement quit functionality (return to main menu, etc.)
         Debug.Log("Quit Quiz");
     }
-    
+
     private void LoadQuestionsFromDatabase()
-{
-    if (databaseManager == null)
     {
-        Debug.LogError("DatabaseManager not assigned!");
-        return;
-    }
-
-    // Fetch questions from DB
-    List<MultipleChoice.MultipleChoiceQuestions> dbQuestions = databaseManager.GetRandomUnusedQuestions(quizId: quizId, limit: questionLimit);
-
-    // Clear current question list
-    questions = new List<CauseEffectQuestions>();
-
-    // Convert to CauseEffectQuestions format
-    foreach (var dbQ in dbQuestions)
-    {
-        // Assuming your DB options are structured as Cause + 3 effects
-        if (dbQ.options.Length < 3)
+        if (databaseManager == null)
         {
-            Debug.LogWarning($"Question '{dbQ.question}' has less than 3 options. Skipping.");
-            continue;
+            Debug.LogError("DatabaseManager not assigned!");
+            return;
         }
 
-        CauseEffectQuestions newQ = new CauseEffectQuestions(
-            dbQ.question,
-            dbQ.options[0],
-            dbQ.options[1],
-            dbQ.options[2],
-            dbQ.correctIndex
-        );
+        // Fetch questions from DB
+        List<MultipleChoice.MultipleChoiceQuestions> dbQuestions = databaseManager.GetRandomUnusedQuestions(quizId: quizId, limit: questionLimit);
 
-        questions.Add(newQ);
-    }
+        // Clear current question list
+        questions = new List<CauseEffectQuestions>();
+
+        // Convert to CauseEffectQuestions format
+        foreach (var dbQ in dbQuestions)
+        {
+            // Assuming your DB options are structured as Cause + 3 effects
+            if (dbQ.options.Length < 3)
+            {
+                Debug.LogWarning($"Question '{dbQ.question}' has less than 3 options. Skipping.");
+                continue;
+            }
+
+            CauseEffectQuestions newQ = new CauseEffectQuestions(
+                dbQ.question,
+                dbQ.options[0],
+                dbQ.options[1],
+                dbQ.options[2],
+                dbQ.correctIndex
+            );
+
+            questions.Add(newQ);
+        }
 
         Debug.Log($"Loaded {questions.Count} Cause & Effect questions from DB.");
     }

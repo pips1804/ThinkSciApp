@@ -70,7 +70,6 @@ public class OwnedItemsManager : MonoBehaviour
 
         DisplayItems();
     }
-
     private void DisplayItems()
     {
         // Clear container first
@@ -90,6 +89,10 @@ public class OwnedItemsManager : MonoBehaviour
 
         foreach (ItemData item in filtered)
         {
+            // 👇 Skip items with zero quantity
+            if (item.Quantity <= 0)
+                continue;
+
             GameObject prefabToUse = (item.Type.ToLower() == "food") ? foodItemPrefab : collectibleItemPrefab;
             GameObject go = Instantiate(prefabToUse, ownedItemContainer);
 

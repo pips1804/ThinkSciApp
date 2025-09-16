@@ -119,10 +119,24 @@ public class LessonLocker : MonoBehaviour
 
     public void TryUnlockLesson(int lessonId)
     {
+        // 🔹 Check first if lesson is already unlocked
+        bool isUnlocked = dbManager.IsLessonUnlocked(currentUserId, lessonId);
+        if (isUnlocked)
+        {
+            // Just switch the panel immediately
+            Button lessonButton = lessonButtons[lessonId - 1];
+            PanelSwitcher ps = lessonButton.GetComponent<PanelSwitcher>();
+            if (ps != null)
+            {
+                ps.ActivatePanel(); // go directly to the lesson
+            }
+            return; // stop here, don’t show modal
+        }
+
         int? requiredItemId = dbManager.GetRequiredCollectibleForLesson(lessonId);
         string itemName = requiredItemId.HasValue ? dbManager.GetItemName(requiredItemId.Value) : "None";
 
-        // Show confirmation modal
+        // Show confirmation modal only if locked
         unlockConfirmText.text = requiredItemId.HasValue
             ? $"Unlock Lesson {lessonId}? Requires {itemName}."
             : $"Unlock Lesson {lessonId}?";
@@ -138,7 +152,7 @@ public class LessonLocker : MonoBehaviour
 
             if (hasCollectible)
             {
-                dbManager.UnlockLessonForUser(currentUserId, lessonId); // update your User_Lesson_Unlocks table
+                dbManager.UnlockLessonForUser(currentUserId, lessonId); // update table
                 unlockResultHeaderText.text = $"Success!";
                 unlockResultText.text = $"Lesson {lessonId} unlocked!";
 
@@ -153,5 +167,6 @@ public class LessonLocker : MonoBehaviour
             unlockResultPanel.SetActive(true);
         });
     }
+
 
 }
