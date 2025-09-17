@@ -106,10 +106,12 @@ public class HeatTheMetal : MonoBehaviour
     public DragFire dragFireScript;
     public DragHeater dragHeaterScript;
 
+    [Header("Quiz Progress")]
+    public Slider quizProgressSlider;
     // Private variables
     private MultipleChoice.MultipleChoiceQuestions[] questionsScenario1;
     private MultipleChoice.MultipleChoiceQuestions[] questionsScenario2;
-    private MultipleChoice.MultipleChoiceQuestions[] questionsScenario3;    
+    private MultipleChoice.MultipleChoiceQuestions[] questionsScenario3;
 
     private int currentQuestionIndex = 0;
     private bool isHeating = false;
@@ -136,6 +138,7 @@ public class HeatTheMetal : MonoBehaviour
     // Overall game score tracking
     private int totalCorrectAnswers = 0;
     private int totalQuestionsInGame = 0;
+    public int questionsCount = 0;
 
     // NEW: Store original positions for reset
     private Vector3 originalFirePosition;
@@ -162,6 +165,13 @@ public class HeatTheMetal : MonoBehaviour
         InitializeModals();
         SetupButtonListeners();
         StartGame();
+
+        if (quizProgressSlider != null)
+        {
+            quizProgressSlider.minValue = 0;
+            quizProgressSlider.maxValue = 15; // total questions (5 each scenario)
+            quizProgressSlider.value = 0;
+        }
     }
 
     // NEW: Store original positions of draggable items
@@ -211,6 +221,12 @@ public class HeatTheMetal : MonoBehaviour
         // Hide all modals
         if (passedModal != null) passedModal.SetActive(false);
         if (failedModal != null) failedModal.SetActive(false);
+
+        if (quizProgressSlider != null)
+        {
+
+            quizProgressSlider.value = 0;
+        }
 
         // Stop all coroutines
         StopAllCoroutines();
@@ -519,50 +535,50 @@ public class HeatTheMetal : MonoBehaviour
 
     // DIAGNOSTIC: Debug method to identify which physical button was clicked
     void SetupAnswerButtons(MultipleChoice.MultipleChoiceQuestions q)
-{
-    if (answerButtons == null || q.options == null)
     {
-        Debug.LogError("Answer buttons or question options are null!");
-        return;
-    }
-
-    Debug.Log("=== BUTTON SETUP DEBUG ===");
-    Debug.Log($"Question: {q.question}");
-    Debug.Log($"Choices count: {q.options.Length}");
-    Debug.Log($"Correct answer index: {q.correctIndex}");
-    Debug.Log($"Available buttons: {answerButtons.Length}");
-
-    for (int i = 0; i < answerButtons.Length; i++)
-    {
-        if (answerButtons[i] != null)
+        if (answerButtons == null || q.options == null)
         {
-            if (i < q.options.Length)
-            {
-                answerButtons[i].gameObject.SetActive(true);
-                answerButtons[i].interactable = true;
+            Debug.LogError("Answer buttons or question options are null!");
+            return;
+        }
 
-                if (answerButtonTexts != null && i < answerButtonTexts.Length && answerButtonTexts[i] != null)
-                {
-                    answerButtonTexts[i].text = q.options[i];
-                }
+        Debug.Log("=== BUTTON SETUP DEBUG ===");
+        Debug.Log($"Question: {q.question}");
+        Debug.Log($"Choices count: {q.options.Length}");
+        Debug.Log($"Correct answer index: {q.correctIndex}");
+        Debug.Log($"Available buttons: {answerButtons.Length}");
 
-                ButtonClickTracker tracker = answerButtons[i].GetComponent<ButtonClickTracker>();
-                if (tracker == null)
-                {
-                    tracker = answerButtons[i].gameObject.AddComponent<ButtonClickTracker>();
-                }
-                tracker.buttonIndex = i;
-                tracker.quizManager = this;
-            }
-            else
+        for (int i = 0; i < answerButtons.Length; i++)
+        {
+            if (answerButtons[i] != null)
             {
-                answerButtons[i].gameObject.SetActive(false);
+                if (i < q.options.Length)
+                {
+                    answerButtons[i].gameObject.SetActive(true);
+                    answerButtons[i].interactable = true;
+
+                    if (answerButtonTexts != null && i < answerButtonTexts.Length && answerButtonTexts[i] != null)
+                    {
+                        answerButtonTexts[i].text = q.options[i];
+                    }
+
+                    ButtonClickTracker tracker = answerButtons[i].GetComponent<ButtonClickTracker>();
+                    if (tracker == null)
+                    {
+                        tracker = answerButtons[i].gameObject.AddComponent<ButtonClickTracker>();
+                    }
+                    tracker.buttonIndex = i;
+                    tracker.quizManager = this;
+                }
+                else
+                {
+                    answerButtons[i].gameObject.SetActive(false);
+                }
             }
         }
-    }
 
-    Debug.Log("=== END BUTTON SETUP ===");
-}
+        Debug.Log("=== END BUTTON SETUP ===");
+    }
 
 
     // DIAGNOSTIC: Method called by ButtonClickTracker
@@ -598,61 +614,68 @@ public class HeatTheMetal : MonoBehaviour
 
     // FIXED: Improved answer selection with better debugging
     public void SelectAnswer(int index)
-{
-    if (!buttonsInteractable)
     {
-        Debug.Log("Buttons not interactable, ignoring click");
-        return;
+        questionsCount++;
+        if (!buttonsInteractable)
+        {
+            Debug.Log("Buttons not interactable, ignoring click");
+            return;
+        }
+
+        Debug.Log($"SelectAnswer called with index: {index}");
+
+        StopQuestionTimer();
+        buttonsInteractable = false;
+
+        // Use MultipleChoiceQuestions instead of Question
+        MultipleChoice.MultipleChoiceQuestions q = GetCurrentQuestion();
+        if (q == null)
+        {
+            Debug.LogError("Current question is null!");
+            return;
+        }
+
+        // Bounds check for safety
+        if (index < 0 || index >= q.options.Length)
+        {
+            Debug.LogError($"Selected index {index} is out of bounds for question with {q.options.Length} options!");
+            return;
+        }
+
+        bool isCorrect = index == q.correctIndex;
+
+        Debug.Log($"Question: {q.question}");
+        Debug.Log($"Selected choice {index}: {q.options[index]}");
+        Debug.Log($"Correct answer index: {q.correctIndex}");
+        Debug.Log($"Correct answer: {q.options[q.correctIndex]}");
+        Debug.Log($"Answer is correct: {isCorrect}");
+
+        // Update score
+        totalQuestionsAnswered++;
+        totalQuestionsInGame++;
+
+        if (isCorrect)
+        {
+            currentScenarioScore++;
+            totalCorrectAnswers++;
+        }
+
+        if (quizProgressSlider != null)
+        {
+            quizProgressSlider.value = questionsCount;
+        }
+
+        UpdateScoreDisplay();
+
+        StartCoroutine(HandleAnswerFeedback(index, q.correctIndex, isCorrect, () =>
+        {
+            currentQuestionIndex++;
+            if (ShouldShowNextQuestion())
+                ShowNextQuestion();
+            else
+                EndCurrentScenario();
+        }));
     }
-
-    Debug.Log($"SelectAnswer called with index: {index}");
-
-    StopQuestionTimer();
-    buttonsInteractable = false;
-
-    // Use MultipleChoiceQuestions instead of Question
-    MultipleChoice.MultipleChoiceQuestions q = GetCurrentQuestion();
-    if (q == null)
-    {
-        Debug.LogError("Current question is null!");
-        return;
-    }
-
-    // Bounds check for safety
-    if (index < 0 || index >= q.options.Length)
-    {
-        Debug.LogError($"Selected index {index} is out of bounds for question with {q.options.Length} options!");
-        return;
-    }
-
-    bool isCorrect = index == q.correctIndex;
-
-    Debug.Log($"Question: {q.question}");
-    Debug.Log($"Selected choice {index}: {q.options[index]}");
-    Debug.Log($"Correct answer index: {q.correctIndex}");
-    Debug.Log($"Correct answer: {q.options[q.correctIndex]}");
-    Debug.Log($"Answer is correct: {isCorrect}");
-
-    // Update score
-    totalQuestionsAnswered++;
-    totalQuestionsInGame++;
-    if (isCorrect)
-    {
-        currentScenarioScore++;
-        totalCorrectAnswers++;
-    }
-
-    UpdateScoreDisplay();
-
-    StartCoroutine(HandleAnswerFeedback(index, q.correctIndex, isCorrect, () =>
-    {
-        currentQuestionIndex++;
-        if (ShouldShowNextQuestion())
-            ShowNextQuestion();
-        else
-            EndCurrentScenario();
-    }));
-}
 
 
     // FIXED: Improved feedback handling with better validation
@@ -786,7 +809,7 @@ public class HeatTheMetal : MonoBehaviour
     }
 
     // FIXED: Better question retrieval with validation
-   MultipleChoice.MultipleChoiceQuestions GetCurrentQuestion()
+    MultipleChoice.MultipleChoiceQuestions GetCurrentQuestion()
     {
         MultipleChoice.MultipleChoiceQuestions[] currentQuestions = null;
         string scenarioName = "";
@@ -1120,7 +1143,7 @@ public class HeatTheMetal : MonoBehaviour
         }
     }
 
-   void OnQuestionTimeout()
+    void OnQuestionTimeout()
     {
         if (!buttonsInteractable) return;
 

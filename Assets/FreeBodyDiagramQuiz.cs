@@ -86,6 +86,7 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
     public int userID;
     public int lessonToUnlock;
     public int rewardItemID;
+
     private void Start()
     {
         hasInitialized = true;
@@ -187,14 +188,13 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
         totalQuestionsAnswered = 0;
         gameEnded = false;
 
-        // Setup progress slider
+        // Setup progress slider - FIXED: Reset properly
         if (progressSlider != null)
         {
             progressSlider.minValue = 0;
             progressSlider.maxValue = questions.Count;
             progressSlider.value = 0;
         }
-
 
         // Position UI elements at center
         UpdateVisualElements();
@@ -263,7 +263,15 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
 
         isAnswering = false;
         FreeBodyQuizQuestion currentQuestion = questions[currentQuestionIndex];
-        bool isCorrect = selectedIndex == currentQuestion.correctAnswerIndex;
+
+        // FIXED: Handle timer timeout case (selectedIndex = -1)
+        bool isCorrect = false;
+        bool isTimeoutAnswer = selectedIndex == -1;
+
+        if (!isTimeoutAnswer)
+        {
+            isCorrect = selectedIndex == currentQuestion.correctAnswerIndex;
+        }
 
         // Count this question as answered
         totalQuestionsAnswered++;
@@ -273,9 +281,17 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
             progressSlider.value = totalQuestionsAnswered;
         }
 
-
-        // Visual feedback
-        StartCoroutine(ShowAnswerFeedback(selectedIndex, currentQuestion.correctAnswerIndex, isCorrect));
+        // FIXED: Show feedback properly for timeout case
+        if (isTimeoutAnswer)
+        {
+            // Time ran out - show correct answer only
+            StartCoroutine(ShowTimeoutFeedback(currentQuestion.correctAnswerIndex));
+        }
+        else
+        {
+            // Normal answer selected
+            StartCoroutine(ShowAnswerFeedback(selectedIndex, currentQuestion.correctAnswerIndex, isCorrect));
+        }
 
         // Update game state
         if (isCorrect)
@@ -307,6 +323,26 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
         }
 
         UpdateUI();
+    }
+
+    // FIXED: New method to handle timeout feedback
+    private IEnumerator ShowTimeoutFeedback(int correctIndex)
+    {
+        // Disable all buttons
+        foreach (Button button in answerButtons)
+        {
+            button.interactable = false;
+        }
+
+        // Show only the correct answer in green (no red highlight since no answer was selected)
+        if (answerButtonImages[correctIndex] != null)
+            SetButtonColor(answerButtonImages[correctIndex], correctAnswerColor);
+
+        yield return new WaitForSeconds(feedbackDisplayTime);
+
+        // Move to next question
+        currentQuestionIndex++;
+        DisplayCurrentQuestion();
     }
 
     private IEnumerator ShowAnswerFeedback(int selectedIndex, int correctIndex, bool isCorrect)
@@ -404,8 +440,8 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
 
         if (currentQuestionTimer <= 0)
         {
-            // Time's up - treat as wrong answer
-            OnAnswerSelected(-1); // Invalid index triggers wrong answer
+            // FIXED: Time's up - treat as wrong answer with proper handling
+            OnAnswerSelected(-1); // This will now be handled properly in OnAnswerSelected
         }
     }
 
@@ -569,8 +605,11 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
         isAnswering = false;
         gameStarted = true; // Mark as started since we're skipping dialogue
 
+        // FIXED: Properly reset progress slider
         if (progressSlider != null)
         {
+            progressSlider.minValue = 0;
+            progressSlider.maxValue = questions.Count;
             progressSlider.value = 0;
         }
 
@@ -640,6 +679,4 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
 
         Debug.Log($"Loaded {questions.Count} questions from DB.");
     }
-
-
 }

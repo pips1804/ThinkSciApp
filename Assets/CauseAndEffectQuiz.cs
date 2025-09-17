@@ -54,6 +54,7 @@ public class CauseAndEffectQuiz : MonoBehaviour
     [SerializeField] private float pulseSpeed = 2f;   // speed of zoom in/out
     [SerializeField] private float pulseAmount = 0.2f; // how much it scales (20%)
     private Vector3 timerDefaultScale;
+    private Color timerDefaultColor; // Add this line
 
     [Header("Sound Effects")]
     public AudioClip passedsound;
@@ -93,6 +94,7 @@ public class CauseAndEffectQuiz : MonoBehaviour
         if (timerText != null)
         {
             timerDefaultScale = timerText.transform.localScale;
+            timerDefaultColor = timerText.color; // Store original color
         }
     }
 
@@ -124,6 +126,7 @@ public class CauseAndEffectQuiz : MonoBehaviour
             {
                 float scale = 1f + Mathf.Sin(Time.time * pulseSpeed) * pulseAmount;
                 timerText.transform.localScale = timerDefaultScale * scale;
+                timerText.color = timerDefaultColor;
             }
         }
 
