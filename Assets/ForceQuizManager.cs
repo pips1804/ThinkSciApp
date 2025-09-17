@@ -185,6 +185,7 @@ public class ForceQuizManager : MonoBehaviour
         bool passed = score >= passingScore;
         if (passed)
         {
+            dbManager.MarkLessonAsCompleted(userID, 1);
             dbManager.AddUserItem(userID, rewardItemID);
             dbManager.CheckAndUnlockAllLessons(userID);
             lessonsHandler.RefreshLessonLocks();
@@ -196,6 +197,7 @@ public class ForceQuizManager : MonoBehaviour
         }
         FindFirstObjectByType<ForceGameManager>().OnQuizComplete(passed);
         dbManager.SaveQuizAndScore(userID, 1, score);
+        dbManager.CheckAndUnlockBadges(userID);
     }
 
     public void ResetQuiz()

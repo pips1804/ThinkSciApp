@@ -1097,10 +1097,12 @@ public class SortingGame : MonoBehaviour
     IEnumerator ShowPassModalAfterDelay()
     {
         dbManager.AddUserItem(userID, rewardItemID);
+        dbManager.MarkLessonAsCompleted(userID, 11);
         dbManager.CheckAndUnlockAllLessons(userID);
         lessonHandler.RefreshLessonLocks();
         dbManager.AddCoin(userID, 100);
         dbManager.SaveQuizAndScore(userID, 11, score);
+        dbManager.CheckAndUnlockBadges(userID);
         yield return new WaitForSeconds(0.5f); // Small delay for smooth transition
 
         if (passModal != null)
@@ -1123,6 +1125,7 @@ public class SortingGame : MonoBehaviour
     {
         dbManager.AddCoin(userID, 100);
         dbManager.SaveQuizAndScore(userID, 11, score);
+        dbManager.CheckAndUnlockBadges(userID);
         yield return new WaitForSeconds(0.5f); // Small delay for smooth transition
 
         if (failModal != null)

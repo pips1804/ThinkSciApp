@@ -1077,6 +1077,7 @@ public class HeatTheMetal : MonoBehaviour
         if (overallPercentage >= PASSING_PERCENTAGE)
         {
             dbManager.AddUserItem(userID, rewardItemID);
+            dbManager.MarkLessonAsCompleted(userID, 9);
             dbManager.CheckAndUnlockAllLessons(userID);
             lessonHandler.RefreshLessonLocks();
             dbManager.AddCoin(userID, 100);
@@ -1088,6 +1089,7 @@ public class HeatTheMetal : MonoBehaviour
             ShowFailedModal();
         }
         dbManager.SaveQuizAndScore(userID, 9, totalCorrectAnswers);
+        dbManager.CheckAndUnlockBadges(userID);
     }
 
     // TIMER SYSTEM

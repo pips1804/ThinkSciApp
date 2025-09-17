@@ -343,6 +343,7 @@ public class BatteryQuiz : MonoBehaviour
         if (finalScore >= passThreshold)
         {
             dbManager.CheckAndUnlockAllLessons(userID);
+            dbManager.MarkLessonAsCompleted(userID, quizId);
             lessonHandler.RefreshLessonLocks();
             dbManager.AddCoin(userID, 100);
             // Pass
@@ -365,6 +366,7 @@ public class BatteryQuiz : MonoBehaviour
             }
         }
         dbManager.SaveQuizAndScore(userID, quizId, correctAnswers);
+        dbManager.CheckAndUnlockBadges(userID);
         // ensure progress slider is full (all questions completed)
         if (progressSlider) progressSlider.value = progressSlider.maxValue;
     }

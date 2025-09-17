@@ -432,6 +432,7 @@ public class DatabaseManager : MonoBehaviour
 
     public List<Badge> GetUserBadges(int userId)
     {
+        CheckAndUnlockBadges(userId);
         List<Badge> badges = new List<Badge>();
 
         using (IDbConnection dbConn = new SqliteConnection(dbPath))
@@ -1625,6 +1626,170 @@ public class DatabaseManager : MonoBehaviour
         }
 
         return false; // not found or locked
+    }
+
+    public void MarkLessonAsCompleted(int userId, int lessonId)
+    {
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+                UPDATE User_Lesson_Unlocks
+                SET Is_Completed = 1
+                WHERE User_ID = @userId AND Lesson_ID = @lessonId";
+
+                command.Parameters.AddWithValue("@userId", userId);
+                command.Parameters.AddWithValue("@lessonId", lessonId);
+
+                int rowsAffected = command.ExecuteNonQuery();
+
+                // If no row exists yet, insert instead
+                if (rowsAffected == 0)
+                {
+                    command.CommandText = @"
+                    INSERT INTO User_Lesson_Unlocks (User_ID, Lesson_ID, Is_Unlocked, Is_Completed)
+                    VALUES (@userId, @lessonId, 1, 1)";
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+    }
+
+    public void CheckAndUnlockBadges(int userId)
+    {
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+
+            using (var cmd = connection.CreateCommand())
+            {
+                // ---------------- LESSON-BASED BADGES ----------------
+
+                // 1. First Step: Finish your first lesson
+                cmd.CommandText = "SELECT COUNT(*) FROM User_Lesson_Unlocks WHERE User_ID = @userId AND Is_Completed = 1";
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@userId", userId);
+                int completedLessons = SafeExecuteInt(cmd);
+                AwardBadgeIfEligible(connection, userId, 1, completedLessons >= 1);
+
+                // 2. Lesson Explorer: Complete 5 lessons
+                AwardBadgeIfEligible(connection, userId, 2, completedLessons >= 5);
+
+                // 4. All-Rounder: At least 1 lesson in all 4 categories
+                cmd.CommandText = @"SELECT COUNT(DISTINCT L.Category_ID) 
+                                FROM User_Lesson_Unlocks U
+                                JOIN Lessons_Table L ON U.Lesson_ID = L.Lesson_ID
+                                WHERE U.User_ID = @userId AND U.Is_Completed = 1";
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@userId", userId);
+                int categoriesDone = SafeExecuteInt(cmd);
+                AwardBadgeIfEligible(connection, userId, 4, categoriesDone >= 4);
+
+                // 5. Full Completionist: Finish all lessons
+                cmd.CommandText = "SELECT COUNT(*) FROM Lessons_Table";
+                cmd.Parameters.Clear();
+                int totalLessons = SafeExecuteInt(cmd);
+                AwardBadgeIfEligible(connection, userId, 5, completedLessons == totalLessons);
+
+                // 9–12: Category Finishers
+                for (int cat = 1; cat <= 4; cat++)
+                {
+                    // total lessons in category
+                    cmd.CommandText = "SELECT COUNT(*) FROM Lessons_Table WHERE Category_ID = @cat";
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("@cat", cat);
+                    int lessonsInCat = SafeExecuteInt(cmd);
+
+                    // completed lessons in category
+                    cmd.CommandText = @"SELECT COUNT(*) 
+                                    FROM User_Lesson_Unlocks U
+                                    JOIN Lessons_Table L ON U.Lesson_ID = L.Lesson_ID
+                                    WHERE U.User_ID = @userId AND L.Category_ID = @cat AND U.Is_Completed = 1";
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@cat", cat);
+                    int completedInCat = SafeExecuteInt(cmd);
+
+                    AwardBadgeIfEligible(connection, userId, 8 + cat, completedInCat == lessonsInCat);
+                }
+
+                // ---------------- QUIZ-BASED BADGES ----------------
+
+                // 3. Correct Machine: Answer 100 total questions correctly
+                cmd.CommandText = "SELECT SUM(Score) FROM User_Quiz_Scores WHERE User_ID = @userId";
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@userId", userId);
+                int totalCorrect = SafeExecuteInt(cmd);
+                AwardBadgeIfEligible(connection, userId, 3, totalCorrect >= 100);
+
+                // 6. Quiz Champion: Score >= 90% (14/15) on any quiz
+                cmd.CommandText = "SELECT COUNT(*) FROM User_Quiz_Scores WHERE User_ID = @userId AND Score >= 14";
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@userId", userId);
+                int highScores = SafeExecuteInt(cmd);
+                AwardBadgeIfEligible(connection, userId, 6, highScores > 0);
+
+                // 7. Flawless Victory: Perfect score (15/15)
+                cmd.CommandText = "SELECT COUNT(*) FROM User_Quiz_Scores WHERE User_ID = @userId AND Score = 15";
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@userId", userId);
+                int perfectScores = SafeExecuteInt(cmd);
+                AwardBadgeIfEligible(connection, userId, 7, perfectScores > 0);
+
+                // 8. Quiz Veteran: Finished 10 quizzes
+                cmd.CommandText = "SELECT COUNT(*) FROM User_Quiz_Scores WHERE User_ID = @userId";
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@userId", userId);
+                int quizCount = SafeExecuteInt(cmd);
+                AwardBadgeIfEligible(connection, userId, 8, quizCount >= 10);
+            }
+        }
+    }
+
+    private int SafeExecuteInt(IDbCommand cmd)
+    {
+        object result = cmd.ExecuteScalar();
+        return (result == null || result == DBNull.Value) ? 0 : Convert.ToInt32(result);
+    }
+
+    private void AwardBadgeIfEligible(SqliteConnection connection, int userId, int badgeId, bool condition)
+    {
+        if (!condition) return;
+
+        using (var cmd = connection.CreateCommand())
+        {
+            // check if already unlocked
+            cmd.CommandText = @"SELECT Is_Unlocked FROM User_Badges 
+                            WHERE User_ID = @userId AND Badge_ID = @badgeId";
+            cmd.Parameters.AddWithValue("@userId", userId);
+            cmd.Parameters.AddWithValue("@badgeId", badgeId);
+
+            object result = cmd.ExecuteScalar();
+
+            bool alreadyUnlocked = (result != null && Convert.ToInt32(result) == 1);
+
+            if (!alreadyUnlocked)
+            {
+                // unlock badge
+                cmd.CommandText = @"INSERT INTO User_Badges (User_ID, Badge_ID, Is_Unlocked, Is_Claimed)
+                                VALUES (@userId, @badgeId, 1, 0)
+                                ON CONFLICT(User_ID, Badge_ID) DO UPDATE SET Is_Unlocked = 1";
+                cmd.ExecuteNonQuery();
+
+                // fetch badge name for logging
+                using (var cmd2 = connection.CreateCommand())
+                {
+                    cmd2.CommandText = "SELECT Badges_Name FROM Badge_Table WHERE Badges_ID = @badgeId";
+                    cmd2.Parameters.AddWithValue("@badgeId", badgeId);
+
+                    string badgeName = (string)cmd2.ExecuteScalar();
+                    Debug.Log($"🎉 Badge Unlocked → ID: {badgeId} | Name: {badgeName}");
+                }
+            }
+        }
     }
 
 }

@@ -513,10 +513,10 @@ public class SwipeManager : MonoBehaviour
         if (score >= 10)
         {
             dbManager.AddUserItem(userId,rewardItemID);
+            dbManager.MarkLessonAsCompleted(userId, quizId);
             dbManager.CheckAndUnlockAllLessons(userId);
             lessonHandler.RefreshLessonLocks();
             dbManager.AddCoin(userId, 100);
-            dbManager.SaveQuizAndScore(userId, quizId, score);
 
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySFX(passed);
@@ -599,7 +599,7 @@ public class SwipeManager : MonoBehaviour
     public void OnQuizCompleted()
     {
         dbManager.SaveQuizAndScore(userId, quizId, score);
-        dbManager.AddCoin(userId, earnedGold);
+        dbManager.CheckAndUnlockBadges(userId);
         Debug.Log("Quiz and score saved to database.");
     }
 

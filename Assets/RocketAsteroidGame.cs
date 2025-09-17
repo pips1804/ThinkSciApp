@@ -2788,10 +2788,12 @@ public class RocketAsteroidGame : MonoBehaviour
     {
         dbManager.AddUserItem(userID, 15);
         dbManager.AddUserItem(userID, 17);
+        dbManager.MarkLessonAsCompleted(userID, quizId);
         dbManager.CheckAndUnlockAllLessons(userID);
         lessonHandler.RefreshLessonLocks();
         dbManager.AddCoin(userID, 100);
         dbManager.SaveQuizAndScore(userID, quizId, score);
+        dbManager.CheckAndUnlockBadges(userID);
         Debug.Log("VICTORY!");
         isGameActive = false;
         isGamePaused = false;
@@ -2816,6 +2818,7 @@ public class RocketAsteroidGame : MonoBehaviour
     {
         dbManager.AddCoin(userID, 50);
         dbManager.SaveQuizAndScore(userID, quizId, score);
+        dbManager.CheckAndUnlockBadges(userID);
         Debug.Log("GAME OVER!");
         isGameActive = false;
         isGamePaused = false;

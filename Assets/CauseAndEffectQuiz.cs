@@ -369,6 +369,7 @@ public class CauseAndEffectQuiz : MonoBehaviour
         if (passed)
         {
             databaseManager.AddUserItem(userID, rewardItemID);
+            databaseManager.MarkLessonAsCompleted(userID, quizId);
             databaseManager.UnlockCategoryForUser(userID, 2);
             categoryHandler.RefreshCategoryLocks();
             databaseManager.CheckAndUnlockAllLessons(userID);
@@ -389,6 +390,7 @@ public class CauseAndEffectQuiz : MonoBehaviour
         }
 
         databaseManager.SaveQuizAndScore(userID, quizId, totalCorrectAnswers);
+        databaseManager.CheckAndUnlockBadges(userID);
     }
 
     // Public methods for UI buttons

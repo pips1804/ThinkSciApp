@@ -494,6 +494,7 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
     private void Victory(float overallPercentage)
     {
         databaseManager.AddUserItem(userID, rewardItemID);
+        databaseManager.MarkLessonAsCompleted(userID, quizId);
         databaseManager.CheckAndUnlockAllLessons(userID);
         lessonHandler.RefreshLessonLocks();
         databaseManager.AddCoin(userID, 100);
@@ -513,6 +514,7 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
             }
         }
 
+        databaseManager.CheckAndUnlockBadges(userID);
         Debug.Log("Player Wins and data saved in database!");
     }
 
@@ -541,6 +543,7 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
                 gameOverModalText.text = $"You scored {overallPercentage:F0}%. You need {passPercentage:F0}% or higher to pass.\nFinal Score: {correctAnswers}/{totalQuestionsAnswered}";
             }
         }
+        databaseManager.CheckAndUnlockBadges(userID);
         Debug.Log("Enemy Wins and data saved in database!");
     }
 

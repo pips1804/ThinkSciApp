@@ -529,21 +529,25 @@ public class RacingQuiz : MonoBehaviour
         if (playerWon)
         {
             databaseManager.AddUserItem(userID, rewardItemID);
+            databaseManager.MarkLessonAsCompleted(userID, quizId);
             databaseManager.UnlockCategoryForUser(userID, categoryToUnlock);
             categoryHandler.RefreshCategoryLocks();
             databaseManager.CheckAndUnlockAllLessons(userID);
             lessonHandler.RefreshLessonLocks();
             databaseManager.AddCoin(userID, 100);
+
             victoryModal.SetActive(true);
             AudioManager.Instance.PlaySFX(victorySound);
         }
         else
         {
             databaseManager.AddCoin(userID, 100);
+            databaseManager.CheckAndUnlockBadges(userID);
             gameOverModal.SetActive(true);
             AudioManager.Instance.PlaySFX(gameOverSound);
         }
         databaseManager.SaveQuizAndScore(userID, quizId, correctAnswers);
+        databaseManager.CheckAndUnlockBadges(userID);
     }
 
     // ===================================================================

@@ -366,10 +366,12 @@ public class HeatEscape : MonoBehaviour
         if (passed)
         {
             dbManager.AddUserItem(userID, rewardItemID);
+            dbManager.MarkLessonAsCompleted(userID, 13);
             dbManager.CheckAndUnlockAllLessons(userID);
             lessonHandler.RefreshLessonLocks();
             dbManager.AddCoin(userID, 100);
             dbManager.SaveQuizAndScore(userID, 13, currentScore);
+            dbManager.CheckAndUnlockBadges(userID);
             passedModal.SetActive(true);
             AudioManager.Instance.PlaySFX(passedsound);
         }
@@ -377,6 +379,7 @@ public class HeatEscape : MonoBehaviour
         {
             dbManager.AddCoin(userID, 50);
             dbManager.SaveQuizAndScore(userID, 13, currentScore);
+            dbManager.CheckAndUnlockBadges(userID);
             failedModal.SetActive(true);
             AudioManager.Instance.PlaySFX(failed);
         }

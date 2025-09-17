@@ -377,6 +377,7 @@ public class ParticleManager : MonoBehaviour
         if (scorePercentage >= passingScore)
         {
             dbManager.AddUserItem(userID, rewardItemID);
+            dbManager.MarkLessonAsCompleted(userID, 10);
             dbManager.UnlockCategoryForUser(userID, 4);
             categoryHandler.RefreshCategoryLocks();
             dbManager.CheckAndUnlockAllLessons(userID);
@@ -393,6 +394,7 @@ public class ParticleManager : MonoBehaviour
         }
 
         dbManager.SaveQuizAndScore(userID, 10, currentScore);
+        dbManager.CheckAndUnlockBadges(userID);
     }
 
     void ShowPassModal(float scorePercentage)

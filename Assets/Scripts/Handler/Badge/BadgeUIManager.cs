@@ -29,19 +29,32 @@ public class BadgeUIManager : MonoBehaviour
         doneButton.onClick.AddListener(ShowDone);
     }
 
+    void OnEnable()
+    {
+        LoadBadgesFromDatabase();
+        ShowInProgress();
+    }
+
     void LoadBadgesFromDatabase()
     {
         allBadges = databaseManager.GetUserBadges(currentUserId);
         Debug.Log("Loaded badges from DB: " + allBadges.Count);
     }
 
+    public void RefreshBadges()
+    { 
+        databaseManager.CheckAndUnlockBadges(1);
+    }
+
     void ShowInProgress()
     {
+        LoadBadgesFromDatabase();
         PopulateBadgeUI(allBadges.FindAll(b => !b.IsUnlocked || (b.IsUnlocked && !b.IsClaimed)));
     }
 
     void ShowDone()
     {
+        LoadBadgesFromDatabase();
         PopulateBadgeUI(allBadges.FindAll(b => b.IsUnlocked && b.IsClaimed));
     }
 
