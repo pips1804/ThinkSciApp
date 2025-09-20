@@ -2,37 +2,51 @@ using UnityEngine;
 
 public class PanelSwitcher : MonoBehaviour
 {
+    [Header("Single Panel (old system, still works)")]
     public GameObject panelToActivate;
+
+    [Header("Multiple Panels (new system, optional)")]
+    public GameObject[] panelsToActivate;
+
+    [Header("Panels to Deactivate")]
     public GameObject[] panelsToDeactivate;
 
     public void ActivatePanel()
     {
-
-            foreach (var panel in panelsToDeactivate)
+        // 🔴 Deactivate all given panels
+        foreach (var panel in panelsToDeactivate)
         {
-            panel.SetActive(false);
+            if (panel != null)
+                panel.SetActive(false);
         }
 
+        // 🟢 Activate single panel (old system)
         if (panelToActivate != null)
         {
             panelToActivate.SetActive(true);
+            HandleOrientation(panelToActivate);
+        }
 
-            
-            if (panelToActivate.name.Contains("Swipe"))
+        // 🟢 Activate multiple panels (new system)
+        foreach (var panel in panelsToActivate)
+        {
+            if (panel != null)
             {
-                Screen.orientation = ScreenOrientation.LandscapeLeft;
+                panel.SetActive(true);
+                HandleOrientation(panel);
             }
-            else
-            {
-                Screen.orientation = ScreenOrientation.Portrait;
-            }
+        }
+    }
 
-            // Optional alternative using tag:
-            // if (panelToActivate.CompareTag("QuizPanel")) {
-            //     Screen.orientation = ScreenOrientation.Landscape;
-            // } else {
-            //     Screen.orientation = ScreenOrientation.Portrait;
-            // }
+    private void HandleOrientation(GameObject panel)
+    {
+        if (panel.name.Contains("Swipe"))
+        {
+            Screen.orientation = ScreenOrientation.LandscapeLeft;
+        }
+        else
+        {
+            Screen.orientation = ScreenOrientation.Portrait;
         }
     }
 }

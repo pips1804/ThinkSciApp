@@ -41,6 +41,12 @@ public class ItemData
     public int EnergyValue;
 }
 
+public class QuizScoreRecord
+{
+    public int Score;
+    public string CompletedAt;
+}
+
 public class DatabaseManager : MonoBehaviour
 {
     private string dbPath;
@@ -1679,7 +1685,7 @@ public class DatabaseManager : MonoBehaviour
                 AwardBadgeIfEligible(connection, userId, 2, completedLessons >= 5);
 
                 // 4. All-Rounder: At least 1 lesson in all 4 categories
-                cmd.CommandText = @"SELECT COUNT(DISTINCT L.Category_ID) 
+                cmd.CommandText = @"SELECT COUNT(DISTINCT L.Category_ID)
                                 FROM User_Lesson_Unlocks U
                                 JOIN Lessons_Table L ON U.Lesson_ID = L.Lesson_ID
                                 WHERE U.User_ID = @userId AND U.Is_Completed = 1";
@@ -1704,7 +1710,7 @@ public class DatabaseManager : MonoBehaviour
                     int lessonsInCat = SafeExecuteInt(cmd);
 
                     // completed lessons in category
-                    cmd.CommandText = @"SELECT COUNT(*) 
+                    cmd.CommandText = @"SELECT COUNT(*)
                                     FROM User_Lesson_Unlocks U
                                     JOIN Lessons_Table L ON U.Lesson_ID = L.Lesson_ID
                                     WHERE U.User_ID = @userId AND L.Category_ID = @cat AND U.Is_Completed = 1";
@@ -1762,7 +1768,7 @@ public class DatabaseManager : MonoBehaviour
         using (var cmd = connection.CreateCommand())
         {
             // check if already unlocked
-            cmd.CommandText = @"SELECT Is_Unlocked FROM User_Badges 
+            cmd.CommandText = @"SELECT Is_Unlocked FROM User_Badges
                             WHERE User_ID = @userId AND Badge_ID = @badgeId";
             cmd.Parameters.AddWithValue("@userId", userId);
             cmd.Parameters.AddWithValue("@badgeId", badgeId);
@@ -1790,6 +1796,40 @@ public class DatabaseManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public List<QuizScoreRecord> GetScoresByQuiz(int quizId, int userId = 1)
+    {
+        List<QuizScoreRecord> scores = new List<QuizScoreRecord>();
+
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+                SELECT score, completed_at
+                FROM user_quiz_scores
+                WHERE quiz_id = @quizId AND user_id = @userId
+                ORDER BY completed_at DESC";
+
+                command.Parameters.AddWithValue("@quizId", quizId);
+                command.Parameters.AddWithValue("@userId", userId);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        QuizScoreRecord record = new QuizScoreRecord();
+                        record.Score = reader.GetInt32(0);
+                        record.CompletedAt = reader.GetString(1); // since completed_at is stored as text in SQLite
+                        scores.Add(record);
+                    }
+                }
+            }
+        }
+        return scores;
     }
 
 }
