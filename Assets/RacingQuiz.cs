@@ -52,6 +52,8 @@ public class RacingQuiz : MonoBehaviour
     public AudioClip wrongSound;
     public AudioClip victorySound;
     public AudioClip gameOverSound;
+    public AudioClip racingSound;
+    public AudioClip overtakeSound;
 
     [Header("Game Settings")]
     public float questionTimeLimit = 60f;
@@ -89,6 +91,7 @@ public class RacingQuiz : MonoBehaviour
     public int userID;
     public int categoryToUnlock;
     public int rewardItemID;
+    private AudioSource bgAudioSource;
 
     // ===================================================================
     // UNITY LIFECYCLE - RESET ON ENABLE/DISABLE
@@ -108,6 +111,12 @@ public class RacingQuiz : MonoBehaviour
         LoadQuestionsFromDatabase();
         SetQuizPanelsActive(false);
         InitializeGameVariables();
+
+        // Setup background audio source
+        bgAudioSource = gameObject.AddComponent<AudioSource>();
+        bgAudioSource.clip = racingSound;
+        bgAudioSource.loop = true;
+        bgAudioSource.volume = 0.5f; // Adjust volume
     }
 
     void Update()
@@ -136,11 +145,14 @@ public class RacingQuiz : MonoBehaviour
     // ===================================================================
     void StartQuiz()
     {
-        
+
         quizStarted = true;
         SetQuizPanelsActive(true);
         SetupQuizUI();
         LoadNextQuestion();
+        
+        if (bgAudioSource != null && !bgAudioSource.isPlaying)
+            bgAudioSource.Play();
     }
 
     void SetQuizPanelsActive(bool active)
@@ -422,6 +434,7 @@ public class RacingQuiz : MonoBehaviour
     // ===================================================================
     void MovePlayerForward()
     {
+        AudioManager.Instance.PlaySFX(overtakeSound);
         if (playerProgressSlider != null)
         {
             if (playerSliderCoroutine != null) StopCoroutine(playerSliderCoroutine);
@@ -431,6 +444,7 @@ public class RacingQuiz : MonoBehaviour
 
     void MoveEnemyForward()
     {
+        AudioManager.Instance.PlaySFX(overtakeSound);
         if (enemyProgressSlider != null)
         {
             if (enemySliderCoroutine != null) StopCoroutine(enemySliderCoroutine);
@@ -525,6 +539,9 @@ public class RacingQuiz : MonoBehaviour
         yield return new WaitForSeconds(2f);
 
         gameEnded = true;
+
+        if (bgAudioSource != null && bgAudioSource.isPlaying)
+            bgAudioSource.Stop();
 
         if (playerWon)
         {

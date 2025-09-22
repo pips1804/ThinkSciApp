@@ -63,6 +63,7 @@ public class CauseAndEffectQuiz : MonoBehaviour
     public AudioClip failed;
     public AudioClip correct;
     public AudioClip wrong;
+    public AudioClip TimerTick;
 
     // Game State
     public List<CauseEffectQuestions> questions;
@@ -86,7 +87,7 @@ public class CauseAndEffectQuiz : MonoBehaviour
     public int categoryToUnlock;
     public int rewardItemID;
 
-
+    private Coroutine timerSoundRoutine;
 
     private void Start()
     {
@@ -203,6 +204,18 @@ public class CauseAndEffectQuiz : MonoBehaviour
 
         DisplayCurrentQuestion();
         UpdateProgressSlider();
+
+        if (timerSoundRoutine != null) StopCoroutine(timerSoundRoutine);
+        timerSoundRoutine = StartCoroutine(PlayTimerTick());
+    }
+
+    private IEnumerator PlayTimerTick()
+    {
+        while (gameActive && currentTime > 0)
+        {
+            AudioManager.Instance.PlaySFX(TimerTick); // <-- add your ticking AudioClip
+            yield return new WaitForSeconds(1f); // tick every second
+        }
     }
 
     private void DisplayCurrentQuestion()

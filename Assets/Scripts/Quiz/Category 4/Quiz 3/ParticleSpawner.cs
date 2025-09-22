@@ -14,6 +14,8 @@ public class ParticleSpawner : MonoBehaviour
     [Header("Heat Escape Reference")]
     public HeatEscape heatEscape; // Drag your HeatEscape GameObject here
 
+    [Header("Audio")]
+    public AudioClip spawn;
     private bool spawning = true;
     private bool hasStarted = false;
 
@@ -71,13 +73,17 @@ public class ParticleSpawner : MonoBehaviour
 
     void SpawnParticle()
     {
+
         if (!spawning) return;
 
         Vector3 spawnPosition = spawnPoint != null ? spawnPoint.position : transform.position;
         GameObject particle = Instantiate(particlePrefab, spawnPosition, Quaternion.identity);
-
+        AudioManager.Instance.PlaySFX(spawn);
+        
         if (spawnPoint != null)
             particle.transform.SetParent(spawnPoint);
+
+        
     }
 
     void DestroyAllParticles()

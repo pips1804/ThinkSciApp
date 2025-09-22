@@ -89,6 +89,8 @@ public class ParticleManager : MonoBehaviour
     [Header("Sound Effects")]
     public AudioClip passed;
     public AudioClip failed;
+    public AudioClip heatingLoop; 
+    private AudioSource heatingSource;
     public DatabaseManager dbManager;
     public LessonLocker lessonHandler;
     public CategoryLocker categoryHandler;
@@ -98,6 +100,12 @@ public class ParticleManager : MonoBehaviour
     void Start()
     {
         InitializeGame();
+
+        heatingSource = gameObject.AddComponent<AudioSource>();
+        heatingSource.volume = .5f;
+        heatingSource.loop = true;
+        heatingSource.playOnAwake = false;
+        heatingSource.clip = heatingLoop;
     }
 
     void InitializeGame()
@@ -561,6 +569,20 @@ public class ParticleManager : MonoBehaviour
 
         heatRoutine = StartCoroutine(HeatUpRoutine());
         flameRoutine = StartCoroutine(FadeFlamesIn());
+
+        PlayHeatingSound();
+    }
+
+    private void PlayHeatingSound()
+    {
+        if (heatingSource != null && !heatingSource.isPlaying && heatingLoop != null)
+            heatingSource.Play();
+    }
+
+    private void StopHeatingSound()
+    {
+        if (heatingSource != null && heatingSource.isPlaying)
+            heatingSource.Stop();
     }
 
     public void CoolDown()
@@ -575,6 +597,8 @@ public class ParticleManager : MonoBehaviour
 
         coolRoutine = StartCoroutine(CoolDownRoutine());
         flameRoutine = StartCoroutine(FadeFlamesOut());
+
+        StopHeatingSound();
     }
 
     IEnumerator HeatUpRoutine()

@@ -150,6 +150,9 @@ public class HeatTheMetal : MonoBehaviour
     public AudioClip failed;
     public AudioClip correct;
     public AudioClip wrong;
+    public AudioClip fire;
+    public AudioClip heater;
+
 
     public LessonLocker lessonHandler;
     public int userID;
@@ -886,10 +889,12 @@ public class HeatTheMetal : MonoBehaviour
     public void FirePlacedSuccess()
     {
         isHeating = true;
+        AudioManager.Instance.PlaySFX(fire);
     }
 
     public void HeaterPlacedSuccess()
     {
+        AudioManager.Instance.PlaySFX(heater);
         if (warmAirArrows != null) warmAirArrows.SetActive(true);
         if (coolAirArrows != null) coolAirArrows.SetActive(true);
 
@@ -1038,10 +1043,11 @@ public class HeatTheMetal : MonoBehaviour
 
             if (correctHoldTime >= holdTimeRequired)
             {
+                AudioManager.Instance.PlaySFX(passed);
                 scenario3Completed = true;
                 scenario3Active = false;
                 if (rotationSlider != null) rotationSlider.interactable = false;
-                StartQuizScenario3();
+                StartCoroutine(StartQuizScenario3WithDelay(2f));
             }
         }
         else
@@ -1053,6 +1059,12 @@ public class HeatTheMetal : MonoBehaviour
                     Mathf.MoveTowards(sunlightBeam.color.a, 0f, beamFadeSpeed * Time.deltaTime));
             }
         }
+    }
+
+    IEnumerator StartQuizScenario3WithDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        StartQuizScenario3();
     }
 
     void StartQuizScenario3()

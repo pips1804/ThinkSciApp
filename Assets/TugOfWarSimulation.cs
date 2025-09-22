@@ -23,6 +23,9 @@ public class TugOfWarSimulation : MonoBehaviour
     public float ropeMovementSpeed = 2f;
     public float maxRopeOffset = 150f; // UI units for portrait mode - adjust as needed
 
+    [Header("Sounds")]
+    public AudioClip RopePulling;
+
     [Header("UI")]
     public Button addLeftPetButton;
     public Button addRightPetButton;
@@ -182,6 +185,7 @@ public class TugOfWarSimulation : MonoBehaviour
 
     private IEnumerator SimulateTugOfWar()
     {
+        AudioManager.Instance.PlaySFX(RopePulling);
         // Start pet pulling animations
         foreach (var pet in leftPets) pet.GetComponent<PetController>().StartPulling();
         foreach (var pet in rightPets) pet.GetComponent<PetController>().StartPulling();

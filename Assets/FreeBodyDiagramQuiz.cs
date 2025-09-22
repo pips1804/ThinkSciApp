@@ -79,6 +79,7 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
     public AudioClip failed;
     public AudioClip correct;
     public AudioClip wrong;
+    public AudioClip movingBox;
 
     [SerializeField] private DatabaseManager databaseManager; // drag in inspector
     [SerializeField] private int quizId = 3; // ID of the quiz in your DB
@@ -378,6 +379,7 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
 
     private IEnumerator AnimateBoxMovement()
     {
+        AudioManager.Instance.PlaySFX(movingBox);
         if (boxImage != null)
         {
             Vector2 startPos = boxImage.anchoredPosition;

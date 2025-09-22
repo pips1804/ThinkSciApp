@@ -9,6 +9,7 @@ public class StoveKnob : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
 
     private RectTransform rectTransform;
     private float currentAngle;
+    public AudioClip knobTick;
 
     void Start()
     {
@@ -30,6 +31,7 @@ public class StoveKnob : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
 
     public void OnDrag(PointerEventData eventData)
     {
+        AudioManager.Instance.PlaySFX(knobTick);
         Vector2 dir = eventData.position - (Vector2)rectTransform.position;
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 
@@ -51,17 +53,16 @@ public class StoveKnob : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        AudioManager.Instance.PlaySFX(knobTick);
         // Snap to closest side when touch is released
         if (currentAngle > (minAngle + maxAngle) / 2f)
         {
-            // Snap to cool side (right)
             currentAngle = maxAngle;
             rectTransform.localRotation = Quaternion.Euler(0, 0, currentAngle);
             if (particleManager != null) particleManager.CoolDown();
         }
         else
         {
-            // Snap to heat side (left)
             currentAngle = minAngle;
             rectTransform.localRotation = Quaternion.Euler(0, 0, currentAngle);
             if (particleManager != null) particleManager.HeatUp();
