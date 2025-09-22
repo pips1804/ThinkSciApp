@@ -37,7 +37,7 @@ public class ItemData
     public int Price;
     public string SpritePath;
     public string Description;
-    public int Quantity;  // ✅ add this
+    public int Quantity;
     public int EnergyValue;
 }
 
@@ -45,8 +45,8 @@ public class QuizScoreRecord
 {
     public int Score;
     public string CompletedAt;
+    public bool IsNew;
 }
-
 public class DatabaseManager : MonoBehaviour
 {
     private string dbPath;
@@ -1797,7 +1797,6 @@ public class DatabaseManager : MonoBehaviour
             }
         }
     }
-
     public List<QuizScoreRecord> GetScoresByQuiz(int quizId, int userId = 1)
     {
         List<QuizScoreRecord> scores = new List<QuizScoreRecord>();
@@ -1809,10 +1808,10 @@ public class DatabaseManager : MonoBehaviour
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = @"
-                SELECT score, completed_at
-                FROM user_quiz_scores
-                WHERE quiz_id = @quizId AND user_id = @userId
-                ORDER BY completed_at DESC";
+            SELECT score, completed_at, is_new
+            FROM user_quiz_scores
+            WHERE quiz_id = @quizId AND user_id = @userId
+            ORDER BY completed_at DESC";
 
                 command.Parameters.AddWithValue("@quizId", quizId);
                 command.Parameters.AddWithValue("@userId", userId);
@@ -1823,13 +1822,35 @@ public class DatabaseManager : MonoBehaviour
                     {
                         QuizScoreRecord record = new QuizScoreRecord();
                         record.Score = reader.GetInt32(0);
-                        record.CompletedAt = reader.GetString(1); // since completed_at is stored as text in SQLite
+                        record.CompletedAt = reader.GetString(1);
+                        record.IsNew = reader.GetInt32(2) == 1; // convert int → bool
                         scores.Add(record);
                     }
                 }
             }
         }
         return scores;
+    }
+    public void MarkScoreAsSeen(QuizScoreRecord record, int userId = 1)
+    {
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+            UPDATE user_quiz_scores
+            SET is_new = 0
+            WHERE score = @score AND completed_at = @completedAt AND user_id = @userId";
+
+                command.Parameters.AddWithValue("@score", record.Score);
+                command.Parameters.AddWithValue("@completedAt", record.CompletedAt);
+                command.Parameters.AddWithValue("@userId", userId);
+
+                command.ExecuteNonQuery();
+            }
+        }
     }
 
 }

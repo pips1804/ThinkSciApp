@@ -54,10 +54,36 @@ public class ReportManager : MonoBehaviour
         foreach (QuizScoreRecord record in records)
         {
             GameObject newRow = Instantiate(scoreRowPrefab, scoreContentParent);
-            Text scoreText = newRow.GetComponentInChildren<Text>();
-            scoreText.text = $"Score: {record.Score} | Date: {record.CompletedAt.Split(' ')[0]}";
+
+            System.DateTime completedAt = System.DateTime.Parse(record.CompletedAt);
+            string dateOnly = completedAt.ToString("MMMM dd, yyyy");
+            string timeOnly = completedAt.ToString("hh:mm tt");
+
+            // Find text fields in prefab
+            Text scoreText = newRow.transform.Find("ScoreText").GetComponent<Text>();
+            Text dateText = newRow.transform.Find("DateText").GetComponent<Text>();
+            Text timeText = newRow.transform.Find("TimeText").GetComponent<Text>();
+
+            scoreText.text = $"Score: {record.Score}";
+            dateText.text = $"{dateOnly}";
+            timeText.text = $"{timeOnly}";
+
+            // Show badge if new
+            Transform newBadge = newRow.transform.Find("NewBadge");
+            if (newBadge != null)
+            {
+                newBadge.gameObject.SetActive(record.IsNew);
+            }
+
+            // After showing, mark as seen
+            if (record.IsNew)
+            {
+                record.IsNew = false;
+                dbManager.MarkScoreAsSeen(record);
+            }
         }
     }
+
 
     private void ClearPanel(Transform parent)
     {
