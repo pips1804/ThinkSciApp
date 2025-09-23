@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class SortingGame : MonoBehaviour
 {
@@ -42,6 +43,18 @@ public class SortingGame : MonoBehaviour
     public int iconsPerWave = 15;        // Total icons to spawn per wave
     public int fossilIconsPerWave = 10;  // Number of fossil icons per wave
     public int targetIconsPerWave = 5;   // Number of target icons per wave
+
+    [Header("Life Saver Quiz Settings")]
+    public GameObject quizModal;         // Modal panel for the quiz
+    public Text questionText;            // Text component to display the question
+    public Transform lettersContainer;   // Container for letter buttons
+    public GameObject letterButtonPrefab; // Prefab for individual letter buttons
+    public Button submitAnswerButton;    // Button to submit the answer
+    public Text feedbackText;            // Text to show quiz feedback
+    public Button continueButton;        // Button to continue after quiz
+    public Color correctLetterColor = Color.green;
+    public Color wrongLetterColor = Color.red;
+    public Color defaultLetterColor = Color.white;
 
     [Header("Game State")]
     private int currentEarthState = 0;
@@ -89,16 +102,53 @@ public class SortingGame : MonoBehaviour
     public int userID;
     public int rewardItemID;
 
-    // NEW: Track if this is the first enable or a re-enable
+    // Track if this is the first enable or a re-enable
     private bool hasBeenInitialized = false;
+
+    // Quiz-related variables
+    private List<GameObject> letterButtons = new List<GameObject>();
+    private string currentAnswer = "";
+    private string correctAnswer = "";
+    private bool isQuizActive = false;
+
+    // Quiz questions and answers (renewable energy themed)
+    private QuizQuestion[] quizQuestions = new QuizQuestion[]
+    {
+        new QuizQuestion("Energy from the sun", "SOLAR"),
+        new QuizQuestion("Energy from moving air", "WIND"),
+        new QuizQuestion("Energy from moving water", "HYDRO"),
+        new QuizQuestion("Energy from hot rocks underground", "GEOTHERMAL"),
+        new QuizQuestion("Energy from organic matter", "BIOMASS"),
+        new QuizQuestion("Clean energy that doesn't pollute", "RENEWABLE"),
+        new QuizQuestion("Gas that traps heat in atmosphere", "CARBON"),
+        new QuizQuestion("Spinning blades that generate power", "TURBINE"),
+        new QuizQuestion("Device that converts sunlight to electricity", "PANEL"),
+        new QuizQuestion("Our planet that needs protection", "EARTH")
+    };
 
     void Start()
     {
         Debug.Log("=== SORTING GAME START ===");
         InitializeGame();
+        InitializeQuiz();
     }
 
-    // NEW: Called when the GameObject is enabled
+    // Initialize quiz components
+    void InitializeQuiz()
+    {
+        Debug.Log("Initializing life saver quiz system...");
+
+        if (quizModal != null)
+            quizModal.SetActive(false);
+
+        if (submitAnswerButton != null)
+            submitAnswerButton.onClick.AddListener(SubmitQuizAnswer);
+
+        if (continueButton != null)
+            continueButton.onClick.AddListener(ContinueAfterQuiz);
+    }
+
+    // Called when the GameObject is enabled
     void OnEnable()
     {
         Debug.Log("=== SORTING GAME ENABLED ===");
@@ -111,7 +161,7 @@ public class SortingGame : MonoBehaviour
         }
     }
 
-    // NEW: Called when the GameObject is disabled
+    // Called when the GameObject is disabled
     void OnDisable()
     {
         Debug.Log("=== SORTING GAME DISABLED ===");
@@ -123,7 +173,7 @@ public class SortingGame : MonoBehaviour
         CleanupActiveIcons();
     }
 
-    // NEW: Initialize the game for the first time
+    // Initialize the game for the first time
     void InitializeGame()
     {
         Debug.Log("=== INITIALIZING GAME FOR FIRST TIME ===");
@@ -144,6 +194,7 @@ public class SortingGame : MonoBehaviour
         // Hide modals initially
         if (passModal != null) passModal.SetActive(false);
         if (failModal != null) failModal.SetActive(false);
+        if (quizModal != null) quizModal.SetActive(false);
 
         // Start the dialogue before the game
         if (dialogues != null)
@@ -162,7 +213,7 @@ public class SortingGame : MonoBehaviour
         hasBeenInitialized = true;
     }
 
-    // NEW: Perform a full restart when re-enabling
+    // Perform a full restart when re-enabling
     void PerformFullRestart()
     {
         Debug.Log("=== PERFORMING FULL RESTART ===");
@@ -181,6 +232,7 @@ public class SortingGame : MonoBehaviour
         // Hide modals
         if (passModal != null) passModal.SetActive(false);
         if (failModal != null) failModal.SetActive(false);
+        if (quizModal != null) quizModal.SetActive(false);
 
         // Always start from dialogue on restart
         if (dialogues != null)
@@ -197,7 +249,7 @@ public class SortingGame : MonoBehaviour
         }
     }
 
-    // NEW: Reset all game state variables to their initial values
+    // Reset all game state variables to their initial values
     void ResetGameState()
     {
         Debug.Log("Resetting all game state variables");
@@ -212,6 +264,7 @@ public class SortingGame : MonoBehaviour
         isSpawning = false;
         isPaused = false;
         gameStarted = false;
+        isQuizActive = false;
 
         // Reset dynamic difficulty values
         currentFallDuration = baseFallDuration;
@@ -224,7 +277,7 @@ public class SortingGame : MonoBehaviour
         ResetUIElements();
     }
 
-    // NEW: Reset UI elements to their initial state
+    // Reset UI elements to their initial state
     void ResetUIElements()
     {
         Debug.Log("Resetting UI elements to initial state");
@@ -265,7 +318,7 @@ public class SortingGame : MonoBehaviour
             targetIconNameText.text = "";
     }
 
-    // NEW: Clean up all active icons
+    // Clean up all active icons
     void CleanupActiveIcons()
     {
         Debug.Log($"Cleaning up {activeIcons.Count} active icons");
@@ -314,7 +367,7 @@ public class SortingGame : MonoBehaviour
         StartNewWave();
     }
 
-    // NEW: Show all game UI elements
+    // Show all game UI elements
     void ShowAllGameUI()
     {
         Debug.Log("Showing all game UI elements");
@@ -332,7 +385,7 @@ public class SortingGame : MonoBehaviour
 
     void Update()
     {
-        if (!gameStarted || isPaused) return; // Don't update when paused
+        if (!gameStarted || isPaused || isQuizActive) return; // Don't update when paused or quiz is active
 
         HandleBinMovement();
         CheckIconCollisions();
@@ -378,7 +431,7 @@ public class SortingGame : MonoBehaviour
 
             binImage.rectTransform.anchoredPosition = newBinPos;
 
-            // FIXED: Immediately update catch zone position with proper offset
+            // Immediately update catch zone position with proper offset
             if (binCatchZone != null)
             {
                 binCatchZone.anchoredPosition = newBinPos + catchZoneOffset;
@@ -425,14 +478,14 @@ public class SortingGame : MonoBehaviour
 
             Vector2 iconPos = iconRect.anchoredPosition;
 
-            // FIXED: More lenient vertical catch range and better horizontal detection
+            // More lenient vertical catch range and better horizontal detection
             float catchY = catchPos.y;
             float verticalTolerance = 30f; // Increased tolerance for easier catching
             bool isAtCatchLevel = iconPos.y <= catchY + verticalTolerance && iconPos.y >= catchY - verticalTolerance;
 
             if (isAtCatchLevel)
             {
-                // FIXED: More generous horizontal catch range
+                // More generous horizontal catch range
                 float horizontalDistance = Mathf.Abs(iconPos.x - catchPos.x);
                 float horizontalTolerance = (catchWidth / 2) + 20f; // Added extra margin
                 bool isInHorizontalRange = horizontalDistance <= horizontalTolerance;
@@ -467,7 +520,7 @@ public class SortingGame : MonoBehaviour
 
         bool isCorrectCatch = false;
 
-        // FIXED: More precise matching logic
+        // More precise matching logic
         if (iconType.isRenewable && iconType.iconIndex == targetIconIndex)
         {
             // Correct! Caught the target renewable icon
@@ -479,23 +532,27 @@ public class SortingGame : MonoBehaviour
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySFX(correct);
         }
-        else if (iconType.isRenewable && iconType.iconIndex != targetIconIndex)
-        {
-            // Wrong renewable type
-            Debug.Log("✗ WRONG RENEWABLE TYPE!");
-            WrongAnswer();
-            StartCoroutine(ShowWrongTypeFeedback());
-            if (AudioManager.Instance != null)
-                AudioManager.Instance.PlaySFX(wrong);
-        }
         else
         {
-            // Fossil fuel caught
-            Debug.Log("✗ FOSSIL FUEL CAUGHT!");
-            WrongAnswer();
-            StartCoroutine(ShowFossilFeedback());
+            // Wrong catch - trigger quiz as life saver
+            Debug.Log("✗ WRONG CATCH - STARTING LIFE SAVER QUIZ!");
+
+            if (iconType.isRenewable && iconType.iconIndex != targetIconIndex)
+            {
+                Debug.Log("Wrong renewable type caught - Quiz can save you!");
+                StartCoroutine(ShowWrongTypeFeedback());
+            }
+            else
+            {
+                Debug.Log("Fossil fuel caught - Quiz can save you!");
+                StartCoroutine(ShowFossilFeedback());
+            }
+
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySFX(wrong);
+
+            // Start quiz as life saver - no immediate penalty
+            StartLifeSaverQuiz();
         }
 
         // Remove the caught icon safely
@@ -512,9 +569,597 @@ public class SortingGame : MonoBehaviour
             Debug.Log($"Icon removed. Remaining active icons: {activeIcons.Count}");
         }
 
-        // Check if wave is complete
-        CheckWaveCompletion();
+        // Only check wave completion if it was a correct catch
+        if (isCorrectCatch)
+        {
+            CheckWaveCompletion();
+        }
     }
+
+    // Start the life saver quiz
+    void StartLifeSaverQuiz()
+    {
+        Debug.Log("=== STARTING LIFE SAVER QUIZ ===");
+
+        isQuizActive = true;
+        isPaused = true;
+
+        // Select a random question
+        QuizQuestion selectedQuestion = quizQuestions[Random.Range(0, quizQuestions.Length)];
+        correctAnswer = selectedQuestion.answer;
+
+        // Display the question
+        if (questionText != null)
+            questionText.text = "LIFE SAVER QUIZ!\n" + selectedQuestion.question;
+
+        // Create jumbled letters
+        CreateJumbledLetters(correctAnswer);
+
+        // Show quiz modal
+        if (quizModal != null)
+            quizModal.SetActive(true);
+
+        // Set initial feedback
+        UpdateFeedbackWithCurrentAnswer();
+
+        // Initialize submit button
+        if (submitAnswerButton != null)
+        {
+            submitAnswerButton.gameObject.SetActive(true);
+            UpdateSubmitButtonState(); // This will set it to disabled initially
+        }
+
+        if (continueButton != null)
+            continueButton.gameObject.SetActive(false);
+
+        Debug.Log($"Life saver quiz started with answer: {correctAnswer}");
+    }
+
+    public void ResetLetterButtons()
+    {
+        Debug.Log("Resetting letter buttons");
+
+        currentAnswer = "";
+
+        foreach (GameObject buttonObj in letterButtons)
+        {
+            if (buttonObj != null)
+            {
+                Button button = buttonObj.GetComponent<Button>();
+                Image buttonImage = buttonObj.GetComponent<Image>();
+
+                if (button != null)
+                    button.interactable = true; // Re-enable all buttons
+
+                if (buttonImage != null)
+                    buttonImage.color = defaultLetterColor; // Reset to default color
+            }
+        }
+
+        // Reset feedback to initial state
+        UpdateFeedbackWithCurrentAnswer();
+
+        // Update submit button state
+        UpdateSubmitButtonState();
+    }
+
+    public void ClearAllSelectedLetters()
+    {
+        Debug.Log("Clearing all selected letters");
+
+        // Reset all button states without destroying them
+        ResetLetterButtons();
+
+        // Show feedback about clearing
+        if (feedbackText != null)
+        {
+            feedbackText.text = "All letters cleared! Select letters to spell the answer.";
+            feedbackText.color = Color.yellow;
+
+            // Return to normal feedback after 1 second
+            StartCoroutine(ReturnToNormalFeedbackAfterClear());
+        }
+    }
+
+    IEnumerator ReturnToNormalFeedbackAfterClear()
+    {
+        yield return new WaitForSeconds(1f);
+        UpdateFeedbackWithCurrentAnswer();
+    }
+
+    // Create jumbled letters for the quiz
+    void CreateJumbledLetters(string answer)
+    {
+        Debug.Log($"Creating jumbled letters for: {answer}");
+
+        // Clear existing letter buttons
+        foreach (GameObject button in letterButtons)
+        {
+            if (button != null)
+                Destroy(button);
+        }
+        letterButtons.Clear();
+        currentAnswer = "";
+
+        // Validate components
+        if (letterButtonPrefab == null)
+        {
+            Debug.LogError("Letter button prefab is not assigned!");
+            return;
+        }
+
+        if (lettersContainer == null)
+        {
+            Debug.LogError("Letters container is not assigned!");
+            return;
+        }
+
+        // Create list of letters from the answer
+        List<char> letters = answer.ToList();
+
+        // Add one random distraction letter
+        char[] distractionLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
+        char distractionLetter;
+        do
+        {
+            distractionLetter = distractionLetters[Random.Range(0, distractionLetters.Length)];
+        } while (letters.Contains(distractionLetter));
+
+        letters.Add(distractionLetter);
+        Debug.Log($"Added distraction letter: {distractionLetter}");
+
+        // Shuffle the letters
+        for (int i = 0; i < letters.Count; i++)
+        {
+            char temp = letters[i];
+            int randomIndex = Random.Range(i, letters.Count);
+            letters[i] = letters[randomIndex];
+            letters[randomIndex] = temp;
+        }
+
+        // Create buttons for each letter
+        for (int i = 0; i < letters.Count; i++)
+        {
+            char letter = letters[i];
+            GameObject letterButton = Instantiate(letterButtonPrefab, lettersContainer);
+
+            if (letterButton == null) continue;
+
+            // Get components
+            Button buttonComponent = letterButton.GetComponent<Button>();
+            Text buttonText = letterButton.GetComponentInChildren<Text>();
+            Image buttonImage = letterButton.GetComponent<Image>();
+
+            if (buttonComponent == null || buttonText == null)
+            {
+                Destroy(letterButton);
+                continue;
+            }
+
+            // Set initial state
+            buttonText.text = letter.ToString();
+            buttonComponent.interactable = true; // Initially enabled
+
+            if (buttonImage != null)
+                buttonImage.color = defaultLetterColor; // Default color
+
+            // Clear any existing listeners
+            buttonComponent.onClick.RemoveAllListeners();
+
+            // Add click listener
+            char capturedLetter = letter;
+            GameObject capturedButton = letterButton;
+            buttonComponent.onClick.AddListener(() => OnLetterClicked(capturedLetter, capturedButton));
+
+            letterButtons.Add(letterButton);
+            Debug.Log($"Created letter button: '{letter}'");
+        }
+
+        Debug.Log($"Successfully created {letterButtons.Count} letter buttons");
+        StartCoroutine(RefreshLayoutAfterFrame());
+    }
+
+    IEnumerator RefreshLayoutAfterFrame()
+    {
+        yield return null; // Wait one frame
+
+        // Force layout refresh
+        if (lettersContainer != null)
+        {
+            LayoutGroup layoutGroup = lettersContainer.GetComponent<LayoutGroup>();
+            if (layoutGroup != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(lettersContainer.GetComponent<RectTransform>());
+            }
+        }
+    }
+
+    // Handle letter button clicks
+    void OnLetterClicked(char letter, GameObject buttonObject)
+    {
+        Debug.Log($"Letter clicked: {letter}");
+
+        // Validate button object
+        if (buttonObject == null)
+        {
+            Debug.LogError("Button object is null!");
+            return;
+        }
+
+        // Get components
+        Button button = buttonObject.GetComponent<Button>();
+        Image buttonImage = buttonObject.GetComponent<Image>();
+
+        if (button == null)
+        {
+            Debug.LogError("Button component is null!");
+            return;
+        }
+
+        // Check current state of the button
+        bool isCurrentlySelected = !button.interactable;
+
+        if (isCurrentlySelected)
+        {
+            // DESELECT: Remove this letter from the answer
+            DeselectLetter(letter, buttonObject);
+        }
+        else
+        {
+            // SELECT: Add this letter to the answer (if not at max length)
+            if (currentAnswer.Length < correctAnswer.Length)
+            {
+                SelectLetter(letter, buttonObject);
+            }
+            else
+            {
+                Debug.Log("Answer already at maximum length, cannot add more letters");
+            }
+        }
+
+        // Update feedback and submit button
+        UpdateFeedbackWithCurrentAnswer();
+        UpdateSubmitButtonState();
+    }
+
+    void SelectLetter(char letter, GameObject buttonObject)
+    {
+        Debug.Log($"Selecting letter: {letter}");
+
+        // Add letter to current answer
+        currentAnswer += letter;
+
+        // Update button appearance
+        Button button = buttonObject.GetComponent<Button>();
+        Image buttonImage = buttonObject.GetComponent<Image>();
+
+        if (button != null)
+            button.interactable = false; // Disable to show it's selected
+
+        if (buttonImage != null)
+            buttonImage.color = Color.cyan; // Cyan color for selected letters
+
+        Debug.Log($"Current answer: '{currentAnswer}' (Length: {currentAnswer.Length})");
+
+        // Auto-submit if answer is complete
+        if (currentAnswer.Length >= correctAnswer.Length)
+        {
+            Debug.Log("Answer complete, auto-submitting...");
+            StartCoroutine(DelayedSubmit());
+        }
+    }
+
+    void DeselectLetter(char letter, GameObject buttonObject)
+    {
+        Debug.Log($"Deselecting letter: {letter}");
+
+        // Find and remove the LAST occurrence of this letter from the answer
+        int lastIndex = currentAnswer.LastIndexOf(letter);
+        if (lastIndex != -1)
+        {
+            // Remove the letter at the found index
+            currentAnswer = currentAnswer.Remove(lastIndex, 1);
+            Debug.Log($"Removed letter '{letter}' at position {lastIndex}");
+        }
+
+        // Update button appearance back to default
+        Button button = buttonObject.GetComponent<Button>();
+        Image buttonImage = buttonObject.GetComponent<Image>();
+
+        if (button != null)
+            button.interactable = true; // Re-enable the button
+
+        if (buttonImage != null)
+            buttonImage.color = defaultLetterColor; // Back to default color
+
+        Debug.Log($"Current answer after deselection: '{currentAnswer}' (Length: {currentAnswer.Length})");
+    }
+    void UpdateSubmitButtonState()
+    {
+        if (submitAnswerButton != null)
+        {
+            // Enable submit button if there's at least one letter selected
+            submitAnswerButton.interactable = currentAnswer.Length > 0;
+
+            // Change button text based on state
+            Text submitButtonText = submitAnswerButton.GetComponentInChildren<Text>();
+            if (submitButtonText != null)
+            {
+                if (currentAnswer.Length >= correctAnswer.Length)
+                {
+                    submitButtonText.text = "Submit";
+                }
+                else
+                {
+                    submitButtonText.text = $"Submit ({currentAnswer.Length}/{correctAnswer.Length})";
+                }
+            }
+        }
+    }
+    void UpdateFeedbackWithCurrentAnswer()
+    {
+        if (feedbackText == null) return;
+
+        if (string.IsNullOrEmpty(currentAnswer))
+        {
+            feedbackText.text = "Select letters to spell the answer!";
+            feedbackText.color = Color.yellow;
+        }
+        else
+        {
+            // Create styled display with brackets around letters
+            string displayText = "";
+
+            // Add clicked letters in brackets
+            for (int i = 0; i < currentAnswer.Length; i++)
+            {
+                displayText += "[" + currentAnswer[i] + "] ";
+            }
+
+            // Add empty brackets for remaining letters
+            int remainingLetters = correctAnswer.Length - currentAnswer.Length;
+            for (int i = 0; i < remainingLetters; i++)
+            {
+                displayText += "[_] ";
+            }
+
+            feedbackText.text = displayText.Trim();
+
+            // Color based on progress
+            float progress = (float)currentAnswer.Length / correctAnswer.Length;
+            if (progress < 0.5f)
+                feedbackText.color = Color.yellow;
+            else if (progress < 1f)
+                feedbackText.color = Color.cyan;
+            else
+                feedbackText.color = Color.white;
+        }
+    }
+
+    IEnumerator DelayedSubmit()
+    {
+        yield return new WaitForSeconds(0.2f); // Brief delay
+        SubmitQuizAnswer();
+    }
+
+    // Submit the quiz answer with life saver logic
+    void SubmitQuizAnswer()
+    {
+        Debug.Log($"Submitting life saver answer: '{currentAnswer}' vs correct: '{correctAnswer}'");
+
+        bool isCorrect = currentAnswer.Equals(correctAnswer, System.StringComparison.OrdinalIgnoreCase);
+
+        if (isCorrect)
+        {
+            Debug.Log("✓ LIFE SAVER QUIZ CORRECT - LIFE SAVED!");
+
+            // Show success feedback with complete word
+            if (feedbackText != null)
+            {
+                feedbackText.text = $"Correct! '{correctAnswer}' - Life saved! +10 bonus points!";
+                feedbackText.color = correctLetterColor;
+            }
+
+            // Color correct letters green
+            ColorLetterButtons(true);
+
+            // LIFE SAVED - Give bonus points
+            score += 10;
+            UpdateScore();
+
+            // Optional healing effect
+            if (currentEarthState > 0)
+            {
+                Debug.Log("Life saver success - healing Earth slightly");
+                currentEarthState = Mathf.Max(0, currentEarthState - 1);
+                if (currentEarthState < earthStates.Length)
+                    StartCoroutine(AnimateEarthChange(earthStates[currentEarthState], false));
+            }
+
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(correct);
+        }
+        else
+        {
+            Debug.Log("✗ LIFE SAVER QUIZ FAILED - LIFE LOST!");
+
+            // Show failure feedback with both answers
+            if (feedbackText != null)
+            {
+                feedbackText.text = $"Wrong! Your answer: '{currentAnswer}'\nCorrect answer: '{correctAnswer}'\nLife lost!";
+                feedbackText.color = wrongLetterColor;
+            }
+
+            // Color letters red
+            ColorLetterButtons(false);
+
+            // LIFE LOST - Apply penalty
+            WrongAnswer();
+
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(wrong);
+        }
+
+        // Hide submit button, show continue button
+        if (submitAnswerButton != null)
+            submitAnswerButton.gameObject.SetActive(false);
+        if (continueButton != null)
+            continueButton.gameObject.SetActive(true);
+
+        // Auto-continue after showing feedback
+        StartCoroutine(AutoContinueAfterFeedback());
+    }
+
+    // Auto-continue after showing feedback
+    IEnumerator AutoContinueAfterFeedback()
+    {
+        yield return new WaitForSeconds(2f); // Show feedback for 2 seconds
+
+        if (continueButton != null && continueButton.gameObject.activeInHierarchy)
+        {
+            ContinueAfterQuiz(); // Auto-continue
+        }
+    }
+
+    // Color letter buttons based on result
+    void ColorLetterButtons(bool isCorrect)
+    {
+        Color targetColor = isCorrect ? correctLetterColor : wrongLetterColor;
+
+        foreach (GameObject buttonObj in letterButtons)
+        {
+            if (buttonObj != null)
+            {
+                Image buttonImage = buttonObj.GetComponent<Image>();
+                if (buttonImage != null)
+                    buttonImage.color = targetColor;
+
+                // Also disable all buttons after submission
+                Button button = buttonObj.GetComponent<Button>();
+                if (button != null)
+                    button.interactable = false;
+            }
+        }
+    }
+    // Continue after quiz
+    void ContinueAfterQuiz()
+    {
+        Debug.Log("Continuing after life saver quiz...");
+
+        // Hide quiz modal
+        if (quizModal != null)
+            quizModal.SetActive(false);
+
+        // Clean up any existing icons that might be stuck or paused
+        CleanupActiveIcons();
+
+        // Resume game state
+        isQuizActive = false;
+        isPaused = false;
+
+        // Reset bin position to center (optional - helps with control issues)
+        // ResetBinPosition();
+
+        // Spawn fresh icons instead of resuming old ones
+        SpawnFreshIconsAfterQuiz();
+
+        Debug.Log("Game resumed with fresh icons after quiz");
+    }
+
+    void SpawnFreshIconsAfterQuiz()
+    {
+        Debug.Log("Spawning fresh icons after quiz completion...");
+
+        // Start a reduced batch of icons (fewer than full wave)
+        int iconsToSpawn = Mathf.Min(8, targetIconsPerWave + fossilIconsPerWave); // Reduced count
+        int targetIconsToSpawn = Mathf.Min(3, targetIconsPerWave); // Reduced target icons
+        int fossilIconsToSpawn = iconsToSpawn - targetIconsToSpawn;
+
+        StartCoroutine(SpawnQuizRecoveryIcons(targetIconsToSpawn, fossilIconsToSpawn));
+    }
+
+    IEnumerator SpawnQuizRecoveryIcons(int targetCount, int fossilCount)
+    {
+        Debug.Log($"Starting quiz recovery spawn: {targetCount} targets, {fossilCount} fossils");
+
+        // Create spawn list
+        List<SpawnData> iconsToSpawn = new List<SpawnData>();
+
+        // Add target renewable icons
+        if (targetIconIndex < renewableIcons.Length && renewableIcons[targetIconIndex] != null)
+        {
+            for (int i = 0; i < targetCount; i++)
+            {
+                iconsToSpawn.Add(new SpawnData
+                {
+                    prefab = renewableIcons[targetIconIndex],
+                    isRenewable = true,
+                    iconIndex = targetIconIndex
+                });
+            }
+        }
+
+        // Add fossil fuel icons
+        if (fossilIcons.Length > 0)
+        {
+            for (int i = 0; i < fossilCount; i++)
+            {
+                int randomFossilIndex = Random.Range(0, fossilIcons.Length);
+                if (fossilIcons[randomFossilIndex] != null)
+                {
+                    iconsToSpawn.Add(new SpawnData
+                    {
+                        prefab = fossilIcons[randomFossilIndex],
+                        isRenewable = false,
+                        iconIndex = randomFossilIndex
+                    });
+                }
+            }
+        }
+
+        // Shuffle the list
+        for (int i = 0; i < iconsToSpawn.Count; i++)
+        {
+            SpawnData temp = iconsToSpawn[i];
+            int randomIndex = Random.Range(i, iconsToSpawn.Count);
+            iconsToSpawn[i] = iconsToSpawn[randomIndex];
+            iconsToSpawn[randomIndex] = temp;
+        }
+
+        // Spawn icons with slightly faster interval for better pacing
+        float recoverySpawnInterval = Mathf.Max(0.5f, currentSpawnInterval * 0.8f);
+
+        foreach (SpawnData spawnData in iconsToSpawn)
+        {
+            if (spawnData.prefab != null)
+            {
+                SpawnIconWithData(spawnData);
+                iconsSpawnedThisWave++; // Keep track for wave completion
+            }
+            yield return new WaitForSeconds(recoverySpawnInterval);
+        }
+
+        Debug.Log("Quiz recovery icons spawned successfully");
+    }
+
+
+    void ResetBinPosition()
+    {
+        if (binImage != null)
+        {
+            Vector2 centerPosition = new Vector2(0, binImage.rectTransform.anchoredPosition.y);
+            binImage.rectTransform.anchoredPosition = centerPosition;
+
+            // Update catch zone position
+            if (binCatchZone != null)
+            {
+                binCatchZone.anchoredPosition = centerPosition + catchZoneOffset;
+            }
+
+            Debug.Log("Bin position reset to center");
+        }
+    }
+
 
     void StartNewWave()
     {
@@ -624,6 +1269,12 @@ public class SortingGame : MonoBehaviour
         // Spawn icons with intervals using current dynamic spawn interval
         foreach (SpawnData spawnData in iconsToSpawn)
         {
+            // Wait if quiz is active
+            while (isQuizActive)
+            {
+                yield return null;
+            }
+
             if (spawnData.prefab != null)
             {
                 SpawnIconWithData(spawnData);
@@ -637,7 +1288,7 @@ public class SortingGame : MonoBehaviour
         isSpawning = false;
     }
 
-    // NEW METHOD: Spawn icon with explicit data
+    // Spawn icon with explicit data
     void SpawnIconWithData(SpawnData spawnData)
     {
         Debug.Log($"Spawning icon: {spawnData.prefab.name} - Renewable: {spawnData.isRenewable}, Index: {spawnData.iconIndex}");
@@ -655,7 +1306,7 @@ public class SortingGame : MonoBehaviour
         iconType.isRenewable = spawnData.isRenewable;
         iconType.iconIndex = spawnData.iconIndex;
 
-        // NEW: Add gravity and wind effects
+        // Add gravity and wind effects
         AddChallengeEffects(iconType);
 
         Debug.Log($"Icon configured - Renewable: {iconType.isRenewable}, Index: {iconType.iconIndex}, Gravity: {iconType.gravityMultiplier}, Wind: {iconType.windStrength}");
@@ -698,7 +1349,7 @@ public class SortingGame : MonoBehaviour
         // Apply random gravity multiplier to all waves
         iconType.gravityMultiplier = Random.Range(minGravityMultiplier, maxGravityMultiplier);
 
-        // NEW: Add zigzag movement to fossil fuel icons
+        // Add zigzag movement to fossil fuel icons
         if (!iconType.isRenewable)
         {
             iconType.hasZigzag = true;
@@ -752,8 +1403,8 @@ public class SortingGame : MonoBehaviour
 
         while (elapsedTime < actualFallDuration && iconObj != null && iconRect != null)
         {
-            // Pause handling - wait if game is paused
-            while (isPaused && iconObj != null)
+            // Pause handling - wait if game is paused or quiz is active
+            while ((isPaused || isQuizActive) && iconObj != null)
             {
                 yield return null;
             }
@@ -773,7 +1424,7 @@ public class SortingGame : MonoBehaviour
                 currentPos.x += windOffset;
             }
 
-            // NEW: Apply zigzag movement to fossil fuel icons
+            // Apply zigzag movement to fossil fuel icons
             if (iconType.hasZigzag && !iconType.isRenewable)
             {
                 float zigzagOffset = Mathf.Sin(t * iconType.zigzagFrequency * Mathf.PI * 2) * iconType.zigzagAmplitude * t;
@@ -802,10 +1453,10 @@ public class SortingGame : MonoBehaviour
 
     void CheckWaveCompletion()
     {
-        Debug.Log($"Checking wave completion. IsSpawning: {isSpawning}, Active icons: {activeIcons.Count}");
+        Debug.Log($"Checking wave completion. IsSpawning: {isSpawning}, Active icons: {activeIcons.Count}, Quiz active: {isQuizActive}");
 
-        // Wave is complete when all icons have been spawned and no more icons are active
-        if (!isSpawning && activeIcons.Count == 0)
+        // Wave is complete when all icons have been spawned, no more icons are active, and no quiz is running
+        if (!isSpawning && activeIcons.Count == 0 && !isQuizActive)
         {
             Debug.Log($"Wave {currentWave + 1} completed!");
             currentWave++;
@@ -932,7 +1583,7 @@ public class SortingGame : MonoBehaviour
         }
     }
 
-    // Keep your existing AnimateEarthChange method
+    // Earth animation method
     IEnumerator AnimateEarthChange(Sprite newSprite, bool isWrong)
     {
         if (isWrong)
@@ -1061,6 +1712,7 @@ public class SortingGame : MonoBehaviour
         // Hide modals
         if (passModal != null) passModal.SetActive(false);
         if (failModal != null) failModal.SetActive(false);
+        if (quizModal != null) quizModal.SetActive(false);
 
         // Always restart from dialogue when using restart button
         if (dialogues != null)
@@ -1092,7 +1744,6 @@ public class SortingGame : MonoBehaviour
         // Settings.SetActive(false);
         // QuizProgress.SetActive(false);
     }
-
 
     IEnumerator ShowPassModalAfterDelay()
     {
@@ -1144,7 +1795,7 @@ public class SortingGame : MonoBehaviour
         }
     }
 
-    // NEW: Pause and Resume Methods for Settings Modal
+    // Pause and Resume Methods for Settings Modal
     public void PauseGame()
     {
         Debug.Log("=== GAME PAUSED ===");
@@ -1187,5 +1838,19 @@ public class SortingGame : MonoBehaviour
         public GameObject prefab;
         public bool isRenewable;
         public int iconIndex;
+    }
+
+    // Quiz question data structure
+    [System.Serializable]
+    public class QuizQuestion
+    {
+        public string question;
+        public string answer;
+
+        public QuizQuestion(string q, string a)
+        {
+            question = q;
+            answer = a;
+        }
     }
 }
