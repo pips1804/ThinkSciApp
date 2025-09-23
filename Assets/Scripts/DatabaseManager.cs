@@ -1853,4 +1853,72 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
+    public JumbledQuestion1 GetOneJumbledQuestion(int quizId)
+    {
+        JumbledQuestion1 question = null;
+
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+
+            while (question == null)
+            {
+                using (var selectCommand = connection.CreateCommand())
+                {
+                    selectCommand.CommandText = @"
+                SELECT q.Question_ID, q.Question_Text, a.Correct_Answer, a.Explanation
+                FROM Questions q
+                JOIN Jumbled_Answers a ON q.Question_ID = a.Question_ID
+                WHERE q.Quiz_ID = @quizId
+                  AND q.Question_Type = 'Jumbled Letters'
+                  AND q.Is_Used = 0
+                ORDER BY RANDOM()
+                LIMIT 1;";
+
+                    selectCommand.Parameters.AddWithValue("@quizId", quizId);
+
+                    using (var reader = selectCommand.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            question = new JumbledQuestion1
+                            {
+                                QuestionID = reader.GetInt32(0),
+                                QuestionText = reader.GetString(1),
+                                CorrectAnswer = reader.GetString(2),
+                                Explanation = reader.GetString(3)
+                            };
+                        }
+                    }
+                }
+
+                if (question == null)
+                {
+                    // Reset if all are used
+                    using (var resetCommand = connection.CreateCommand())
+                    {
+                        resetCommand.CommandText = @"
+                    UPDATE Questions
+                    SET Is_Used = 0
+                    WHERE Quiz_ID = @quizId
+                      AND Question_Type = 'Jumbled Letters';";
+                        resetCommand.Parameters.AddWithValue("@quizId", quizId);
+                        resetCommand.ExecuteNonQuery();
+                    }
+                    continue; // Retry after reset
+                }
+
+                // Mark as used
+                using (var updateCommand = connection.CreateCommand())
+                {
+                    updateCommand.CommandText = "UPDATE Questions SET Is_Used = 1 WHERE Question_ID = @id;";
+                    updateCommand.Parameters.AddWithValue("@id", question.QuestionID);
+                    updateCommand.ExecuteNonQuery();
+                }
+            }
+        }
+
+        return question;
+    }
+
 }

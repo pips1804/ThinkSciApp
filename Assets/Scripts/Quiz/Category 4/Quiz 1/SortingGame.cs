@@ -111,21 +111,6 @@ public class SortingGame : MonoBehaviour
     private string correctAnswer = "";
     private bool isQuizActive = false;
 
-    // Quiz questions and answers (renewable energy themed)
-    private QuizQuestion[] quizQuestions = new QuizQuestion[]
-    {
-        new QuizQuestion("Energy from the sun", "SOLAR"),
-        new QuizQuestion("Energy from moving air", "WIND"),
-        new QuizQuestion("Energy from moving water", "HYDRO"),
-        new QuizQuestion("Energy from hot rocks underground", "GEOTHERMAL"),
-        new QuizQuestion("Energy from organic matter", "BIOMASS"),
-        new QuizQuestion("Clean energy that doesn't pollute", "RENEWABLE"),
-        new QuizQuestion("Gas that traps heat in atmosphere", "CARBON"),
-        new QuizQuestion("Spinning blades that generate power", "TURBINE"),
-        new QuizQuestion("Device that converts sunlight to electricity", "PANEL"),
-        new QuizQuestion("Our planet that needs protection", "EARTH")
-    };
-
     void Start()
     {
         Debug.Log("=== SORTING GAME START ===");
@@ -584,13 +569,13 @@ public class SortingGame : MonoBehaviour
         isQuizActive = true;
         isPaused = true;
 
-        // Select a random question
-        QuizQuestion selectedQuestion = quizQuestions[Random.Range(0, quizQuestions.Length)];
-        correctAnswer = selectedQuestion.answer;
+        // Fetch one random question from DB (Quiz_ID = 11)
+        JumbledQuestion1 selectedQuestion = dbManager.GetOneJumbledQuestion(11);
+        correctAnswer = selectedQuestion.CorrectAnswer;
 
         // Display the question
         if (questionText != null)
-            questionText.text = "LIFE SAVER QUIZ!\n" + selectedQuestion.question;
+            questionText.text = "LIFE SAVER QUIZ!\n" + selectedQuestion.QuestionText;
 
         // Create jumbled letters
         CreateJumbledLetters(correctAnswer);
@@ -599,14 +584,13 @@ public class SortingGame : MonoBehaviour
         if (quizModal != null)
             quizModal.SetActive(true);
 
-        // Set initial feedback
+        // Initialize feedback and buttons
         UpdateFeedbackWithCurrentAnswer();
 
-        // Initialize submit button
         if (submitAnswerButton != null)
         {
             submitAnswerButton.gameObject.SetActive(true);
-            UpdateSubmitButtonState(); // This will set it to disabled initially
+            UpdateSubmitButtonState();
         }
 
         if (continueButton != null)
