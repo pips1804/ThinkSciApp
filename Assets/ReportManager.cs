@@ -55,7 +55,22 @@ public class ReportManager : MonoBehaviour
         {
             GameObject newRow = Instantiate(scoreRowPrefab, scoreContentParent);
 
-            System.DateTime completedAt = System.DateTime.Parse(record.CompletedAt);
+            // Parse DB time safely
+            DateTime completedAtUtc;
+            if (!DateTime.TryParse(record.CompletedAt, out completedAtUtc))
+            {
+                completedAtUtc = DateTime.UtcNow; // fallback if parsing fails
+            }
+            else
+            {
+                // Make sure it's treated as UTC
+                completedAtUtc = DateTime.SpecifyKind(completedAtUtc, DateTimeKind.Utc);
+            }
+
+            // Convert UTC → Philippine Time (UTC+8) manually
+            DateTime completedAt = completedAtUtc.AddHours(8);
+
+            // Format date & time
             string dateOnly = completedAt.ToString("MMMM dd, yyyy");
             string timeOnly = completedAt.ToString("hh:mm tt");
 
@@ -65,8 +80,8 @@ public class ReportManager : MonoBehaviour
             Text timeText = newRow.transform.Find("TimeText").GetComponent<Text>();
 
             scoreText.text = $"Score: {record.Score}";
-            dateText.text = $"{dateOnly}";
-            timeText.text = $"{timeOnly}";
+            dateText.text = dateOnly;
+            timeText.text = timeOnly;
 
             // Show badge if new
             Transform newBadge = newRow.transform.Find("NewBadge");
