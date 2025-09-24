@@ -34,7 +34,7 @@ public class OwnedItemsManager : MonoBehaviour
     private int currentUserId = 1;
     private List<ItemData> ownedItems = new List<ItemData>();
     private string currentFilter = "All";
-
+    public AudioClip useFoodSound;
     void Start()
     {
         // Hook up buttons
@@ -183,8 +183,11 @@ public class OwnedItemsManager : MonoBehaviour
         // 2. Reduce quantity
         Database.ReduceItemQuantity(currentUserId, item.ItemId, 1);
 
+        AudioManager.Instance.PlaySFX(useFoodSound);
+
         // 3. Reload inventory
         LoadOwnedItems();
+
     }
     public void ShowErrorPanel(string message)
     {

@@ -41,6 +41,9 @@ public class ShopManager : MonoBehaviour
 
     private string currentFilter = "All";
 
+    public AudioClip buySound;
+    public AudioClip errorSound;
+
     void Start()
     {
         buyPanel.SetActive(false);
@@ -185,10 +188,12 @@ public class ShopManager : MonoBehaviour
                 LoadShopItems();
                 UpdateCoinsDisplay();
                 lessonHandler.RefreshLessonLocks();
+                AudioManager.Instance.PlaySFX(buySound);
             }
             else
             {
                 ShowErrorPanel("Not enough coins!");
+                AudioManager.Instance.PlaySFX(errorSound);
             }
         });
     }

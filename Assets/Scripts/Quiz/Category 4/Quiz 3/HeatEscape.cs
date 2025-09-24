@@ -322,11 +322,11 @@ public class HeatEscape : MonoBehaviour
 
         if (overallPercentage >= passingPercentage)
         {
-            return $"Congratulations! You passed with {overallPercentage:F0}%!\nFinal Score: {totalCorrectAnswers}/{totalQuestionsAnswered}";
+            return $"You mastered the particle model and energy innovations!\nFinal Score: {totalCorrectAnswers}/{totalQuestionsAnswered}";
         }
         else
         {
-            return $"You scored {overallPercentage:F0}%. You need {passingPercentage:F0}% or higher to pass.\nFinal Score: {totalCorrectAnswers}/{totalQuestionsAnswered}";
+            return $"Keep learning — review the particle model and energy innovations.\nFinal Score: {totalCorrectAnswers}/{totalQuestionsAnswered}";
         }
     }
 

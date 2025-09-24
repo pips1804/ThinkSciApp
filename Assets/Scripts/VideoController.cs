@@ -63,23 +63,23 @@ public class VideoController : MonoBehaviour
             UpdateTimeUI();
         }
     }
-
     void TogglePlayPause()
     {
         if (videoPlayer.isPlaying)
         {
             videoPlayer.Pause();
-            StartCoroutine(FadeAudio(bgMusic, 1f, 1f)); // Fade in over 1 sec
+            // Fade bg music back in to saved volume
+            StartCoroutine(FadeAudio(AudioManager.Instance.bgmSource, PlayerPrefs.GetFloat("BGMVolume", 0.1f), 1f));
         }
         else
         {
             videoPlayer.Play();
-            StartCoroutine(FadeAudio(bgMusic, 0f, 1f)); // Fade out over 1 sec
+            // Fade bg music out
+            StartCoroutine(FadeAudio(AudioManager.Instance.bgmSource, 0f, 1f));
         }
 
         UpdatePlayPauseIcon();
     }
-
 
 
     void UpdatePlayPauseIcon()
@@ -111,22 +111,18 @@ public class VideoController : MonoBehaviour
         int seconds = Mathf.FloorToInt((float)time % 60);
         return $"{minutes:D2}:{seconds:D2}";
     }
-
     void OnCenterPlayClicked()
     {
         videoPlayer.Play();
         StartCoroutine(FadeAudio(bgMusic, 0f, 1f)); // Fade out
-        UpdatePlayPauseIcon();
+        playPauseIcon.sprite = pauseSprite; // 🔥 Force pause sprite immediately
         centerPlayButton.gameObject.SetActive(false);
     }
-
     void OnVideoFinished(VideoPlayer vp)
     {
         centerPlayButton.gameObject.SetActive(true);
-        // takeQuizButton.interactable = true;
-        StartCoroutine(FadeAudio(bgMusic, 1f, 1f)); // Fade in
+        StartCoroutine(FadeAudio(AudioManager.Instance.bgmSource, PlayerPrefs.GetFloat("BGMVolume", 0.1f), 1f));
     }
-
     void OnVideoPrepared(VideoPlayer vp) => UpdateTimeUI();
 
     // ? NEW: Simulated fullscreen toggle for mobile
@@ -159,11 +155,14 @@ public class VideoController : MonoBehaviour
             Screen.orientation = ScreenOrientation.Portrait; // Optional
         }
     }
-
     IEnumerator FadeAudio(AudioSource audioSource, float targetVolume, float duration)
     {
         float currentTime = 0f;
         float startVolume = audioSource.volume;
+
+        // Always make sure bgm is playing, even if muted
+        if (!audioSource.isPlaying)
+            audioSource.Play();
 
         while (currentTime < duration)
         {
@@ -173,15 +172,6 @@ public class VideoController : MonoBehaviour
         }
 
         audioSource.volume = targetVolume;
-
-        if (Mathf.Approximately(targetVolume, 0f))
-        {
-            audioSource.Pause(); // Pause fully when volume is 0
-        }
-        else if (!audioSource.isPlaying)
-        {
-            audioSource.Play(); // Resume only if not already playing
-        }
     }
 
 }

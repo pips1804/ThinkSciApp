@@ -514,7 +514,9 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
             // Update victory modal text
             if (victoryModalText != null)
             {
-                victoryModalText.text = $"Congratulations! You passed with {overallPercentage:F0}%!\nFinal Score: {correctAnswers}/{totalQuestionsAnswered}";
+                victoryModalText.text =
+                    $"You identified all the forces and achieved equilibrium!\n" +
+                    $"Final Score: {correctAnswers}/{totalQuestionsAnswered}";
             }
         }
 
@@ -544,7 +546,9 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
             // Update game over modal text
             if (gameOverModalText != null)
             {
-                gameOverModalText.text = $"You scored {overallPercentage:F0}%. You need {passPercentage:F0}% or higher to pass.\nFinal Score: {correctAnswers}/{totalQuestionsAnswered}";
+                gameOverModalText.text =
+                    $"Some forces were left unbalanced...\n" +
+                    $"Final Score: {correctAnswers}/{totalQuestionsAnswered}";
             }
         }
         databaseManager.CheckAndUnlockBadges(userID);

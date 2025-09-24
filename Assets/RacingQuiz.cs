@@ -39,6 +39,8 @@ public class RacingQuiz : MonoBehaviour
     // playerCar and enemyCar removed - using slider handles instead
     public GameObject victoryModal;
     public GameObject gameOverModal;
+    public Text victoryText;
+    public Text gameOverText;
 
     [Header("Car Movement Settings")]
     public float carMoveSpeed = 5f;
@@ -150,7 +152,7 @@ public class RacingQuiz : MonoBehaviour
         SetQuizPanelsActive(true);
         SetupQuizUI();
         LoadNextQuestion();
-        
+
         if (bgAudioSource != null && !bgAudioSource.isPlaying)
             bgAudioSource.Play();
     }
@@ -537,6 +539,7 @@ public class RacingQuiz : MonoBehaviour
     IEnumerator ShowResultWithDelay(bool playerWon)
     {
         yield return new WaitForSeconds(2f);
+        int totalQuestionsInGame = 15;
 
         gameEnded = true;
 
@@ -555,6 +558,9 @@ public class RacingQuiz : MonoBehaviour
 
             victoryModal.SetActive(true);
             AudioManager.Instance.PlaySFX(victorySound);
+            victoryText.text =
+    $"You race like a pro racer and crossed the finish line first!\n" +
+    $"Final Score: {correctAnswers}/{totalQuestionsInGame}";
         }
         else
         {
@@ -562,6 +568,10 @@ public class RacingQuiz : MonoBehaviour
             databaseManager.CheckAndUnlockBadges(userID);
             gameOverModal.SetActive(true);
             AudioManager.Instance.PlaySFX(gameOverSound);
+            gameOverText.text =
+    $"You lost track of the graph and fell behind in the race…\n" +
+    $"Final Score: {correctAnswers}/{totalQuestionsInGame}";
+
         }
         databaseManager.SaveQuizAndScore(userID, quizId, correctAnswers);
         databaseManager.CheckAndUnlockBadges(userID);
@@ -626,7 +636,7 @@ public class RacingQuiz : MonoBehaviour
     {
         if (databaseManager != null)
         {
-            List<MultipleChoice.MultipleChoiceQuestions> mcqList = 
+            List<MultipleChoice.MultipleChoiceQuestions> mcqList =
                 databaseManager.GetRandomUnusedQuestions(quizId);
 
             Debug.Log("Questions fetched: " + mcqList.Count);

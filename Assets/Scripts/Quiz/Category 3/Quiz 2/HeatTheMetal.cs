@@ -1212,7 +1212,8 @@ public class HeatTheMetal : MonoBehaviour
         {
             float overallPercentage = CalculateOverallPercentage();
             if (passedScoreText != null)
-                passedScoreText.text = $"Congratulations! You passed with {overallPercentage:F0}%!\nFinal Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
+                passedScoreText.text = $"You mastered how heat moves!\n" +
+    $"Final Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
 
             passedModal.SetActive(true);
             AudioManager.Instance.PlaySFX(passed);
@@ -1229,7 +1230,8 @@ public class HeatTheMetal : MonoBehaviour
         {
             float overallPercentage = CalculateOverallPercentage();
             if (failedScoreText != null)
-                failedScoreText.text = $"You scored {overallPercentage:F0}%. You need 70% or higher to pass.\nFinal Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
+                failedScoreText.text = $"Heat slipped away…\n" +
+    $"Final Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
 
             failedModal.SetActive(true);
             AudioManager.Instance.PlaySFX(failed);

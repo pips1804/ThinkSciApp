@@ -220,6 +220,13 @@ public class RocketAsteroidGame : MonoBehaviour
     private Coroutine currentQuestionCoroutine = null;
     private bool hasBeenInitialized = false;
 
+    [Header("UI Text Effects")]
+    [Tooltip("Text that appears when fuel is refilled")]
+    public Text fuelRefillText;
+    [Tooltip("Duration of the fuel refill text animation")]
+    public float fuelTextAnimDuration = 2f;
+    [Tooltip("How far up the text moves during animation")]
+    public float fuelTextMoveDistance = 100f;
 
     [Header("Sound Effects")]
     public AudioClip passed;
@@ -229,6 +236,9 @@ public class RocketAsteroidGame : MonoBehaviour
     public AudioClip fuelLow;
     public AudioClip fuelRefill;
     public AudioClip lifeLow;
+    public AudioClip shoot;
+    public AudioClip destroy;
+    public AudioClip catchSound;
 
     [System.Serializable]
     public class GameQuestion
@@ -964,6 +974,8 @@ public class RocketAsteroidGame : MonoBehaviour
 
         activeBullets.Add(bullet);
         StartCoroutine(MoveBullet(bulletRect, bullet));
+
+        AudioManager.Instance.PlaySFX(shoot);
     }
 
     // NEW: Smooth bullet spawn animation
@@ -1741,7 +1753,34 @@ public class RocketAsteroidGame : MonoBehaviour
         if (isCorrect)
         {
             Debug.Log("CORRECT ANSWER - NO LIFE LOST!");
-            score += correctAnswerPoints;
+
+            // Check if adding points would reach or exceed target
+            int newScore = score + correctAnswerPoints;
+            if (newScore >= targetScore)
+            {
+                // Cap the score at exactly the target
+                score = targetScore;
+                UpdateScoreAnimated();
+                if (progressMeter != null) UpdateProgressMeterAnimated();
+
+                consecutiveWrongAnswers = 0;
+
+                // Color feedback
+                SetAnswerButtonColors(selectedIndex, correctAnswerIndex, true);
+
+                if (correct != null && AudioManager.Instance != null)
+                    AudioManager.Instance.PlaySFX(correct);
+
+                // Wait for feedback then trigger victory
+                yield return new WaitForSeconds(2f);
+                yield return StartCoroutine(CompleteQuestionSequence());
+
+                Victory();
+                yield break;
+            }
+
+            // Normal scoring if target not reached
+            score = newScore;
             consecutiveWrongAnswers = 0;
             UpdateScoreAnimated();
             if (progressMeter != null) UpdateProgressMeterAnimated();
@@ -1948,10 +1987,31 @@ public class RocketAsteroidGame : MonoBehaviour
 
         StartCoroutine(EnhancedDeviceCatchAnimation(device));
 
+        AudioManager.Instance.PlaySFX(catchSound);
+
         devicesCaught++;
         devicesFuelCounter++;
-        score += deviceScoreValue;
-        UpdateScoreAnimated(); // NEW: Animated score update
+
+        // Check if adding points would reach or exceed target
+        int newScore = score + deviceScoreValue;
+        if (newScore >= targetScore)
+        {
+            // Cap the score at exactly the target
+            score = targetScore;
+            UpdateScoreAnimated();
+            if (progressMeter != null) UpdateProgressMeterAnimated();
+
+            // Complete the catch animation first, then trigger victory
+            yield return new WaitForSeconds(0.1f);
+            RemoveObjectData(device);
+
+            Victory();
+            yield break;
+        }
+
+        // Normal scoring if target not reached
+        score = newScore;
+        UpdateScoreAnimated();
         if (progressMeter != null) UpdateProgressMeterAnimated();
 
         if (devicesFuelCounter >= devicesForFuelRefill)
@@ -1963,13 +2023,7 @@ public class RocketAsteroidGame : MonoBehaviour
         StartCoroutine(EnhancedRocketCelebrationAnimation());
 
         yield return new WaitForSeconds(0.1f);
-
         RemoveObjectData(device);
-
-        if (score >= targetScore)
-        {
-            Victory();
-        }
     }
 
     // NEW: Enhanced device catch animation
@@ -2115,8 +2169,26 @@ public class RocketAsteroidGame : MonoBehaviour
     {
         asteroidsDestroyed++;
         asteroidsFuelCounter++;
-        score += asteroidScoreValue;
-        UpdateScoreAnimated(); // NEW: Animated score update
+
+        AudioManager.Instance.PlaySFX(destroy);
+
+        // Check if adding points would reach or exceed target
+        int newScore = score + asteroidScoreValue;
+        if (newScore >= targetScore)
+        {
+            // Cap the score at exactly the target
+            score = targetScore;
+            UpdateScoreAnimated();
+            if (progressMeter != null) UpdateProgressMeterAnimated();
+
+            // Trigger victory immediately
+            Victory();
+            return;
+        }
+
+        // Normal scoring if target not reached
+        score = newScore;
+        UpdateScoreAnimated();
         if (progressMeter != null) UpdateProgressMeterAnimated();
 
         if (asteroidsFuelCounter >= asteroidsForFuelRefill)
@@ -2126,25 +2198,154 @@ public class RocketAsteroidGame : MonoBehaviour
         }
 
         Debug.Log("Asteroid destroyed! Score: " + score);
-
-        if (score >= targetScore)
-        {
-            Victory();
-        }
     }
 
     void RefillFuel()
     {
         currentFuel = Mathf.Min(currentFuel + fuelRefillAmount, maxFuel);
-        UpdateFuelMeterAnimated(); // NEW: Animated fuel update
+        UpdateFuelMeterAnimated();
 
         if (fuelRefill != null)
             AudioManager.Instance.PlaySFX(fuelRefill);
 
         StartCoroutine(ShowEnhancedFuelRefillEffect());
+
+        // Show the animated fuel refill text
+        if (fuelRefillText != null)
+        {
+            StartCoroutine(AnimateFuelRefillText());
+        }
+
         Debug.Log($"Fuel refilled! Current fuel: {currentFuel:F1}/{maxFuel}");
     }
+    IEnumerator AnimateFuelRefillText()
+    {
+        if (fuelRefillText == null) yield break;
 
+        // Setup the text
+        fuelRefillText.text = "FUEL REFILLED!";
+        fuelRefillText.gameObject.SetActive(true);
+
+        RectTransform textRect = fuelRefillText.GetComponent<RectTransform>();
+        if (textRect == null) yield break;
+
+        // Store original values
+        Vector2 originalPosition = textRect.anchoredPosition;
+        Color originalColor = fuelRefillText.color;
+        Vector3 originalScale = textRect.localScale;
+
+        // Set starting values (invisible and at bottom)
+        Vector2 startPosition = originalPosition + Vector2.down * 50f;
+        Vector2 endPosition = originalPosition + Vector2.up * fuelTextMoveDistance;
+
+        textRect.anchoredPosition = startPosition;
+        textRect.localScale = Vector3.zero;
+
+        Color startColor = originalColor;
+        startColor.a = 0f;
+        fuelRefillText.color = startColor;
+
+        float elapsedTime = 0f;
+        float fadeInDuration = fuelTextAnimDuration * 0.3f;  // 30% for fade in
+        float stayDuration = fuelTextAnimDuration * 0.4f;    // 40% for staying visible
+        float fadeOutDuration = fuelTextAnimDuration * 0.3f; // 30% for fade out
+
+        // Phase 1: Fade in and scale up while moving up
+        while (elapsedTime < fadeInDuration)
+        {
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
+            float t = elapsedTime / fadeInDuration;
+            float easedT = easeCurve != null ? easeCurve.Evaluate(t) : t;
+
+            // Animate position
+            Vector2 currentPos = Vector2.Lerp(startPosition, originalPosition, easedT);
+            textRect.anchoredPosition = currentPos;
+
+            // Animate scale with bounce effect
+            float scaleT = easedT < 0.7f ? easedT / 0.7f : 1f + (easedT - 0.7f) * 0.3f;
+            textRect.localScale = originalScale * scaleT;
+
+            // Animate alpha
+            Color currentColor = originalColor;
+            currentColor.a = Mathf.Lerp(0f, originalColor.a, easedT);
+            fuelRefillText.color = currentColor;
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure we're at the correct state
+        textRect.anchoredPosition = originalPosition;
+        textRect.localScale = originalScale;
+        fuelRefillText.color = originalColor;
+
+        // Phase 2: Stay visible and gently move up
+        elapsedTime = 0f;
+        while (elapsedTime < stayDuration)
+        {
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
+            float t = elapsedTime / stayDuration;
+
+            // Gentle upward movement
+            Vector2 currentPos = Vector2.Lerp(originalPosition, originalPosition + Vector2.up * 30f, t);
+            textRect.anchoredPosition = currentPos;
+
+            // Optional: Gentle pulsing effect
+            float pulse = 1f + Mathf.Sin(elapsedTime * 4f) * 0.1f;
+            textRect.localScale = originalScale * pulse;
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Phase 3: Fade out while moving further up
+        elapsedTime = 0f;
+        Vector2 stayPosition = textRect.anchoredPosition;
+
+        while (elapsedTime < fadeOutDuration)
+        {
+            if (isGamePaused)
+            {
+                yield return null;
+                continue;
+            }
+
+            float t = elapsedTime / fadeOutDuration;
+            float easedT = easeCurve != null ? easeCurve.Evaluate(t) : t;
+
+            // Move further up
+            Vector2 currentPos = Vector2.Lerp(stayPosition, endPosition, easedT);
+            textRect.anchoredPosition = currentPos;
+
+            // Fade out
+            Color currentColor = originalColor;
+            currentColor.a = Mathf.Lerp(originalColor.a, 0f, easedT);
+            fuelRefillText.color = currentColor;
+
+            // Scale down slightly
+            float scale = Mathf.Lerp(1f, 0.8f, easedT);
+            textRect.localScale = originalScale * scale;
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Reset to original state and hide
+        textRect.anchoredPosition = originalPosition;
+        textRect.localScale = originalScale;
+        fuelRefillText.color = originalColor;
+        fuelRefillText.gameObject.SetActive(false);
+    }
     // NEW: Enhanced fuel refill effect
     IEnumerator ShowEnhancedFuelRefillEffect()
     {
@@ -2526,7 +2727,7 @@ public class RocketAsteroidGame : MonoBehaviour
         if (scoreText != null)
         {
             scoreText.text = score.ToString();
-            StartCoroutine(AnimateScorePunch());
+            // StartCoroutine(AnimateScorePunch());
         }
         UpdateWaveDisplay();
     }

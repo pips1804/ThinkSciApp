@@ -65,6 +65,11 @@ public class CauseAndEffectQuiz : MonoBehaviour
     public AudioClip wrong;
     public AudioClip TimerTick;
 
+    [Header("Timer Bonus Overlay")]
+    [SerializeField] private Image timerOverlayFill; // an image with Fill method = Radial360 or Horizontal
+    [SerializeField] private Text bonusTimeText;     // "+3s!" text that pops up
+    [SerializeField] private float overlayFadeSpeed = 2f;
+
     // Game State
     public List<CauseEffectQuestions> questions;
     private int currentQuestionIndex = 0;
@@ -265,15 +270,21 @@ public class CauseAndEffectQuiz : MonoBehaviour
         {
             if (choiceImages[selectedIndex] != null)
                 choiceImages[selectedIndex].color = correctColor;
+
             totalCorrectAnswers++;
             currentTime += timeBonus; // Add time bonus
             scoreText.text = $"{totalCorrectAnswers}";
 
-            // 🔹 Trigger timer pop animation
+            // 🔹 Trigger timer pop + overlay effect
             if (timerPopRoutine != null) StopCoroutine(timerPopRoutine);
             timerPopRoutine = StartCoroutine(TimerPopEffect());
+
+            if (timerOverlayFill != null && bonusTimeText != null)
+                StartCoroutine(ShowBonusTimeOverlay());
+
             AudioManager.Instance.PlaySFX(correct);
         }
+
         else
         {
             if (choiceImages[selectedIndex] != null)
@@ -286,6 +297,44 @@ public class CauseAndEffectQuiz : MonoBehaviour
         // Wait before moving to next question
         StartCoroutine(MoveToNextQuestion());
     }
+    private IEnumerator ShowBonusTimeOverlay()
+    {
+        // Reset text state
+        bonusTimeText.text = $"+{timeBonus:F0}s on the timer!";
+        bonusTimeText.gameObject.SetActive(true);
+        bonusTimeText.color = new Color(bonusTimeText.color.r, bonusTimeText.color.g, bonusTimeText.color.b, 1f);
+        bonusTimeText.transform.localScale = Vector3.one * 0.5f;
+
+        Vector3 startPos = bonusTimeText.transform.localPosition;
+        Vector3 endPos = startPos + new Vector3(0, 50f, 0); // float upward 50 units
+
+        // Animate scale + upward move + fade
+        float duration = 1f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = elapsed / duration;
+
+            // Scale pop (ease out)
+            float scale = Mathf.Lerp(0.5f, 1.2f, Mathf.Sin(progress * Mathf.PI));
+            bonusTimeText.transform.localScale = Vector3.one * scale;
+
+            // Move upward
+            bonusTimeText.transform.localPosition = Vector3.Lerp(startPos, endPos, progress);
+
+            // Fade out
+            var col = bonusTimeText.color;
+            col.a = Mathf.Lerp(1f, 0f, progress);
+            bonusTimeText.color = col;
+
+            yield return null;
+        }
+
+        bonusTimeText.gameObject.SetActive(false);
+    }
+
     private IEnumerator MoveToNextQuestion()
     {
         yield return new WaitForSeconds(2f); // Show feedback for 2 seconds
@@ -341,11 +390,43 @@ public class CauseAndEffectQuiz : MonoBehaviour
             timerText.text = $"{Mathf.Ceil(currentTime):F0}";
         }
 
+        // 🔹 Update the overlay fill (0 = empty, 1 = full)
+        if (timerOverlayFill != null)
+        {
+            SetTimerFill(currentTime / startingTime);
+        }
+
         if (currentTime <= 0)
         {
             EndQuiz(false); // Time's up
         }
     }
+
+    private Coroutine smoothFillRoutine;
+
+    private void SetTimerFill(float targetValue)
+    {
+        if (smoothFillRoutine != null) StopCoroutine(smoothFillRoutine);
+        smoothFillRoutine = StartCoroutine(SmoothFill(targetValue));
+    }
+
+    private IEnumerator SmoothFill(float target)
+    {
+        float start = timerOverlayFill.fillAmount;
+        float elapsed = 0f;
+        float duration = 0.3f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = elapsed / duration;
+            timerOverlayFill.fillAmount = Mathf.Lerp(start, target, progress);
+            yield return null;
+        }
+
+        timerOverlayFill.fillAmount = target;
+    }
+
 
     private void UpdateProgressSlider()
     {
@@ -392,7 +473,9 @@ public class CauseAndEffectQuiz : MonoBehaviour
             databaseManager.AddCoin(userID, 100);
             if (victoryModal != null) victoryModal.SetActive(true);
             if (victoryText != null)
-                victoryText.text = $"Congratulations! You passed with {overallPercentage:F0}%!\nFinal Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
+                victoryText.text =
+                    $"You harnessed the power of unbalanced forces to set things in motion!\n" +
+                    $"Final Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
             AudioManager.Instance.PlaySFX(passedsound);
         }
         else
@@ -400,7 +483,10 @@ public class CauseAndEffectQuiz : MonoBehaviour
             databaseManager.AddCoin(userID, 50);
             if (gameOverModal != null) gameOverModal.SetActive(true);
             if (gameOverText != null)
-                gameOverText.text = $"You scored {overallPercentage:F0}%. You need 70% or higher to pass.\nFinal Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
+                gameOverText.text =
+                    $"The forces didn’t tip in your favor—motion was lost…\n" +
+                    $"Final Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
+
             AudioManager.Instance.PlaySFX(failed);
         }
 

@@ -15,6 +15,8 @@ public class ForceGameManager : MonoBehaviour
     public GameObject quizPanel;
     public GameObject passModal;
     public GameObject failModal;
+    public Text passScoreText;
+    public Text failScoreText;
 
     [Header("Sound Effects")]
     public AudioClip passedsound;
@@ -92,17 +94,27 @@ public class ForceGameManager : MonoBehaviour
     {
         currentState = GameState.Results;
 
+        int correctAnswers = quizManager.score;
+        int totalQuestionsAnswered = 15; // make sure ForceQuizManager has this
+
         if (passed)
         {
+            passScoreText.text =
+                $"Your knowledge pushed the battle in your favor! " +
+                $"Final Score: {correctAnswers}/{totalQuestionsAnswered}";
             passModal.SetActive(true);
             AudioManager.Instance.PlaySFX(passedsound);
         }
         else
         {
+            failScoreText.text =
+                $"Forces canceled out—you couldn’t move forward… " +
+                $"Final Score: {correctAnswers}/{totalQuestionsAnswered}";
             failModal.SetActive(true);
             AudioManager.Instance.PlaySFX(failed);
         }
     }
+
 
     public void RestartFromSimulation()
     {

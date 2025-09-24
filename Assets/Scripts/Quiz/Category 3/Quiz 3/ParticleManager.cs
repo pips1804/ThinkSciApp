@@ -89,7 +89,7 @@ public class ParticleManager : MonoBehaviour
     [Header("Sound Effects")]
     public AudioClip passed;
     public AudioClip failed;
-    public AudioClip heatingLoop; 
+    public AudioClip heatingLoop;
     private AudioSource heatingSource;
     public DatabaseManager dbManager;
     public LessonLocker lessonHandler;
@@ -413,7 +413,7 @@ public class ParticleManager : MonoBehaviour
         // Text passText = passModal.GetComponentInChildren<Text>();
         if (passText != null)
         {
-            passText.text = $"Congratulations!\nYou passed with {scorePercentage:F1}%\nFinal Score: {currentScore}/{totalQuestions}";
+            passText.text = $"You unlocked how particles move and transfer heat!\nFinal Score: {currentScore}/{totalQuestions}";
         }
     }
 
@@ -425,7 +425,7 @@ public class ParticleManager : MonoBehaviour
         // Text failText = failModal.GetComponentInChildren<Text>();
         if (failText != null)
         {
-            failText.text = $"You scored {scorePercentage:F1}%. You need 70% or higher to pass.\nFinal Score: {currentScore}/{totalQuestions}\n";
+            failText.text = $"The particles slipped — heat transfer still needs more study.\nFinal Score: {currentScore}/{totalQuestions}";
         }
     }
 

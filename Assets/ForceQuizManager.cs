@@ -32,7 +32,7 @@ public class ForceQuizManager : MonoBehaviour
 
     public List<ForceQuizQuestion> questions;
     private int currentQuestionIndex = 0;
-    private int score = 0;
+    public int score = 0;
     private bool hasAnswered = false;
     private float timeRemaining;
     public DatabaseManager dbManager;

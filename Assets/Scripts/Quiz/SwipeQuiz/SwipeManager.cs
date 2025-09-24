@@ -7,12 +7,12 @@ public class SwipeManager : MonoBehaviour
 {
     [System.Serializable]
     public class SwipeQuestion
-{
-    public int questionId;
-    public string questionText;
-    public string correctAnswer; // "Left" or "Right"
-    public string explanationText;
-}
+    {
+        public int questionId;
+        public string questionText;
+        public string correctAnswer; // "Left" or "Right"
+        public string explanationText;
+    }
 
     [Header("Question Display")]
     public List<SwipeQuestion> questions;
@@ -65,6 +65,10 @@ public class SwipeManager : MonoBehaviour
 
     public GameObject passingModal;
     public GameObject failingModal;
+    public Text passingMessageText;  // Drag a Text inside your passingModal
+    public Text failingMessageText;  // Drag a Text inside your failingModal
+    public string passingMessage;
+    public string failingMessage;
 
     // public Text passingHeader;
     // public Text passingScore;
@@ -116,11 +120,8 @@ public class SwipeManager : MonoBehaviour
     private bool isLongPressing = false;
 
     public int lessonToUnlock;
-    public int categoryToUnlock;
     public int rewardItemID;
     public int earnedGold;
-    public int healthToAdd;
-    public int damageToAdd;
 
     private bool enemyDefeated = false;
 
@@ -229,7 +230,7 @@ public class SwipeManager : MonoBehaviour
 
     public void HandleAnswer(string swipeDirection)
     {
-        var (name, baseHealth, baseDamage) = dbManager.GetPetStats(userId);
+        int baseDamage = 10;
         isTimerRunning = false;
         var question = questions[currentQuestionIndex];
         bool isCorrect = swipeDirection == question.correctAnswer;
@@ -284,6 +285,7 @@ public class SwipeManager : MonoBehaviour
                 else
                 {
                     earnedGold += 5;
+                    dbManager.AddCoin(userId, 5);
                     Debug.Log("Enemy already defeated. Skipping battle animation.");
                     StartCoroutine(ShowFloatingText(damageText, "+5 coins", enemyIcon.position, Color.yellow));
                 }
@@ -444,18 +446,28 @@ public class SwipeManager : MonoBehaviour
     {
         if (currentQuestionIndex >= questions.Count - 3)
         {
-            battleAnim.StartCoroutine(battleAnim.GraduallyTurnRed(3f)); // 3 seconds transition
-            battleManager.SuddenDeathDamage(suddenDeathDamage);
-            battleManager.SuddenDeathDamage(suddenDeathDamage);
+            // Apply sudden death only if enemy is still alive
+            if (!enemyDefeated)
+            {
+                battleAnim.StartCoroutine(battleAnim.GraduallyTurnRed(3f)); // 3 seconds transition
+                battleManager.SuddenDeathDamage(suddenDeathDamage); // Damage player
+                battleManager.SuddenDeathDamage(suddenDeathDamage); // Damage enemy
 
-            // Optional: Show visual effects for damage taken
-            Color suddenColor = new Color(1f, 0.5f, 0f); // Orange
-            StartCoroutine(ShowFloatingText(playerSuddenText, "-" + suddenDeathDamage, playerIcon.position, suddenColor));
-            StartCoroutine(ShowFloatingText(enemySuddenText, "-" + suddenDeathDamage, enemyIcon.position, suddenColor));
-            if (AudioManager.Instance != null)
-                AudioManager.Instance.PlaySFX(hurt);
-            battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
-            battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
+                // Visual effects
+                Color suddenColor = new Color(1f, 0.5f, 0f); // Orange
+                StartCoroutine(ShowFloatingText(playerSuddenText, "-" + suddenDeathDamage, playerIcon.position, suddenColor));
+                StartCoroutine(ShowFloatingText(enemySuddenText, "-" + suddenDeathDamage, enemyIcon.position, suddenColor));
+
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.PlaySFX(hurt);
+
+                battleAnim.StartCoroutine(battleAnim.HitShake(playerIcon));
+                battleAnim.StartCoroutine(battleAnim.HitShake(enemyIcon));
+            }
+            else
+            {
+                Debug.Log("Enemy already defeated. Skipping sudden death damage.");
+            }
         }
 
         currentQuestionIndex++;
@@ -508,11 +520,12 @@ public class SwipeManager : MonoBehaviour
         timerText.text = "";
 
         if (questionText != null)
-            questionText.enabled = false; // Changed from questionImage to questionText
+            questionText.enabled = false;
 
         if (score >= 10)
         {
-            dbManager.AddUserItem(userId,rewardItemID);
+            // Player Passed
+            dbManager.AddUserItem(userId, rewardItemID);
             dbManager.MarkLessonAsCompleted(userId, quizId);
             dbManager.CheckAndUnlockAllLessons(userId);
             lessonHandler.RefreshLessonLocks();
@@ -520,47 +533,40 @@ public class SwipeManager : MonoBehaviour
 
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySFX(passed);
+
             passingModal.SetActive(true);
 
-            bool alreadyGiven = dbManager.HasReceivedStatBonus(userId, quizId);
+            // Set message with score
+            if (passingMessageText != null)
+            {
+                passingMessageText.text =
+                    $"{passingMessage}\n" +
+                    $"Final Score: {score}/{questions.Count}";
+            }
 
+            bool alreadyGiven = dbManager.HasReceivedStatBonus(userId, quizId);
             if (!alreadyGiven)
             {
                 dbManager.UnlockLessonForUser(userId, lessonToUnlock);
-                dbManager.AddToPetStats(userId, healthToAdd, damageToAdd);
-                dbManager.MarkStatBonusAsGiven(userId, quizId); // set Stats_Given = 1
-            }
-
-            if (categoryToUnlock != 0)
-            {
-                dbManager.UnlockCategoryForUser(userId, categoryToUnlock);
+                dbManager.MarkStatBonusAsGiven(userId, quizId);
             }
         }
         else if (battleManager.playerHealth <= 0 || score <= 6)
         {
+            // Player Failed
             dbManager.AddCoin(userId, 50);
+
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySFX(failed);
+
             failingModal.SetActive(true);
 
-            // if ((failingHeader != null && failingScore != null))
-            // {
-            //     int earnedGold;
-            //     string scoreMsg, goldMsg;
-            //     GetResultMessage(score, out earnedGold, out scoreMsg, out goldMsg);
-
-            //     failingHeader.text = scoreMsg;
-            //     failingScore.text = goldMsg;
-
-            //     if (battleManager.playerHealth <= 0)
-            //     {
-            //         failingNote.text = "NOTE: You died, can not unlock the next lesson, retake the quiz!";
-            //     }
-            //     else
-            //     {
-            //         failingNote.text = "NOTE: You've got a low score, can not unlock the next lesson, retake the quiz!";
-            //     }
-            // }
+            if (failingMessageText != null)
+            {
+                failingMessageText.text =
+                    $"{failingMessage}\n" +
+                    $"Final Score: {score}/{questions.Count}";
+            }
         }
 
         OnQuizCompleted();
@@ -1095,7 +1101,7 @@ public class SwipeManager : MonoBehaviour
 
         if (questionText != null)
             questionText.enabled = true;
-        
+
         DisplayQuestion();
     }
 }

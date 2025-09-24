@@ -88,6 +88,8 @@ public class SortingGame : MonoBehaviour
     [Header("End Game Modals")]
     public GameObject passModal;         // Modal to show when player passes
     public GameObject failModal;         // Modal to show when player fails
+    public Text passText;
+    public Text failText;
 
     // Store the relative position of catch zone to bin for proper syncing
     private Vector2 catchZoneOffset;
@@ -1742,6 +1744,8 @@ public class SortingGame : MonoBehaviour
 
         if (passModal != null)
         {
+            passText.text = $"You powered up with clean, renewable energy!\n" +
+    $"Final Score: {score}";
             passModal.SetActive(true);
             Debug.Log("Pass modal shown");
         }
@@ -1765,6 +1769,8 @@ public class SortingGame : MonoBehaviour
 
         if (failModal != null)
         {
+            failText.text = $"Your power ran low.\n" +
+$"Final Score: {score}";
             failModal.SetActive(true);
             Debug.Log("Fail modal shown");
         }
