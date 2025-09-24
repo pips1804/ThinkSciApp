@@ -636,6 +636,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8648303}
   m_CullTransparentMesh: 1
+--- !u!1 &9874865
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9874866}
+  - component: {fileID: 9874868}
+  - component: {fileID: 9874867}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &9874866
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9874865}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1182625387}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 88}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &9874867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9874865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &9874868
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9874865}
+  m_CullTransparentMesh: 1
 --- !u!1 &9879531
 GameObject:
   m_ObjectHideFlags: 0
@@ -785,6 +860,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 0}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &10615385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1122,6 +1198,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1913435288}
+  notificationManager: {fileID: 0}
 --- !u!114 &14649485
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1646,6 +1723,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1360446373}
+  notificationManager: {fileID: 0}
 --- !u!1 &17276824
 GameObject:
   m_ObjectHideFlags: 0
@@ -3010,6 +3088,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1407518370}
+  notificationManager: {fileID: 0}
 --- !u!114 &33038262
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3760,6 +3839,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 764224368}
+  notificationManager: {fileID: 0}
 --- !u!225 &37517642
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3902,6 +3982,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1451944595}
+  notificationManager: {fileID: 0}
 --- !u!114 &39433534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4355,6 +4436,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1842772416}
   - {fileID: 300023080}
+  notificationManager: {fileID: 0}
 --- !u!114 &41992849
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5023,6 +5105,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1545111574}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &52582422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5473,6 +5556,7 @@ GameObject:
   - component: {fileID: 55772121}
   - component: {fileID: 55772120}
   - component: {fileID: 55772122}
+  - component: {fileID: 55772123}
   m_Layer: 5
   m_Name: ReportsSection
   m_TagString: Untagged
@@ -5557,6 +5641,38 @@ MonoBehaviour:
   quizTitleText: {fileID: 2100379035}
   scoreSortButton: {fileID: 1217279244}
   dateSortButton: {fileID: 1844412736}
+--- !u!114 &55772123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 55772117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba1965be5bf8a564493fe239a7c3631a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  category1Button: {fileID: 760912785}
+  category2Button: {fileID: 1426907854}
+  category3Button: {fileID: 456789566}
+  category4Button: {fileID: 1939310975}
+  quizButtons:
+  - {fileID: 131306350}
+  - {fileID: 1182625388}
+  - {fileID: 1413289475}
+  - {fileID: 803330512}
+  - {fileID: 1361007926}
+  - {fileID: 1911115075}
+  - {fileID: 988094915}
+  - {fileID: 77277495}
+  - {fileID: 1848134547}
+  - {fileID: 1164297767}
+  - {fileID: 2135714850}
+  - {fileID: 447711711}
+  - {fileID: 571485506}
+  - {fileID: 1639876778}
+  db: {fileID: 1473477790}
 --- !u!1 &58086198
 GameObject:
   m_ObjectHideFlags: 0
@@ -5779,6 +5895,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 669577084}
+  notificationManager: {fileID: 0}
 --- !u!1 &60101087
 GameObject:
   m_ObjectHideFlags: 0
@@ -6902,6 +7019,81 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &65315687
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 65315688}
+  - component: {fileID: 65315690}
+  - component: {fileID: 65315689}
+  m_Layer: 5
+  m_Name: NewIcon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &65315688
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 65315687}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 93115459}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 87, y: 71}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &65315689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 65315687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &65315690
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 65315687}
+  m_CullTransparentMesh: 1
 --- !u!1 &65844680
 GameObject:
   m_ObjectHideFlags: 0
@@ -8030,7 +8222,6 @@ GameObject:
   - component: {fileID: 77277496}
   - component: {fileID: 77277495}
   - component: {fileID: 77277498}
-  - component: {fileID: 77277499}
   m_Layer: 5
   m_Name: QuizOne
   m_TagString: Untagged
@@ -8052,6 +8243,7 @@ RectTransform:
   m_Children:
   - {fileID: 686416159}
   - {fileID: 93842592}
+  - {fileID: 1611434736}
   m_Father: {fileID: 469982439}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -8182,21 +8374,7 @@ MonoBehaviour:
   - {fileID: 1401355845}
   panelsToDeactivate:
   - {fileID: 469982438}
---- !u!114 &77277499
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 77277493}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 1401355845}
-  panelsToActivate: []
-  panelsToDeactivate: []
+  notificationManager: {fileID: 55772123}
 --- !u!1 &78861540
 GameObject:
   m_ObjectHideFlags: 0
@@ -8775,6 +8953,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 428231939}
+  notificationManager: {fileID: 0}
 --- !u!114 &84688475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9362,6 +9541,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 472135802}
+  notificationManager: {fileID: 0}
 --- !u!1 &90892614
 GameObject:
   m_ObjectHideFlags: 0
@@ -9647,6 +9827,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 553959664}
   - {fileID: 92908107}
+  notificationManager: {fileID: 0}
 --- !u!114 &92908110
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9774,6 +9955,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1665809783}
+  - {fileID: 65315688}
   m_Father: {fileID: 135782376}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -9796,6 +9978,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1611461606}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &93115461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10496,6 +10679,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1745158161}
+  notificationManager: {fileID: 0}
 --- !u!114 &97682754
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10954,6 +11138,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 194013162}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &99626782
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11008,8 +11193,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &99984193
 GameObject:
@@ -11145,6 +11330,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1266782134}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &100420537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11527,6 +11713,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1760917387}
+  notificationManager: {fileID: 0}
 --- !u!114 &102774652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12305,6 +12492,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 162836894}
+  notificationManager: {fileID: 0}
 --- !u!114 &109208749
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12510,6 +12698,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 48985720}
+  notificationManager: {fileID: 0}
 --- !u!114 &109310739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13111,6 +13300,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1328562045}
+  - {fileID: 909063746}
   m_Father: {fileID: 135782376}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -13134,6 +13324,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 869993645}
+  notificationManager: {fileID: 0}
 --- !u!114 &117357612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13671,6 +13862,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1817596647}
   - {fileID: 603287589}
+  notificationManager: {fileID: 0}
 --- !u!114 &123311121
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14068,6 +14260,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1913435288}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!1 &126211944
 GameObject:
   m_ObjectHideFlags: 0
@@ -14415,6 +14608,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 194013162}
+  notificationManager: {fileID: 0}
 --- !u!114 &127709207
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14704,6 +14898,7 @@ RectTransform:
   m_Children:
   - {fileID: 323067009}
   - {fileID: 2051863995}
+  - {fileID: 1935530983}
   m_Father: {fileID: 472135803}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -14834,6 +15029,7 @@ MonoBehaviour:
   - {fileID: 913641007}
   panelsToDeactivate:
   - {fileID: 472135802}
+  notificationManager: {fileID: 55772123}
 --- !u!1 &132307831
 GameObject:
   m_ObjectHideFlags: 0
@@ -16807,6 +17003,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 159726414}
   m_CullTransparentMesh: 1
+--- !u!1 &159956448
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 159956449}
+  - component: {fileID: 159956451}
+  - component: {fileID: 159956450}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &159956449
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 159956448}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1848134546}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 88.00006}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &159956450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 159956448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &159956451
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 159956448}
+  m_CullTransparentMesh: 1
 --- !u!1 &161881325
 GameObject:
   m_ObjectHideFlags: 0
@@ -17482,6 +17753,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 108842319}
   - {fileID: 1496484319}
+  notificationManager: {fileID: 0}
 --- !u!114 &168935104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18560,6 +18832,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1737896934}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &179628151
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18821,6 +19094,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1590712451}
+  notificationManager: {fileID: 0}
 --- !u!114 &181026121
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19266,6 +19540,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 877700962}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &183694075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19361,6 +19636,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 74238399}
   - {fileID: 817140163}
+  notificationManager: {fileID: 0}
 --- !u!114 &184129917
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19522,6 +19798,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1310813813}
+  notificationManager: {fileID: 0}
 --- !u!114 &184514491
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21473,6 +21750,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 817140163}
+  notificationManager: {fileID: 0}
 --- !u!114 &201452190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22240,6 +22518,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1332286267}
+  notificationManager: {fileID: 0}
 --- !u!114 &212488969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22972,6 +23251,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 2086081855}
   - {fileID: 1512480753}
+  notificationManager: {fileID: 0}
 --- !u!1 &220637576
 GameObject:
   m_ObjectHideFlags: 0
@@ -23260,6 +23540,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 975696391}
+  notificationManager: {fileID: 0}
 --- !u!114 &221678924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23799,6 +24080,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1378459245}
+  notificationManager: {fileID: 0}
 --- !u!114 &229266032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24195,6 +24477,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 612345851}
+  notificationManager: {fileID: 0}
 --- !u!114 &232208376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25393,6 +25676,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 764224368}
+  notificationManager: {fileID: 0}
 --- !u!114 &241405411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26445,6 +26729,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 378958143}
+  notificationManager: {fileID: 0}
 --- !u!114 &252275324
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27404,6 +27689,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1528008997}
+  notificationManager: {fileID: 0}
 --- !u!114 &268652326
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28195,6 +28481,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 2054800018}
   - {fileID: 718296267}
+  notificationManager: {fileID: 0}
 --- !u!114 &277246258
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28500,6 +28787,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1456118288}
+  notificationManager: {fileID: 0}
 --- !u!114 &280427557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29090,6 +29378,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1311989560}
+  notificationManager: {fileID: 0}
 --- !u!114 &283303056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29314,6 +29603,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1760917387}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &285070389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29445,6 +29735,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 914513066}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &286312631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29857,6 +30148,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1938403506}
+  notificationManager: {fileID: 0}
 --- !u!114 &286869697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30936,6 +31228,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1496484319}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &294670142
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31318,7 +31611,7 @@ MonoBehaviour:
   lessonHandler: {fileID: 1473477796}
   categoryHandler: {fileID: 1473477795}
   userID: 1
-  categoryToUnlock: 0
+  categoryToUnlock: 3
   rewardItemID: 9
 --- !u!1 &297408890
 GameObject:
@@ -31608,6 +31901,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1496484319}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &299080042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32758,6 +33052,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1839114522}
+  notificationManager: {fileID: 0}
 --- !u!114 &308666798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32908,6 +33203,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 166371093}
+  notificationManager: {fileID: 0}
 --- !u!114 &308853375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33059,6 +33355,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1407518370}
   - {fileID: 1881299875}
+  notificationManager: {fileID: 0}
 --- !u!114 &309860091
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33164,6 +33461,81 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 309860088}
+  m_CullTransparentMesh: 1
+--- !u!1 &310454751
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 310454752}
+  - component: {fileID: 310454754}
+  - component: {fileID: 310454753}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &310454752
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310454751}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1639876777}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 88.099976}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &310454753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310454751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &310454754
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310454751}
   m_CullTransparentMesh: 1
 --- !u!1 &311262750
 GameObject:
@@ -34008,6 +34380,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 612345851}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &321956219
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34945,6 +35318,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1399091652}
+  notificationManager: {fileID: 0}
 --- !u!114 &328160625
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35169,6 +35543,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 608672226}
+  notificationManager: {fileID: 0}
 --- !u!114 &330162887
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35341,6 +35716,81 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 332239755}
+  m_CullTransparentMesh: 1
+--- !u!1 &332610935
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 332610936}
+  - component: {fileID: 332610938}
+  - component: {fileID: 332610937}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &332610936
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332610935}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 803330511}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 88.1}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &332610937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332610935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &332610938
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332610935}
   m_CullTransparentMesh: 1
 --- !u!1 &332768379
 GameObject:
@@ -37410,6 +37860,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 2067302523}
+  notificationManager: {fileID: 0}
 --- !u!1 &358846625
 GameObject:
   m_ObjectHideFlags: 0
@@ -37597,6 +38048,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 805057540}
+  notificationManager: {fileID: 0}
 --- !u!114 &360266452
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38015,6 +38467,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1310813813}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &363061139
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38069,8 +38522,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &367043810
 GameObject:
@@ -38583,6 +39036,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 2138232666}
+  notificationManager: {fileID: 0}
 --- !u!114 &374236648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39620,6 +40074,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 385679875}
   m_CullTransparentMesh: 1
+--- !u!1 &386700939
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 386700940}
+  - component: {fileID: 386700942}
+  - component: {fileID: 386700941}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &386700940
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386700939}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1361007925}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 86.20007}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &386700941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386700939}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &386700942
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386700939}
+  m_CullTransparentMesh: 1
 --- !u!1 &387203631
 GameObject:
   m_ObjectHideFlags: 0
@@ -39912,6 +40441,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1545111574}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &390168749
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40117,6 +40647,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 928027873}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &390358766
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41560,6 +42091,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1545111574}
+  notificationManager: {fileID: 0}
 --- !u!114 &404043596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41899,6 +42431,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1635835331}
+  notificationManager: {fileID: 0}
 --- !u!114 &407306576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42072,6 +42605,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 805057540}
+  notificationManager: {fileID: 0}
 --- !u!114 &409058773
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44084,6 +44618,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1443655265}
+  notificationManager: {fileID: 0}
 --- !u!114 &423068981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44696,6 +45231,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 81180073}
+  notificationManager: {fileID: 0}
 --- !u!1 &425544780
 GameObject:
   m_ObjectHideFlags: 0
@@ -46248,6 +46784,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1635835331}
+  notificationManager: {fileID: 0}
 --- !u!114 &438775722
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -46528,6 +47065,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1842772416}
+  notificationManager: {fileID: 0}
 --- !u!114 &440012123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -46714,7 +47252,6 @@ GameObject:
   - component: {fileID: 447711712}
   - component: {fileID: 447711711}
   - component: {fileID: 447711714}
-  - component: {fileID: 447711715}
   m_Layer: 5
   m_Name: QuizTwo
   m_TagString: Untagged
@@ -46736,6 +47273,7 @@ RectTransform:
   m_Children:
   - {fileID: 1819129744}
   - {fileID: 939395683}
+  - {fileID: 2062705654}
   m_Father: {fileID: 1360446374}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -46866,21 +47404,7 @@ MonoBehaviour:
   - {fileID: 466560670}
   panelsToDeactivate:
   - {fileID: 1360446373}
---- !u!114 &447711715
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 447711709}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 1401355845}
-  panelsToActivate: []
-  panelsToDeactivate: []
+  notificationManager: {fileID: 55772123}
 --- !u!1 &449902450
 GameObject:
   m_ObjectHideFlags: 0
@@ -46937,6 +47461,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 428231939}
+  notificationManager: {fileID: 0}
 --- !u!114 &449902453
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47369,6 +47894,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1412008342}
+  - {fileID: 1559861779}
   m_Father: {fileID: 868397832}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -47486,6 +48012,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 868397831}
+  notificationManager: {fileID: 55772123}
 --- !u!1 &457132948
 GameObject:
   m_ObjectHideFlags: 0
@@ -47541,6 +48068,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 603287589}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &457132951
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48462,6 +48990,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 472539996}
+  notificationManager: {fileID: 0}
 --- !u!114 &465654291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48687,6 +49216,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 553959664}
   - {fileID: 466560670}
+  notificationManager: {fileID: 0}
 --- !u!114 &466560673
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -50233,6 +50763,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1224107000}
   - {fileID: 262439933}
+  notificationManager: {fileID: 0}
 --- !u!114 &480618999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -50384,6 +50915,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 295611720}
   - {fileID: 923023380}
+  notificationManager: {fileID: 0}
 --- !u!114 &480937621
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -51470,6 +52002,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 472539996}
+  notificationManager: {fileID: 0}
 --- !u!114 &489991585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52291,6 +52824,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1307545743}
+  notificationManager: {fileID: 0}
 --- !u!114 &494871550
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52919,6 +53453,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 869993645}
+  notificationManager: {fileID: 0}
 --- !u!1 &502412912
 GameObject:
   m_ObjectHideFlags: 0
@@ -53160,6 +53695,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 764224368}
+  notificationManager: {fileID: 0}
 --- !u!1 &503628181
 GameObject:
   m_ObjectHideFlags: 0
@@ -53379,6 +53915,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1903351252}
+  notificationManager: {fileID: 0}
 --- !u!1 &504086738
 GameObject:
   m_ObjectHideFlags: 0
@@ -53729,6 +54266,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 619672677}
+  notificationManager: {fileID: 0}
 --- !u!114 &504435821
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -54284,6 +54822,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1390178652}
+  notificationManager: {fileID: 0}
 --- !u!114 &509604414
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -54629,6 +55168,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 805057540}
+  notificationManager: {fileID: 0}
 --- !u!114 &510848743
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -55355,6 +55895,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1266782134}
+  notificationManager: {fileID: 0}
 --- !u!114 &513822209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -56361,6 +56902,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1504139558}
+  notificationManager: {fileID: 0}
 --- !u!114 &525428831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -56511,6 +57053,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 608672226}
+  notificationManager: {fileID: 0}
 --- !u!114 &525438784
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -57020,6 +57563,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 2138232666}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &528022953
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -57460,6 +58004,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 81180073}
+  notificationManager: {fileID: 0}
 --- !u!1 &532809719
 GameObject:
   m_ObjectHideFlags: 0
@@ -58326,6 +58871,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1745158161}
+  notificationManager: {fileID: 0}
 --- !u!114 &541153944
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58953,6 +59499,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1140168584}
+  notificationManager: {fileID: 0}
 --- !u!114 &547883495
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60094,6 +60641,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1140168584}
   - {fileID: 719365126}
+  notificationManager: {fileID: 0}
 --- !u!114 &559434976
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60894,6 +61442,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1323585677}
+  notificationManager: {fileID: 0}
 --- !u!114 &564886600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -61142,6 +61691,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 922030171}
+  notificationManager: {fileID: 0}
 --- !u!114 &566600412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -61710,7 +62260,6 @@ GameObject:
   - component: {fileID: 571485507}
   - component: {fileID: 571485506}
   - component: {fileID: 571485509}
-  - component: {fileID: 571485510}
   m_Layer: 5
   m_Name: QuizThree
   m_TagString: Untagged
@@ -61732,6 +62281,7 @@ RectTransform:
   m_Children:
   - {fileID: 972617}
   - {fileID: 1150544754}
+  - {fileID: 904030049}
   m_Father: {fileID: 1360446374}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -61862,21 +62412,7 @@ MonoBehaviour:
   - {fileID: 466560670}
   panelsToDeactivate:
   - {fileID: 1360446373}
---- !u!114 &571485510
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 571485504}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 1401355845}
-  panelsToActivate: []
-  panelsToDeactivate: []
+  notificationManager: {fileID: 55772123}
 --- !u!1 &572280867
 GameObject:
   m_ObjectHideFlags: 0
@@ -62342,6 +62878,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 239658585}
+  notificationManager: {fileID: 0}
 --- !u!114 &576457655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63378,6 +63915,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1737896934}
+  notificationManager: {fileID: 0}
 --- !u!1 &582056362
 GameObject:
   m_ObjectHideFlags: 0
@@ -64151,6 +64689,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 2107924905}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &588614426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64710,6 +65249,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1794846619}
+  notificationManager: {fileID: 0}
 --- !u!114 &593733419
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64976,6 +65516,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1884076291}
+  notificationManager: {fileID: 0}
 --- !u!114 &594928017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -68136,6 +68677,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1487943094}
+  notificationManager: {fileID: 0}
 --- !u!114 &633957093
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69304,6 +69846,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1620274638}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &646716305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70103,6 +70646,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1487943094}
+  notificationManager: {fileID: 0}
 --- !u!114 &656975914
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70531,6 +71075,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1122755990}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &662725808
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70585,8 +71130,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &662762483
 GameObject:
@@ -72400,6 +72945,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1881299875}
+  notificationManager: {fileID: 0}
 --- !u!114 &680587691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74758,6 +75304,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 428231939}
+  notificationManager: {fileID: 0}
 --- !u!114 &715293602
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75063,6 +75610,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1620274638}
+  notificationManager: {fileID: 0}
 --- !u!114 &716873375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75375,6 +75923,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 877700962}
+  notificationManager: {fileID: 0}
 --- !u!114 &718534579
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76464,6 +77013,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 161881325}
+  notificationManager: {fileID: 0}
 --- !u!114 &725596363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77146,6 +77696,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1668664842}
+  notificationManager: {fileID: 0}
 --- !u!114 &730317857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77960,6 +78511,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 789126818}
   - {fileID: 1311989560}
+  notificationManager: {fileID: 0}
 --- !u!114 &738115113
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78353,6 +78905,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1839114522}
+  notificationManager: {fileID: 0}
 --- !u!114 &740187667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78525,6 +79078,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 922030171}
+  notificationManager: {fileID: 0}
 --- !u!114 &742281554
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -79695,6 +80249,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 2090776961}
+  notificationManager: {fileID: 0}
 --- !u!114 &751665696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -80001,6 +80556,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 877700962}
+  notificationManager: {fileID: 0}
 --- !u!114 &753982328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -80242,6 +80798,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1052958035}
+  notificationManager: {fileID: 0}
 --- !u!114 &754508449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -80662,6 +81219,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 535961612}
+  - {fileID: 896134733}
   m_Father: {fileID: 868397832}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -80779,6 +81337,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 868397831}
+  notificationManager: {fileID: 55772123}
 --- !u!1 &761781774
 GameObject:
   m_ObjectHideFlags: 0
@@ -80834,6 +81393,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 923522571}
+  notificationManager: {fileID: 0}
 --- !u!114 &761781777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -80984,6 +81544,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 423577022}
+  notificationManager: {fileID: 0}
 --- !u!114 &761814002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81218,6 +81779,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1737896934}
+  notificationManager: {fileID: 0}
 --- !u!1 &763411348
 GameObject:
   m_ObjectHideFlags: 0
@@ -81592,6 +82154,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 161881325}
+  notificationManager: {fileID: 0}
 --- !u!114 &765327939
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82502,6 +83065,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1232521127}
+  notificationManager: {fileID: 0}
 --- !u!114 &771639609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83244,6 +83808,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1635835331}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &780167747
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -84680,6 +85245,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 923023380}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &795530736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -84933,6 +85499,81 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 796227058}
+  m_CullTransparentMesh: 1
+--- !u!1 &796333577
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 796333578}
+  - component: {fileID: 796333580}
+  - component: {fileID: 796333579}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &796333578
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796333577}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1164297766}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 79.00006}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &796333579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796333577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &796333580
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796333577}
   m_CullTransparentMesh: 1
 --- !u!1 &797248457
 GameObject:
@@ -85563,6 +86204,7 @@ RectTransform:
   m_Children:
   - {fileID: 1485398901}
   - {fileID: 120962954}
+  - {fileID: 332610936}
   m_Father: {fileID: 472135803}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -85693,6 +86335,7 @@ MonoBehaviour:
   - {fileID: 913641007}
   panelsToDeactivate:
   - {fileID: 472135802}
+  notificationManager: {fileID: 55772123}
 --- !u!114 &803330516
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85708,6 +86351,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 913641007}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!1 &803683355
 GameObject:
   m_ObjectHideFlags: 0
@@ -86345,6 +86989,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1938403506}
   - {fileID: 1920518070}
+  notificationManager: {fileID: 0}
 --- !u!114 &815057101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -86495,6 +87140,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1323585677}
+  notificationManager: {fileID: 0}
 --- !u!114 &815588868
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -86646,6 +87292,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1706624723}
   - {fileID: 48985720}
+  notificationManager: {fileID: 0}
 --- !u!114 &816224593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87112,6 +87759,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1323585677}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &818279205
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87477,6 +88125,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1736329569}
+  notificationManager: {fileID: 0}
 --- !u!114 &826203219
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87780,6 +88429,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1390178652}
+  notificationManager: {fileID: 0}
 --- !u!114 &827671872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -88021,6 +88671,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1914198904}
+  notificationManager: {fileID: 0}
 --- !u!114 &830938295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -88581,6 +89232,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 81180073}
+  notificationManager: {fileID: 0}
 --- !u!1 &834717291
 GameObject:
   m_ObjectHideFlags: 0
@@ -88887,6 +89539,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1390178652}
   - {fileID: 975696391}
+  notificationManager: {fileID: 0}
 --- !u!114 &837439494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90479,6 +91132,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 763411348}
+  notificationManager: {fileID: 0}
 --- !u!114 &855044120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -91701,6 +92355,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1451944595}
+  notificationManager: {fileID: 0}
 --- !u!114 &867216085
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92814,6 +93469,81 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 873124167}
+  m_CullTransparentMesh: 1
+--- !u!1 &874712707
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 874712708}
+  - component: {fileID: 874712710}
+  - component: {fileID: 874712709}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &874712708
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 874712707}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2135714849}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 86.20007}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &874712709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 874712707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &874712710
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 874712707}
   m_CullTransparentMesh: 1
 --- !u!1 &875356475
 GameObject:
@@ -94303,6 +95033,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 746845801}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &894934362
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94357,8 +95088,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &895121293
 GameObject:
@@ -94470,6 +95201,81 @@ RectTransform:
   m_AnchoredPosition: {x: 0.000018877, y: 37.725}
   m_SizeDelta: {x: 285.7879, y: 282.8666}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &896134732
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 896134733}
+  - component: {fileID: 896134735}
+  - component: {fileID: 896134734}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &896134733
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 896134732}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 760912782}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 333.5, y: 133.5}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &896134734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 896134732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &896134735
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 896134732}
+  m_CullTransparentMesh: 1
 --- !u!1 &896254658
 GameObject:
   m_ObjectHideFlags: 0
@@ -94991,6 +95797,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1903351252}
+  notificationManager: {fileID: 0}
 --- !u!114 &903970842
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -95085,6 +95892,81 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!1 &904030048
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 904030049}
+  - component: {fileID: 904030051}
+  - component: {fileID: 904030050}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &904030049
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 904030048}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 571485505}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 79.00006}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &904030050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 904030048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &904030051
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 904030048}
+  m_CullTransparentMesh: 1
 --- !u!1 &904877840
 GameObject:
   m_ObjectHideFlags: 0
@@ -95295,6 +96177,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 470149579}
+  notificationManager: {fileID: 0}
 --- !u!114 &906761424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -95559,6 +96442,81 @@ MonoBehaviour:
   targetPoint: {fileID: 1639307908}
   snapDistance: 70
   gameManager: {fileID: 108842321}
+--- !u!1 &909063745
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 909063746}
+  - component: {fileID: 909063748}
+  - component: {fileID: 909063747}
+  m_Layer: 5
+  m_Name: NewIcon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &909063746
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 909063745}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 117357610}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 91, y: 71.00006}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &909063747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 909063745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &909063748
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 909063745}
+  m_CullTransparentMesh: 1
 --- !u!1 &909464051
 GameObject:
   m_ObjectHideFlags: 0
@@ -95844,6 +96802,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 553959664}
   - {fileID: 913641007}
+  notificationManager: {fileID: 0}
 --- !u!114 &913641010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97573,6 +98532,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1899263627}
   - {fileID: 68073176}
+  notificationManager: {fileID: 0}
 --- !u!114 &941546473
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98394,6 +99354,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 949028928}
   m_CullTransparentMesh: 1
+--- !u!1 &949217721
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 949217722}
+  - component: {fileID: 949217724}
+  - component: {fileID: 949217723}
+  m_Layer: 5
+  m_Name: NewIcon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &949217722
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 949217721}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1785709611}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 88, y: 71}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &949217723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 949217721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &949217724
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 949217721}
+  m_CullTransparentMesh: 1
 --- !u!1 &949434120
 GameObject:
   m_ObjectHideFlags: 0
@@ -98449,6 +99484,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 719365126}
+  notificationManager: {fileID: 0}
 --- !u!114 &949434123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99512,6 +100548,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 0}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &958685405
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99993,6 +101030,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1451944595}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &963213918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100047,8 +101085,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &963326001
 GameObject:
@@ -101598,6 +102636,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 928027873}
+  notificationManager: {fileID: 0}
 --- !u!114 &980263590
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -101884,6 +102923,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 349332689}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &980818326
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102190,6 +103230,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 764224368}
+  notificationManager: {fileID: 0}
 --- !u!1 &983440837
 GameObject:
   m_ObjectHideFlags: 0
@@ -102805,7 +103846,6 @@ GameObject:
   - component: {fileID: 988094916}
   - component: {fileID: 988094915}
   - component: {fileID: 988094918}
-  - component: {fileID: 988094919}
   m_Layer: 5
   m_Name: QuizThree
   m_TagString: Untagged
@@ -102827,6 +103867,7 @@ RectTransform:
   m_Children:
   - {fileID: 1274764306}
   - {fileID: 1671829807}
+  - {fileID: 1282922364}
   m_Father: {fileID: 1950599166}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -102957,21 +103998,7 @@ MonoBehaviour:
   - {fileID: 92908107}
   panelsToDeactivate:
   - {fileID: 1950599165}
---- !u!114 &988094919
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 988094913}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 92908107}
-  panelsToActivate: []
-  panelsToDeactivate: []
+  notificationManager: {fileID: 55772123}
 --- !u!1 &989400036
 GameObject:
   m_ObjectHideFlags: 0
@@ -103240,6 +104267,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1378459245}
+  notificationManager: {fileID: 0}
 --- !u!114 &991221943
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -104036,6 +105064,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 2054800018}
+  notificationManager: {fileID: 0}
 --- !u!114 &997286353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -104185,6 +105214,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1611461606}
+  notificationManager: {fileID: 0}
 --- !u!114 &997390938
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -104581,6 +105611,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1086973020}
+  notificationManager: {fileID: 0}
 --- !u!114 &1002564681
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105360,6 +106391,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1144434686}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1007086663
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -106296,6 +107328,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 469982438}
+  notificationManager: {fileID: 0}
 --- !u!1 &1014576653
 GameObject:
   m_ObjectHideFlags: 0
@@ -106662,6 +107695,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 261584499}
   - {fileID: 295611720}
+  notificationManager: {fileID: 0}
 --- !u!114 &1022443905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -106980,6 +108014,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1322272035}
+  notificationManager: {fileID: 0}
 --- !u!114 &1027318905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -107264,6 +108299,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1839114522}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1027994816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -108662,6 +109698,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 852948632}
   - {fileID: 914513066}
+  notificationManager: {fileID: 0}
 --- !u!114 &1042134618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109641,6 +110678,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 262439933}
+  notificationManager: {fileID: 0}
 --- !u!114 &1048537043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -111492,6 +112530,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1745158161}
+  notificationManager: {fileID: 0}
 --- !u!114 &1061682227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112227,6 +113266,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1899263627}
+  notificationManager: {fileID: 0}
 --- !u!114 &1069239156
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -113242,6 +114282,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 603287589}
+  notificationManager: {fileID: 0}
 --- !u!114 &1082586953
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -113446,6 +114487,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 608672226}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1085454122
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -113500,8 +114542,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1085630421
 GameObject:
@@ -114357,6 +115399,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 165301165}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1093828448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114873,6 +115916,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1012749259}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1099215877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114927,8 +115971,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1099630179
 GameObject:
@@ -116030,6 +117074,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1443655265}
+  notificationManager: {fileID: 0}
 --- !u!114 &1108201366
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -116179,6 +117224,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 74238399}
+  notificationManager: {fileID: 0}
 --- !u!114 &1108912850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117041,6 +118087,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 664228391}
   - {fileID: 2102222247}
+  notificationManager: {fileID: 0}
 --- !u!114 &1117049296
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117395,6 +118442,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 2090776961}
+  notificationManager: {fileID: 0}
 --- !u!114 &1122093227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -119515,6 +120563,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1246167879}
+  notificationManager: {fileID: 0}
 --- !u!114 &1138399032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -119743,6 +120792,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 664228391}
+  notificationManager: {fileID: 0}
 --- !u!114 &1139407153
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120121,6 +121171,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 2138232666}
+  notificationManager: {fileID: 0}
 --- !u!114 &1141891387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120647,6 +121698,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 644799674}
+  notificationManager: {fileID: 0}
 --- !u!114 &1143218339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121252,6 +122304,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 669577084}
+  notificationManager: {fileID: 0}
 --- !u!114 &1148016811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -122510,6 +123563,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1307545743}
+  notificationManager: {fileID: 0}
 --- !u!114 &1161020564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -122727,6 +123781,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1883574000}
+  notificationManager: {fileID: 0}
 --- !u!114 &1161380354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123053,7 +124108,6 @@ GameObject:
   - component: {fileID: 1164297768}
   - component: {fileID: 1164297767}
   - component: {fileID: 1164297770}
-  - component: {fileID: 1164297771}
   m_Layer: 5
   m_Name: QuizThree
   m_TagString: Untagged
@@ -123075,6 +124129,7 @@ RectTransform:
   m_Children:
   - {fileID: 1397068471}
   - {fileID: 1187767843}
+  - {fileID: 796333578}
   m_Father: {fileID: 469982439}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -123205,21 +124260,7 @@ MonoBehaviour:
   - {fileID: 1401355845}
   panelsToDeactivate:
   - {fileID: 469982438}
---- !u!114 &1164297771
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1164297765}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 1401355845}
-  panelsToActivate: []
-  panelsToDeactivate: []
+  notificationManager: {fileID: 55772123}
 --- !u!1 &1164513765
 GameObject:
   m_ObjectHideFlags: 0
@@ -123830,6 +124871,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1086973020}
+  notificationManager: {fileID: 0}
 --- !u!114 &1168638701
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124948,6 +125990,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1590712451}
+  notificationManager: {fileID: 0}
 --- !u!114 &1179416735
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125121,6 +126164,7 @@ RectTransform:
   m_Children:
   - {fileID: 1662972688}
   - {fileID: 1966316258}
+  - {fileID: 9874866}
   m_Father: {fileID: 472135803}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -125251,6 +126295,7 @@ MonoBehaviour:
   - {fileID: 913641007}
   panelsToDeactivate:
   - {fileID: 472135802}
+  notificationManager: {fileID: 55772123}
 --- !u!1 &1182758677
 GameObject:
   m_ObjectHideFlags: 0
@@ -129517,6 +130562,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1920518070}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1223800459
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -130511,6 +131557,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 718296267}
+  notificationManager: {fileID: 0}
 --- !u!114 &1233779345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132586,6 +133633,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 787803194}
   - {fileID: 491629360}
+  notificationManager: {fileID: 0}
 --- !u!114 &1257906446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133672,6 +134720,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1636802448}
   - {fileID: 852948632}
+  notificationManager: {fileID: 0}
 --- !u!114 &1271137517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134150,6 +135199,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 928027873}
+  notificationManager: {fileID: 0}
 --- !u!114 &1275706569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134490,6 +135540,81 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1282596241}
+  m_CullTransparentMesh: 1
+--- !u!1 &1282922363
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1282922364}
+  - component: {fileID: 1282922366}
+  - component: {fileID: 1282922365}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1282922364
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282922363}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 988094914}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 79.00006}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1282922365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282922363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1282922366
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282922363}
   m_CullTransparentMesh: 1
 --- !u!1 &1283002201
 GameObject:
@@ -135824,6 +136949,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 505653353}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1299865774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135878,8 +137004,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1300239930
 GameObject:
@@ -135937,6 +137063,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1283597655}
+  notificationManager: {fileID: 0}
 --- !u!114 &1300239933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136142,6 +137269,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 612345851}
+  notificationManager: {fileID: 0}
 --- !u!114 &1300815607
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136561,6 +137689,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1399091652}
   - {fileID: 1884076291}
+  notificationManager: {fileID: 0}
 --- !u!114 &1304538441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136999,6 +138128,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1122755990}
+  notificationManager: {fileID: 0}
 --- !u!114 &1311443906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137401,6 +138531,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 2125047138}
   - {fileID: 165301165}
+  notificationManager: {fileID: 0}
 --- !u!114 &1312868299
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137902,6 +139033,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 194013162}
+  notificationManager: {fileID: 0}
 --- !u!114 &1316276794
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138227,6 +139359,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 764224368}
+  notificationManager: {fileID: 0}
 --- !u!1 &1319890888
 GameObject:
   m_ObjectHideFlags: 0
@@ -140199,6 +141332,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1066277765}
+  notificationManager: {fileID: 0}
 --- !u!114 &1340667466
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140865,6 +141999,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 48985720}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1345549287
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141925,6 +143060,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1012749259}
+  notificationManager: {fileID: 0}
 --- !u!114 &1353794307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -142522,6 +143658,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 489972548}
+  notificationManager: {fileID: 0}
 --- !u!114 &1359952483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -142794,7 +143931,6 @@ GameObject:
   - component: {fileID: 1361007927}
   - component: {fileID: 1361007926}
   - component: {fileID: 1361007929}
-  - component: {fileID: 1361007930}
   m_Layer: 5
   m_Name: QuizOne
   m_TagString: Untagged
@@ -142816,6 +143952,7 @@ RectTransform:
   m_Children:
   - {fileID: 770967885}
   - {fileID: 1653707157}
+  - {fileID: 386700940}
   m_Father: {fileID: 1950599166}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -142946,21 +144083,7 @@ MonoBehaviour:
   - {fileID: 92908107}
   panelsToDeactivate:
   - {fileID: 1950599165}
---- !u!114 &1361007930
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1361007924}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 92908107}
-  panelsToActivate: []
-  panelsToDeactivate: []
+  notificationManager: {fileID: 55772123}
 --- !u!1 &1362636146
 GameObject:
   m_ObjectHideFlags: 0
@@ -143412,6 +144535,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1140168584}
+  notificationManager: {fileID: 0}
 --- !u!114 &1367953485
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144059,6 +145183,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 505653353}
+  notificationManager: {fileID: 0}
 --- !u!114 &1377228490
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144668,6 +145793,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 635778645}
+  notificationManager: {fileID: 0}
 --- !u!114 &1382919822
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -145055,6 +146181,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1528008997}
+  notificationManager: {fileID: 0}
 --- !u!114 &1387572674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -145204,6 +146331,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1590712451}
+  notificationManager: {fileID: 0}
 --- !u!114 &1388010233
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -146805,6 +147933,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 922030171}
   - {fileID: 923522571}
+  notificationManager: {fileID: 0}
 --- !u!114 &1400452377
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -146967,6 +148096,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 553959664}
   - {fileID: 1401355845}
+  notificationManager: {fileID: 0}
 --- !u!114 &1401355848
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147646,6 +148776,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1086973020}
+  notificationManager: {fileID: 0}
 --- !u!114 &1405338656
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -148934,6 +150065,7 @@ RectTransform:
   m_Children:
   - {fileID: 1203523394}
   - {fileID: 1834974357}
+  - {fileID: 1634593914}
   m_Father: {fileID: 472135803}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -149064,6 +150196,7 @@ MonoBehaviour:
   - {fileID: 913641007}
   panelsToDeactivate:
   - {fileID: 472135802}
+  notificationManager: {fileID: 55772123}
 --- !u!114 &1413289479
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -149079,6 +150212,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 913641007}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!1 &1414124108
 GameObject:
   m_ObjectHideFlags: 0
@@ -149224,6 +150358,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 763411348}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1414968821
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -150286,6 +151421,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 504128752}
+  - {fileID: 2060192581}
   m_Father: {fileID: 868397832}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -150403,6 +151539,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 868397831}
+  notificationManager: {fileID: 55772123}
 --- !u!1 &1427973440
 GameObject:
   m_ObjectHideFlags: 0
@@ -150854,6 +151991,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 378958143}
+  notificationManager: {fileID: 0}
 --- !u!114 &1434829772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152689,6 +153827,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1914198904}
+  notificationManager: {fileID: 0}
 --- !u!114 &1456218351
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153076,6 +154215,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 603287589}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1462748312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153758,12 +154898,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   welcomeText: {fileID: 432701269}
   dbManager: {fileID: 1473477790}
+  badgeUIManager: {fileID: 1473477797}
   playerCoinCount: {fileID: 1059459424}
   playerEnergyCount: {fileID: 1499774628}
   healthSlider: {fileID: 127373275}
   damageSlider: {fileID: 62904918}
   bgmSlider: {fileID: 20730700}
   sfxSlider: {fileID: 1116264600}
+  storageButton: {fileID: 1785709614}
+  scoresButton: {fileID: 117357612}
+  badgesButton: {fileID: 93115461}
+  badgesNewDot: {fileID: 65315687}
+  storageNewDot: {fileID: 949217721}
+  scoresNewDot: {fileID: 909063745}
   energyButtons:
   - {fileID: 941546473}
   - {fileID: 1645457037}
@@ -154287,6 +155434,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1688678505}
+  notificationManager: {fileID: 0}
 --- !u!114 &1478776001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -156210,6 +157358,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 2054800018}
+  notificationManager: {fileID: 0}
 --- !u!114 &1498795937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -156951,6 +158100,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 664228391}
+  notificationManager: {fileID: 0}
 --- !u!114 &1508692119
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157779,6 +158929,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 423577022}
+  notificationManager: {fileID: 0}
 --- !u!114 &1520874863
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157929,6 +159080,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 746845801}
+  notificationManager: {fileID: 0}
 --- !u!114 &1521879649
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158405,6 +159557,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 204190704}
+  notificationManager: {fileID: 0}
 --- !u!114 &1528460760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159033,6 +160186,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 349332689}
+  notificationManager: {fileID: 0}
 --- !u!114 &1533165339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159369,6 +160523,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 472539996}
   - {fileID: 1066277765}
+  notificationManager: {fileID: 0}
 --- !u!114 &1536921325
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159630,6 +160785,81 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1537607698}
+  m_CullTransparentMesh: 1
+--- !u!1 &1537693602
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1537693603}
+  - component: {fileID: 1537693605}
+  - component: {fileID: 1537693604}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1537693603
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537693602}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1911115074}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 88.00006}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1537693604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537693602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1537693605
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537693602}
   m_CullTransparentMesh: 1
 --- !u!1 &1538146760
 GameObject:
@@ -160343,6 +161573,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1668664842}
+  notificationManager: {fileID: 0}
 --- !u!114 &1545297560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161730,6 +162961,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1310813813}
+  notificationManager: {fileID: 0}
 --- !u!114 &1558845519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161978,6 +163210,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1559808968}
   m_CullTransparentMesh: 1
+--- !u!1 &1559861778
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1559861779}
+  - component: {fileID: 1559861781}
+  - component: {fileID: 1559861780}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1559861779
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1559861778}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 456789563}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 333.50006, y: 133}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1559861780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1559861778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1559861781
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1559861778}
+  m_CullTransparentMesh: 1
 --- !u!1 &1561022828
 GameObject:
   m_ObjectHideFlags: 0
@@ -162013,6 +163320,81 @@ RectTransform:
   m_AnchoredPosition: {x: -13.8165, y: -147.49757}
   m_SizeDelta: {x: 872.3662, y: 884.6985}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1561221598
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1561221599}
+  - component: {fileID: 1561221601}
+  - component: {fileID: 1561221600}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1561221599
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1561221598}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1939310972}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 333.50006, y: 132.8}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1561221600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1561221598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1561221601
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1561221598}
+  m_CullTransparentMesh: 1
 --- !u!1 &1561251977
 GameObject:
   m_ObjectHideFlags: 0
@@ -162931,6 +164313,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 489972548}
+  notificationManager: {fileID: 0}
 --- !u!114 &1573330494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -163255,6 +164638,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1356634947}
   - {fileID: 1706624723}
+  notificationManager: {fileID: 0}
 --- !u!1 &1575573884
 GameObject:
   m_ObjectHideFlags: 0
@@ -163843,6 +165227,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 0}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1584944073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -164251,6 +165636,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1232521127}
   - {fileID: 1736329569}
+  notificationManager: {fileID: 0}
 --- !u!114 &1587416512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -164606,6 +165992,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1283597655}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1589976876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -164660,8 +166047,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1590412142
 GameObject:
@@ -164962,6 +166349,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1496484319}
+  notificationManager: {fileID: 0}
 --- !u!114 &1590763762
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165176,6 +166564,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 161881325}
+  notificationManager: {fileID: 0}
 --- !u!114 &1591943136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -166189,6 +167578,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1903351252}
+  notificationManager: {fileID: 0}
 --- !u!1 &1603095530
 GameObject:
   m_ObjectHideFlags: 0
@@ -167089,6 +168479,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1611262094}
   m_CullTransparentMesh: 1
+--- !u!1 &1611434735
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1611434736}
+  - component: {fileID: 1611434738}
+  - component: {fileID: 1611434737}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1611434736
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611434735}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 77277494}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 86.20007}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1611434737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611434735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1611434738
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611434735}
+  m_CullTransparentMesh: 1
 --- !u!1 &1611461606
 GameObject:
   m_ObjectHideFlags: 0
@@ -167370,6 +168835,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 300023080}
+  notificationManager: {fileID: 0}
 --- !u!114 &1614971816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167575,6 +169041,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1144434686}
+  notificationManager: {fileID: 0}
 --- !u!114 &1616012394
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -168729,6 +170196,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 635778645}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!1 &1627691920
 GameObject:
   m_ObjectHideFlags: 0
@@ -169036,6 +170504,81 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1632102554}
+  m_CullTransparentMesh: 1
+--- !u!1 &1634593913
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1634593914}
+  - component: {fileID: 1634593916}
+  - component: {fileID: 1634593915}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1634593914
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1634593913}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1413289474}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 79}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1634593915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1634593913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1634593916
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1634593913}
   m_CullTransparentMesh: 1
 --- !u!1 &1635050733
 GameObject:
@@ -170029,7 +171572,6 @@ GameObject:
   - component: {fileID: 1639876779}
   - component: {fileID: 1639876778}
   - component: {fileID: 1639876781}
-  - component: {fileID: 1639876782}
   m_Layer: 5
   m_Name: QuizFour
   m_TagString: Untagged
@@ -170051,6 +171593,7 @@ RectTransform:
   m_Children:
   - {fileID: 1397636688}
   - {fileID: 2050477527}
+  - {fileID: 310454752}
   m_Father: {fileID: 1360446374}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -170181,21 +171724,7 @@ MonoBehaviour:
   - {fileID: 466560670}
   panelsToDeactivate:
   - {fileID: 1360446373}
---- !u!114 &1639876782
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1639876776}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 1401355845}
-  panelsToActivate: []
-  panelsToDeactivate: []
+  notificationManager: {fileID: 55772123}
 --- !u!1 &1640391778
 GameObject:
   m_ObjectHideFlags: 0
@@ -170252,6 +171781,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1144434686}
+  notificationManager: {fileID: 0}
 --- !u!114 &1640391781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -170708,6 +172238,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1487943094}
   - {fileID: 1456118288}
+  notificationManager: {fileID: 0}
 --- !u!114 &1645457037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171710,6 +173241,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1983545197}
   - {fileID: 789126818}
+  notificationManager: {fileID: 0}
 --- !u!114 &1655655526
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171915,6 +173447,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 373113810}
+  notificationManager: {fileID: 0}
 --- !u!114 &1655887069
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172009,6 +173542,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 619672677}
+  notificationManager: {fileID: 0}
 --- !u!114 &1656184483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172214,6 +173748,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 0}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1656701212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172350,6 +173885,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1903351252}
+  notificationManager: {fileID: 0}
 --- !u!114 &1659568664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174263,6 +175799,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 746845801}
+  notificationManager: {fileID: 0}
 --- !u!114 &1680171455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174646,6 +176183,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1920518070}
+  notificationManager: {fileID: 0}
 --- !u!114 &1681686887
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -175674,6 +177212,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 378958143}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1689236330
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -176138,6 +177677,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 304677523}
   - {fileID: 1545111574}
+  notificationManager: {fileID: 0}
 --- !u!114 &1696869820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -176288,6 +177828,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1883574000}
+  notificationManager: {fileID: 0}
 --- !u!114 &1696939158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -176969,6 +178510,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 165301165}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1702577758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -177174,6 +178716,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 914513066}
+  notificationManager: {fileID: 0}
 --- !u!114 &1702818144
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -178037,6 +179580,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 2107924905}
+  notificationManager: {fileID: 0}
 --- !u!114 &1707881128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -178627,6 +180171,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1122755990}
+  notificationManager: {fileID: 0}
 --- !u!114 &1712124988
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179341,6 +180886,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1307545743}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1725454113
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179395,8 +180941,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1725769276
 GameObject:
@@ -180237,6 +181783,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1232521127}
+  notificationManager: {fileID: 0}
 --- !u!114 &1730927901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182123,6 +183670,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1668664842}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1752505469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182177,8 +183725,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1754154715
 GameObject:
@@ -182595,6 +184143,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 505653353}
+  notificationManager: {fileID: 0}
 --- !u!114 &1763149527
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182745,6 +184294,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1399091652}
+  notificationManager: {fileID: 0}
 --- !u!114 &1763200680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -183202,6 +184752,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1842772416}
+  notificationManager: {fileID: 0}
 --- !u!114 &1766212311
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -183419,6 +184970,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1883574000}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1766243577
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184168,6 +185720,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 81180073}
+  notificationManager: {fileID: 0}
 --- !u!114 &1773869392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -185379,6 +186932,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1378459245}
+  notificationManager: {fileID: 0}
 --- !u!114 &1785145368
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -185613,6 +187167,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 669577084}
+  notificationManager: {fileID: 0}
 --- !u!1 &1785709610
 GameObject:
   m_ObjectHideFlags: 0
@@ -185646,6 +187201,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1014576654}
+  - {fileID: 949217722}
   m_Father: {fileID: 135782376}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -185763,6 +187319,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 869993645}
+  notificationManager: {fileID: 0}
 --- !u!1 &1785992981
 GameObject:
   m_ObjectHideFlags: 0
@@ -186222,6 +187779,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1894800411}
+  notificationManager: {fileID: 0}
 --- !u!114 &1790292684
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187202,6 +188760,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 204190704}
+  notificationManager: {fileID: 0}
 --- !u!114 &1804900381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187466,6 +189025,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 239658585}
+  notificationManager: {fileID: 0}
 --- !u!114 &1805560176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187821,6 +189381,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1794846619}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1808872791
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187875,8 +189436,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1810176440
 GameObject:
@@ -188600,6 +190161,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 763411348}
   - {fileID: 2086081855}
+  notificationManager: {fileID: 0}
 --- !u!114 &1817076973
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189374,6 +190936,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 68073176}
+  notificationManager: {fileID: 0}
 --- !u!114 &1821545134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189940,6 +191503,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 262439933}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1826905728
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -190282,6 +191846,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 491629360}
   - {fileID: 529403330}
+  notificationManager: {fileID: 0}
 --- !u!114 &1828974336
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191494,6 +193059,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 529403330}
+  notificationManager: {fileID: 0}
 --- !u!114 &1837654668
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191589,6 +193155,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1230716761}
   - {fileID: 1266782134}
+  notificationManager: {fileID: 0}
 --- !u!114 &1837754452
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192714,7 +194281,6 @@ GameObject:
   - component: {fileID: 1848134548}
   - component: {fileID: 1848134547}
   - component: {fileID: 1848134550}
-  - component: {fileID: 1848134551}
   m_Layer: 5
   m_Name: QuizTwo
   m_TagString: Untagged
@@ -192736,6 +194302,7 @@ RectTransform:
   m_Children:
   - {fileID: 294103862}
   - {fileID: 140818158}
+  - {fileID: 159956449}
   m_Father: {fileID: 469982439}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -192866,21 +194433,7 @@ MonoBehaviour:
   - {fileID: 1401355845}
   panelsToDeactivate:
   - {fileID: 469982438}
---- !u!114 &1848134551
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1848134545}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 1401355845}
-  panelsToActivate: []
-  panelsToDeactivate: []
+  notificationManager: {fileID: 55772123}
 --- !u!1 &1849605970
 GameObject:
   m_ObjectHideFlags: 0
@@ -193529,6 +195082,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 423577022}
+  notificationManager: {fileID: 0}
 --- !u!114 &1857860285
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196413,6 +197967,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 74238399}
+  notificationManager: {fileID: 0}
 --- !u!114 &1889775806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196847,6 +198402,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1794846619}
+  notificationManager: {fileID: 0}
 --- !u!114 &1892028438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198795,7 +200351,6 @@ GameObject:
   - component: {fileID: 1911115076}
   - component: {fileID: 1911115075}
   - component: {fileID: 1911115078}
-  - component: {fileID: 1911115079}
   m_Layer: 5
   m_Name: QuizTwo
   m_TagString: Untagged
@@ -198817,6 +200372,7 @@ RectTransform:
   m_Children:
   - {fileID: 1625530009}
   - {fileID: 861904565}
+  - {fileID: 1537693603}
   m_Father: {fileID: 1950599166}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -198947,21 +200503,7 @@ MonoBehaviour:
   - {fileID: 92908107}
   panelsToDeactivate:
   - {fileID: 1950599165}
---- !u!114 &1911115079
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1911115073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 92908107}
-  panelsToActivate: []
-  panelsToDeactivate: []
+  notificationManager: {fileID: 55772123}
 --- !u!1 &1913435288
 GameObject:
   m_ObjectHideFlags: 0
@@ -199487,6 +201029,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1528008997}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1916160620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -199541,8 +201084,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1916966953
 GameObject:
@@ -199809,6 +201352,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 165301165}
+  notificationManager: {fileID: 0}
 --- !u!114 &1918339436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -200549,6 +202093,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 239658585}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1923829343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -200718,6 +202263,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1899263627}
+  notificationManager: {fileID: 0}
 --- !u!114 &1926978503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201874,6 +203420,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1935315539}
   m_CullTransparentMesh: 1
+--- !u!1 &1935530982
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1935530983}
+  - component: {fileID: 1935530985}
+  - component: {fileID: 1935530984}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1935530983
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1935530982}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 131306349}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 86.2}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1935530984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1935530982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1935530985
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1935530982}
+  m_CullTransparentMesh: 1
 --- !u!1 &1935629925
 GameObject:
   m_ObjectHideFlags: 0
@@ -202148,8 +203769,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: -1020}
-  m_SizeDelta: {x: 1050.718, y: 1070.2231}
+  m_AnchoredPosition: {x: 236, y: -1016.4}
+  m_SizeDelta: {x: 440, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1938295772
 MonoBehaviour:
@@ -202166,6 +203787,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 489972548}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1938295773
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202626,6 +204248,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1322098481}
+  - {fileID: 1561221599}
   m_Father: {fileID: 868397832}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -202743,6 +204366,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 868397831}
+  notificationManager: {fileID: 55772123}
 --- !u!1 &1939554179
 GameObject:
   m_ObjectHideFlags: 0
@@ -202799,6 +204423,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1443655265}
+  notificationManager: {fileID: 0}
 --- !u!114 &1939554182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -203027,6 +204652,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1283597655}
+  notificationManager: {fileID: 0}
 --- !u!114 &1942852660
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -203766,6 +205392,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1688678505}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &1952942624
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204149,6 +205776,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1504139558}
+  notificationManager: {fileID: 0}
 --- !u!114 &1954874477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204301,6 +205929,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1737896934}
+  notificationManager: {fileID: 0}
 --- !u!114 &1954981710
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204657,6 +206286,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1737896934}
+  notificationManager: {fileID: 0}
 --- !u!114 &1958640132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205590,6 +207220,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1012749259}
+  notificationManager: {fileID: 0}
 --- !u!114 &1966740522
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205818,6 +207449,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 55772117}
+  notificationManager: {fileID: 0}
 --- !u!114 &1966877321
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -206286,6 +207918,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1688678505}
+  notificationManager: {fileID: 0}
 --- !u!114 &1971080983
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -207298,6 +208931,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1246167879}
+  notificationManager: {fileID: 0}
 --- !u!114 &1981481008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210115,6 +211749,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1311989560}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &2011463395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210345,6 +211980,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1504139558}
   - {fileID: 162836894}
+  notificationManager: {fileID: 0}
 --- !u!114 &2011913347
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210661,6 +212297,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1914198904}
+  notificationManager: {fileID: 0}
 --- !u!114 &2014449819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -211783,6 +213420,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 529403330}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &2023824903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212069,6 +213707,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1246167879}
+  notificationManager: {fileID: 0}
 --- !u!114 &2024890339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212804,6 +214443,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 81180073}
+  notificationManager: {fileID: 0}
 --- !u!114 &2030246411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213486,6 +215126,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 166371093}
+  notificationManager: {fileID: 0}
 --- !u!114 &2034928411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213962,6 +215603,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1950599165}
+  notificationManager: {fileID: 0}
 --- !u!1 &2037839515
 GameObject:
   m_ObjectHideFlags: 0
@@ -214500,6 +216142,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1146650377}
   - {fileID: 1224107000}
+  notificationManager: {fileID: 0}
 --- !u!114 &2042523514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -216159,6 +217802,81 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &2060192580
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2060192581}
+  - component: {fileID: 2060192583}
+  - component: {fileID: 2060192582}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2060192581
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2060192580}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1426907851}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 333.50006, y: 132}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2060192582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2060192580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &2060192583
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2060192580}
+  m_CullTransparentMesh: 1
 --- !u!1 &2062591822
 GameObject:
   m_ObjectHideFlags: 0
@@ -216233,6 +217951,81 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2062591822}
+  m_CullTransparentMesh: 1
+--- !u!1 &2062705653
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2062705654}
+  - component: {fileID: 2062705656}
+  - component: {fileID: 2062705655}
+  m_Layer: 5
+  m_Name: RedDot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2062705654
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2062705653}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 447711710}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 285.2, y: 88.00006}
+  m_SizeDelta: {x: 80, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2062705655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2062705653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 353a640e57e820940bba53f4444dcc69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &2062705656
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2062705653}
   m_CullTransparentMesh: 1
 --- !u!1 &2062953832
 GameObject:
@@ -216941,6 +218734,7 @@ MonoBehaviour:
   panelsToDeactivate:
   - {fileID: 1173353535}
   - {fileID: 2107924905}
+  notificationManager: {fileID: 0}
 --- !u!114 &2068604814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -218926,6 +220720,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 1266782134}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &2089074454
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219862,6 +221657,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1760917387}
+  notificationManager: {fileID: 0}
 --- !u!114 &2098126565
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220053,6 +221849,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 166371093}
+  notificationManager: {fileID: 0}
 --- !u!114 &2100041991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220337,6 +222134,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 0}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &2100918697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220594,6 +222392,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1903351252}
+  notificationManager: {fileID: 0}
 --- !u!1 &2101493729
 GameObject:
   m_ObjectHideFlags: 0
@@ -221207,6 +223006,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 204190704}
   panelsToActivate: []
   panelsToDeactivate: []
+  notificationManager: {fileID: 0}
 --- !u!114 &2106378642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -222260,6 +224060,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 81180073}
+  notificationManager: {fileID: 0}
 --- !u!1 &2121984523
 GameObject:
   m_ObjectHideFlags: 0
@@ -223421,7 +225222,6 @@ GameObject:
   - component: {fileID: 2135714851}
   - component: {fileID: 2135714850}
   - component: {fileID: 2135714853}
-  - component: {fileID: 2135714854}
   m_Layer: 5
   m_Name: QuizOne
   m_TagString: Untagged
@@ -223443,6 +225243,7 @@ RectTransform:
   m_Children:
   - {fileID: 2115792292}
   - {fileID: 972475878}
+  - {fileID: 874712708}
   m_Father: {fileID: 1360446374}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -223573,21 +225374,7 @@ MonoBehaviour:
   - {fileID: 466560670}
   panelsToDeactivate:
   - {fileID: 1360446373}
---- !u!114 &2135714854
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2135714848}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 466560670}
-  panelsToActivate: []
-  panelsToDeactivate: []
+  notificationManager: {fileID: 55772123}
 --- !u!1 &2136129402
 GameObject:
   m_ObjectHideFlags: 0
@@ -223699,6 +225486,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 923023380}
+  notificationManager: {fileID: 0}
 --- !u!114 &2136129406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -223793,6 +225581,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1407518370}
+  notificationManager: {fileID: 0}
 --- !u!114 &2136172258
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224616,6 +226405,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 619672677}
+  notificationManager: {fileID: 0}
 --- !u!114 &2146262513
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224840,6 +226630,7 @@ MonoBehaviour:
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 2090776961}
+  notificationManager: {fileID: 0}
 --- !u!114 &2147330033
 MonoBehaviour:
   m_ObjectHideFlags: 0

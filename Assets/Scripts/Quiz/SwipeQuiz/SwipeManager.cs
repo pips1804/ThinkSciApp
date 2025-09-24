@@ -527,8 +527,8 @@ public class SwipeManager : MonoBehaviour
             // Player Passed
             dbManager.AddUserItem(userId, rewardItemID);
             dbManager.MarkLessonAsCompleted(userId, quizId);
-            dbManager.CheckAndUnlockAllLessons(userId);
-            lessonHandler.RefreshLessonLocks();
+            // dbManager.CheckAndUnlockAllLessons(userId);
+            // lessonHandler.RefreshLessonLocks();
             dbManager.AddCoin(userId, 100);
 
             if (AudioManager.Instance != null)

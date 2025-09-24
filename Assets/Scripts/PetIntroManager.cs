@@ -55,22 +55,30 @@ public class PetIntroManager : MonoBehaviour
 
     void ShowNextLine()
     {
+        // If we are typing and user clicks, finish the line instantly
         if (isTyping)
         {
             StopCoroutine(typingCoroutine);
             dialogueText.text = dialogLines[currentLine];
             isTyping = false;
+
+            // 🔹 Increment here because the line is now fully revealed
+            currentLine++;
             return;
         }
 
+        // If there are more lines, start typing the next one
         if (currentLine < dialogLines.Length)
         {
             if (typingCoroutine != null)
                 StopCoroutine(typingCoroutine);
 
             typingCoroutine = StartCoroutine(TypeLine(dialogLines[currentLine]));
+            return;
         }
-        else if (!isAwaitingName)
+
+        // If we reached the end of dialog lines, ask for the name
+        if (!isAwaitingName)
         {
             if (typingCoroutine != null)
                 StopCoroutine(typingCoroutine);
@@ -103,8 +111,8 @@ public class PetIntroManager : MonoBehaviour
         clickToContinueHint.gameObject.SetActive(true);
         introPanel.SetActive(true);
 
-        (string fname, string _, string _, int _, int _) = dbManager.GetUser();
-        dialogLines[0] = $"Hello there, {fname}!";
+        (string uname, int _, int _) = dbManager.GetUser();
+        dialogLines[0] = $"Hello there, {uname}!";
 
         if (typingCoroutine != null)
             StopCoroutine(typingCoroutine);
@@ -153,8 +161,6 @@ public class PetIntroManager : MonoBehaviour
         }
     }
 
-
-
     private IEnumerator TypeLine(string line)
     {
         isTyping = true;
@@ -167,7 +173,8 @@ public class PetIntroManager : MonoBehaviour
         }
 
         isTyping = false;
-        currentLine++;
+
+        // 🔹 Remove currentLine++ from here
     }
 
     private IEnumerator BlinkHint()

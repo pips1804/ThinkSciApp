@@ -468,13 +468,13 @@ public class CauseAndEffectQuiz : MonoBehaviour
             databaseManager.MarkLessonAsCompleted(userID, quizId);
             databaseManager.UnlockCategoryForUser(userID, 2);
             categoryHandler.RefreshCategoryLocks();
-            databaseManager.CheckAndUnlockAllLessons(userID);
-            lessonHandler.RefreshLessonLocks();
+            // databaseManager.CheckAndUnlockAllLessons(userID);
+            // lessonHandler.RefreshLessonLocks();
             databaseManager.AddCoin(userID, 100);
             if (victoryModal != null) victoryModal.SetActive(true);
             if (victoryText != null)
                 victoryText.text =
-                    $"You harnessed the power of unbalanced forces to set things in motion!\n" +
+                    $"You harnessed the power of unbalanced forces!\n" +
                     $"Final Score: {totalCorrectAnswers}/{totalQuestionsInGame}";
             AudioManager.Instance.PlaySFX(passedsound);
         }

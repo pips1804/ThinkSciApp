@@ -1735,8 +1735,8 @@ public class SortingGame : MonoBehaviour
     {
         dbManager.AddUserItem(userID, rewardItemID);
         dbManager.MarkLessonAsCompleted(userID, 11);
-        dbManager.CheckAndUnlockAllLessons(userID);
-        lessonHandler.RefreshLessonLocks();
+        // dbManager.CheckAndUnlockAllLessons(userID);
+        // lessonHandler.RefreshLessonLocks();
         dbManager.AddCoin(userID, 100);
         dbManager.SaveQuizAndScore(userID, 11, score);
         dbManager.CheckAndUnlockBadges(userID);

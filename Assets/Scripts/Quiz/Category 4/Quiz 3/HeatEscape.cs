@@ -367,8 +367,8 @@ public class HeatEscape : MonoBehaviour
         {
             dbManager.AddUserItem(userID, rewardItemID);
             dbManager.MarkLessonAsCompleted(userID, 13);
-            dbManager.CheckAndUnlockAllLessons(userID);
-            lessonHandler.RefreshLessonLocks();
+            // dbManager.CheckAndUnlockAllLessons(userID);
+            // lessonHandler.RefreshLessonLocks();
             dbManager.AddCoin(userID, 100);
             dbManager.SaveQuizAndScore(userID, 13, currentScore);
             dbManager.CheckAndUnlockBadges(userID);

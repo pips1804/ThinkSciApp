@@ -2990,8 +2990,8 @@ public class RocketAsteroidGame : MonoBehaviour
         dbManager.AddUserItem(userID, 15);
         dbManager.AddUserItem(userID, 17);
         dbManager.MarkLessonAsCompleted(userID, quizId);
-        dbManager.CheckAndUnlockAllLessons(userID);
-        lessonHandler.RefreshLessonLocks();
+        // dbManager.CheckAndUnlockAllLessons(userID);
+        // lessonHandler.RefreshLessonLocks();
         dbManager.AddCoin(userID, 100);
         dbManager.SaveQuizAndScore(userID, quizId, score);
         dbManager.CheckAndUnlockBadges(userID);

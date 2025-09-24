@@ -89,27 +89,34 @@ public class OwnedItemsManager : MonoBehaviour
 
         foreach (ItemData item in filtered)
         {
-            // 👇 Skip items with zero quantity
             if (item.Quantity <= 0)
                 continue;
 
             GameObject prefabToUse = (item.Type.ToLower() == "food") ? foodItemPrefab : collectibleItemPrefab;
             GameObject go = Instantiate(prefabToUse, ownedItemContainer);
 
-            // Set UI fields
+            // --- Set name, type, quantity as before ---
             go.transform.Find("Name").GetComponent<Text>().text = item.Name;
             go.transform.Find("Type").GetComponent<Text>().text = item.Type;
 
-            // Show quantity
             Text qtyText = go.transform.Find("Quantity")?.GetComponent<Text>();
             if (qtyText != null)
+                qtyText.text = (item.Type.ToLower() == "food" || item.Quantity > 1) ? "x" + item.Quantity : "";
+
+            // --- Set icon ---
+            if (!string.IsNullOrEmpty(item.SpritePath))
             {
-                if (item.Type.ToLower() == "food" || item.Quantity > 1)
-                    qtyText.text = "x" + item.Quantity;
-                else
-                    qtyText.text = "";
+                Sprite sprite = Resources.Load<Sprite>("shop-items/" + item.SpritePath);
+                if (sprite != null)
+                    go.transform.Find("Icon").GetComponent<Image>().sprite = sprite;
             }
 
+            // --- ✅ Show red dot if item is new ---
+            Transform newIndicator = go.transform.Find("NewIndicator");
+            if (newIndicator != null)
+                newIndicator.gameObject.SetActive(item.IsNew); // true = show red dot, false = hide
+
+            // --- Food use button setup ---
             if (item.Type.ToLower() == "food")
             {
                 Button useButton = go.transform.Find("UseButton")?.GetComponent<Button>();
@@ -124,23 +131,12 @@ public class OwnedItemsManager : MonoBehaviour
                 }
             }
 
-            // Load sprite
-            if (!string.IsNullOrEmpty(item.SpritePath))
-            {
-                Sprite sprite = Resources.Load<Sprite>("shop-items/" + item.SpritePath);
-                if (sprite != null)
-                    go.transform.Find("Icon").GetComponent<Image>().sprite = sprite;
-            }
-
-            // Add click listener for modal
+            // --- Modal click ---
             Button itemButton = go.GetComponent<Button>();
             if (itemButton != null)
             {
                 ItemData capturedItem = item;
-                itemButton.onClick.AddListener(() =>
-                {
-                    ShowItemModal(capturedItem);
-                });
+                itemButton.onClick.AddListener(() => ShowItemModal(capturedItem));
             }
         }
     }
@@ -153,6 +149,14 @@ public class OwnedItemsManager : MonoBehaviour
             modalItemDescription.text += $"\nRestores {item.EnergyValue} Energy";
 
         itemModalPanel.SetActive(true);
+
+        // ✅ Mark as seen if it was new
+        if (item.IsNew)
+        {
+            Database.MarkItemAsSeen(currentUserId, item.ItemId);
+            item.IsNew = false;
+            LoadOwnedItems(); // refresh UI to hide red dot
+        }
     }
     private void ShowUseFoodConfirm(ItemData item)
     {

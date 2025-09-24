@@ -42,7 +42,7 @@ public class BadgeUIManager : MonoBehaviour
     }
 
     public void RefreshBadges()
-    { 
+    {
         databaseManager.CheckAndUnlockBadges(1);
     }
 
@@ -109,5 +109,15 @@ public class BadgeUIManager : MonoBehaviour
         LoadBadgesFromDatabase();
         ShowDone();
         mainmenu.UpdateUI();
+    }
+
+    public void RefreshUI()
+    {
+        LoadBadgesFromDatabase();
+        // Keep the same tab the user was on:
+        if (inProgressButton.interactable == false) // means InProgress tab is active
+            ShowInProgress();
+        else
+            ShowDone();
     }
 }

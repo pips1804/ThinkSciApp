@@ -499,8 +499,8 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
     {
         databaseManager.AddUserItem(userID, rewardItemID);
         databaseManager.MarkLessonAsCompleted(userID, quizId);
-        databaseManager.CheckAndUnlockAllLessons(userID);
-        lessonHandler.RefreshLessonLocks();
+        // databaseManager.CheckAndUnlockAllLessons(userID);
+        // lessonHandler.RefreshLessonLocks();
         databaseManager.AddCoin(userID, 100);
         databaseManager.SaveQuizAndScore(userID, quizId, correctAnswers);
 

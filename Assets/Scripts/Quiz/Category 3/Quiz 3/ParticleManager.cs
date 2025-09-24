@@ -388,8 +388,8 @@ public class ParticleManager : MonoBehaviour
             dbManager.MarkLessonAsCompleted(userID, 10);
             dbManager.UnlockCategoryForUser(userID, 4);
             categoryHandler.RefreshCategoryLocks();
-            dbManager.CheckAndUnlockAllLessons(userID);
-            lessonHandler.RefreshLessonLocks();
+            // dbManager.CheckAndUnlockAllLessons(userID);
+            // lessonHandler.RefreshLessonLocks();
             dbManager.AddCoin(userID, 100);
             ShowPassModal(scorePercentage);
             AudioManager.Instance.PlaySFX(passed);

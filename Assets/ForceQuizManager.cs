@@ -187,8 +187,8 @@ public class ForceQuizManager : MonoBehaviour
         {
             dbManager.MarkLessonAsCompleted(userID, 1);
             dbManager.AddUserItem(userID, rewardItemID);
-            dbManager.CheckAndUnlockAllLessons(userID);
-            lessonsHandler.RefreshLessonLocks();
+            // dbManager.CheckAndUnlockAllLessons(userID);
+            // lessonsHandler.RefreshLessonLocks();
             dbManager.AddCoin(userID, 100);
         }
         else

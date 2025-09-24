@@ -1090,8 +1090,8 @@ public class HeatTheMetal : MonoBehaviour
         {
             dbManager.AddUserItem(userID, rewardItemID);
             dbManager.MarkLessonAsCompleted(userID, 9);
-            dbManager.CheckAndUnlockAllLessons(userID);
-            lessonHandler.RefreshLessonLocks();
+            // dbManager.CheckAndUnlockAllLessons(userID);
+            // lessonHandler.RefreshLessonLocks();
             dbManager.AddCoin(userID, 100);
             ShowPassedModal();
         }

@@ -552,8 +552,8 @@ public class RacingQuiz : MonoBehaviour
             databaseManager.MarkLessonAsCompleted(userID, quizId);
             databaseManager.UnlockCategoryForUser(userID, categoryToUnlock);
             categoryHandler.RefreshCategoryLocks();
-            databaseManager.CheckAndUnlockAllLessons(userID);
-            lessonHandler.RefreshLessonLocks();
+            // databaseManager.CheckAndUnlockAllLessons(userID);
+            // lessonHandler.RefreshLessonLocks();
             databaseManager.AddCoin(userID, 100);
 
             victoryModal.SetActive(true);

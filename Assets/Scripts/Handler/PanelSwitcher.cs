@@ -11,6 +11,9 @@ public class PanelSwitcher : MonoBehaviour
     [Header("Panels to Deactivate")]
     public GameObject[] panelsToDeactivate;
 
+    [Header("Optional: Refresh Notifications When Panel Activates")]
+    public QuizNotificationManager notificationManager;
+
     public void ActivatePanel()
     {
         // 🔴 Deactivate all given panels
@@ -35,6 +38,12 @@ public class PanelSwitcher : MonoBehaviour
                 panel.SetActive(true);
                 HandleOrientation(panel);
             }
+        }
+
+        // ✅ Optional: refresh dots if this panel is the main menu
+        if (notificationManager != null)
+        {
+            notificationManager.UpdateAllNotifications();
         }
     }
 

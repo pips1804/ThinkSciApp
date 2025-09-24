@@ -3,20 +3,21 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 public class CreateAccountUI : MonoBehaviour
 {
-    public TMP_InputField InputFName, InputMName, InputLName;
+    public TMP_InputField InputUsername;
     public GameObject CreateAccountPanel;
     public GameObject LoadingScreen;
     public Slider LoadingSlider;
     public DatabaseManager dbManager;
     public GameObject WarningPanel;
+    public Text WarningText;
     public GameObject SuccessModal;
 
     public GameObject PetIntroPanel;
     public PetIntroManager petIntroManager;
-
 
     private void Start()
     {
@@ -29,7 +30,7 @@ public class CreateAccountUI : MonoBehaviour
         LoadingSlider.value = 0f;
 
         float timer = 0f;
-        float splashDuration = 2f; // 2 seconds for splash animation
+        float splashDuration = 2f;
 
         while (timer < splashDuration)
         {
@@ -38,8 +39,8 @@ public class CreateAccountUI : MonoBehaviour
             yield return null;
         }
 
-        LoadingSlider.value = 1f; // Set to 1 directly when splash ends
-        yield return new WaitForSeconds(0.5f); // nice tiny pause
+        LoadingSlider.value = 1f;
+        yield return new WaitForSeconds(0.5f);
 
         if (dbManager.HasUser() && !dbManager.IsDefaultUser())
         {
@@ -50,29 +51,45 @@ public class CreateAccountUI : MonoBehaviour
             LoadingScreen.SetActive(false);
             CreateAccountPanel.SetActive(true);
         }
-
     }
 
     public void OnSubmit()
     {
         Debug.Log("Submit button clicked!");
 
-        string firstName = InputFName.text.Trim();
-        string middleName = InputMName.text.Trim();
-        string lastName = InputLName.text.Trim();
+        string username = InputUsername.text.Trim();
 
-        // Validate fields
-        if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(middleName) || string.IsNullOrWhiteSpace(lastName))
+        // === Validation ===
+        if (string.IsNullOrEmpty(username))
         {
-            WarningPanel.SetActive(true);
+            ShowWarning("Username cannot be empty!");
+            return;
+        }
+
+        if (username.Length != 8) // require exactly 8 characters
+        {
+            ShowWarning("Username must be exactly 8 characters.");
+            return;
+        }
+
+        if (!Regex.IsMatch(username, "^[a-zA-Z0-9]+$"))
+        {
+            ShowWarning("Only letters and numbers are allowed.");
             return;
         }
 
         WarningPanel.SetActive(false);
 
-        dbManager.UpdateUser(firstName, middleName, lastName);
+        // ✅ Save username (adjust UpdateUser if needed)
+        dbManager.UpdateUser(username);
 
         ShowSuccessModal();
+    }
+
+    private void ShowWarning(string message)
+    {
+        if (WarningText != null) WarningText.text = message;
+        WarningPanel.SetActive(true);
     }
 
     public void CloseWarning()
@@ -88,12 +105,10 @@ public class CreateAccountUI : MonoBehaviour
     public void CloseSuccessModal()
     {
         SuccessModal.SetActive(false);
-        SuccessModal.SetActive(false);
         CreateAccountPanel.SetActive(false);
         PetIntroPanel.SetActive(true);
-        petIntroManager.StartIntro(); // Custom function to start dialog
+        petIntroManager.StartIntro();
     }
-
 
     IEnumerator LoadSceneAsync(string sceneName)
     {
@@ -106,14 +121,10 @@ public class CreateAccountUI : MonoBehaviour
         while (!operation.isDone)
         {
             float progress = Mathf.Clamp01(operation.progress / 0.9f);
-
-            // Only update the slider value in this method
             LoadingSlider.value = Mathf.MoveTowards(LoadingSlider.value, progress, Time.deltaTime * 0.5f);
 
             if (LoadingSlider.value >= 0.99f)
-            {
                 operation.allowSceneActivation = true;
-            }
 
             yield return null;
         }

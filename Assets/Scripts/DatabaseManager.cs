@@ -29,6 +29,7 @@ public class Badge
     public bool IsDone => IsUnlocked && IsClaimed;
 }
 
+[System.Serializable]
 public class ItemData
 {
     public int ItemId;
@@ -36,9 +37,10 @@ public class ItemData
     public string Type;
     public int Price;
     public string SpritePath;
-    public string Description;
     public int Quantity;
+    public string Description;
     public int EnergyValue;
+    public bool IsNew;
 }
 
 public class QuizScoreRecord
@@ -106,11 +108,12 @@ public class DatabaseManager : MonoBehaviour
         dbPath = "URI=file:" + targetPath;
     }
 
-    public void UpdateUser(string firstName, string middleName, string lastName)
+    // ✅ Update only the username
+    public void UpdateUser(string username)
     {
-        if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(middleName) || string.IsNullOrWhiteSpace(lastName))
+        if (string.IsNullOrWhiteSpace(username))
         {
-            Debug.LogWarning("Attempted to update user with incomplete or invalid data. Operation cancelled.");
+            Debug.LogWarning("Attempted to update user with empty username. Operation cancelled.");
             return;
         }
 
@@ -122,25 +125,22 @@ public class DatabaseManager : MonoBehaviour
             {
                 command.CommandText = @"
                 UPDATE users
-                SET first_name = @first,
-                    middle_name = @middle,
-                    last_name = @last
-                WHERE id = 1";  // Hardcoded ID
+                SET username = @username
+                WHERE id = 1";
 
-                command.Parameters.AddWithValue("@first", firstName);
-                command.Parameters.AddWithValue("@middle", middleName);
-                command.Parameters.AddWithValue("@last", lastName);
+                command.Parameters.AddWithValue("@username", username);
 
                 int rowsAffected = command.ExecuteNonQuery();
 
                 if (rowsAffected > 0)
-                    Debug.Log("User data successfully updated.");
+                    Debug.Log("User username successfully updated.");
                 else
                     Debug.LogWarning("No user was updated. User ID 1 may not exist.");
             }
         }
     }
 
+    // ✅ Check if the user is still default (has 'username' empty or 'default')
     public bool IsDefaultUser()
     {
         using (var connection = new SqliteConnection(dbPath))
@@ -150,7 +150,7 @@ public class DatabaseManager : MonoBehaviour
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = @"
-                SELECT first_name, middle_name, last_name
+                SELECT username
                 FROM users
                 WHERE id = 1
                 LIMIT 1";
@@ -159,12 +159,8 @@ public class DatabaseManager : MonoBehaviour
                 {
                     if (reader.Read())
                     {
-                        string firstName = reader.GetString(0);
-                        string middleName = reader.GetString(1);
-                        string lastName = reader.GetString(2);
-
-                        // Adjust to match your default inserted values
-                        return firstName == "Juan" && middleName == "Dela" && lastName == "Cruz";
+                        string username = reader.IsDBNull(0) ? "" : reader.GetString(0);
+                        return string.IsNullOrEmpty(username) || username == "DefaultUser";
                     }
                 }
             }
@@ -172,7 +168,6 @@ public class DatabaseManager : MonoBehaviour
 
         return true; // Assume default if user not found
     }
-
 
     public bool HasUser()
     {
@@ -189,7 +184,8 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
-    public (string, string, string, int, int) GetUser()
+    // ✅ Now returns username, coins, energy
+    public (string username, int coins, int energy) GetUser()
     {
         using (var connection = new SqliteConnection(dbPath))
         {
@@ -197,19 +193,22 @@ public class DatabaseManager : MonoBehaviour
 
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT first_name, middle_name, last_name, coins, energy FROM users LIMIT 1";
+                command.CommandText = "SELECT username, coins, energy FROM users LIMIT 1";
 
                 using (IDataReader reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        return (reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4));
+                        string username = reader.IsDBNull(0) ? "" : reader.GetString(0);
+                        int coins = reader.IsDBNull(1) ? 0 : reader.GetInt32(1);
+                        int energy = reader.IsDBNull(2) ? 0 : reader.GetInt32(2);
+                        return (username, coins, energy);
                     }
                 }
             }
         }
 
-        return ("", "", "", 0, 0);
+        return ("", 0, 0);
     }
 
     public void SavePlayerStats(int coins)
@@ -531,6 +530,7 @@ public class DatabaseManager : MonoBehaviour
                 transaction.Commit();
             }
         }
+        OnUserDataChanged?.Invoke();
     }
     public (string name, int baseHealth, int baseDamage) GetPetStats(int userId)
     {
@@ -1257,7 +1257,8 @@ public class DatabaseManager : MonoBehaviour
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = @"
-                SELECT i.Item_ID, i.Item_Name, i.Item_Type, i.Price, i.Sprite_Path, ui.Quantity, i.Description, i.EnergyValue
+                SELECT i.Item_ID, i.Item_Name, i.Item_Type, i.Price, i.Sprite_Path,
+                       ui.Quantity, i.Description, i.EnergyValue, ui.IsNew
                 FROM Items i
                 JOIN User_Items ui ON i.Item_ID = ui.Item_ID
                 WHERE ui.User_ID = @uid";
@@ -1276,7 +1277,8 @@ public class DatabaseManager : MonoBehaviour
                             SpritePath = reader.IsDBNull(4) ? null : reader.GetString(4),
                             Quantity = reader.GetInt32(5),
                             Description = reader.GetString(6),
-                            EnergyValue = reader.IsDBNull(7) ? 0 : reader.GetInt32(7)
+                            EnergyValue = reader.IsDBNull(7) ? 0 : reader.GetInt32(7),
+                            IsNew = !reader.IsDBNull(8) && reader.GetInt32(8) == 1   // 👈 read column
                         });
                     }
                 }
@@ -1286,6 +1288,21 @@ public class DatabaseManager : MonoBehaviour
         return items;
     }
 
+    public void MarkItemAsSeen(int userId, int itemId)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "UPDATE User_Items SET IsNew = 0 WHERE User_ID = @uid AND Item_ID = @iid";
+                cmd.Parameters.AddWithValue("@uid", userId);
+                cmd.Parameters.AddWithValue("@iid", itemId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        OnUserDataChanged?.Invoke();
+    }
 
     // Purchase item (deduct coins + insert into User_Items)
     public bool PurchaseItem(int userId, int itemId)
@@ -1851,6 +1868,7 @@ public class DatabaseManager : MonoBehaviour
                 command.ExecuteNonQuery();
             }
         }
+        OnUserDataChanged?.Invoke();
     }
 
     public JumbledQuestion1 GetOneJumbledQuestion(int quizId)
