@@ -22,8 +22,7 @@ public class BadgeUIManager : MonoBehaviour
 
     void Start()
     {
-        LoadBadgesFromDatabase();
-        ShowInProgress();
+        RefreshAndShowInProgress();
 
         inProgressButton.onClick.AddListener(ShowInProgress);
         doneButton.onClick.AddListener(ShowDone);
@@ -31,14 +30,20 @@ public class BadgeUIManager : MonoBehaviour
 
     void OnEnable()
     {
-        LoadBadgesFromDatabase();
-        ShowInProgress();
+        RefreshAndShowInProgress();
     }
 
     void LoadBadgesFromDatabase()
     {
         allBadges = databaseManager.GetUserBadges(currentUserId);
         Debug.Log("Loaded badges from DB: " + allBadges.Count);
+    }
+
+
+    private void RefreshAndShowInProgress()
+    {
+        LoadBadgesFromDatabase();
+        ShowInProgress();
     }
 
     public void RefreshBadges()

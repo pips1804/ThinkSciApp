@@ -138,6 +138,7 @@ public class DatabaseManager : MonoBehaviour
                     Debug.LogWarning("No user was updated. User ID 1 may not exist.");
             }
         }
+        OnUserDataChanged?.Invoke();
     }
 
     // ✅ Check if the user is still default (has 'username' empty or 'default')
@@ -749,6 +750,7 @@ public class DatabaseManager : MonoBehaviour
                 command.ExecuteNonQuery();
             }
         }
+        OnUserDataChanged?.Invoke();
     }
 
     public List<Question> LoadRandomQuestions(int quizId, string questionType, int count)

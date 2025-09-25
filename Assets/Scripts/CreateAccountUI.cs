@@ -19,6 +19,11 @@ public class CreateAccountUI : MonoBehaviour
     public GameObject PetIntroPanel;
     public PetIntroManager petIntroManager;
 
+    [Header("Modal Audio")]
+    public AudioSource audioSource; // Assign in Inspector
+    public AudioClip successSoundEffect; // Success modal sound
+    public AudioClip failedSoundEffect; // Warning/failed modal sound
+
     private void Start()
     {
         StartCoroutine(PlaySplashScreen());
@@ -66,9 +71,9 @@ public class CreateAccountUI : MonoBehaviour
             return;
         }
 
-        if (username.Length != 8) // require exactly 8 characters
+        if (username.Length > 9) // require at least 8 characters
         {
-            ShowWarning("Username must be exactly 8 characters.");
+            ShowWarning("Username must be 8 characters or less.");
             return;
         }
 
@@ -86,8 +91,20 @@ public class CreateAccountUI : MonoBehaviour
         ShowSuccessModal();
     }
 
+    private void PlaySoundEffect(AudioClip soundEffect)
+    {
+        if (audioSource != null && soundEffect != null)
+        {
+            // Play the sound effect using PlayOneShot to avoid interrupting other audio
+            audioSource.PlayOneShot(soundEffect);
+        }
+    }
+
     private void ShowWarning(string message)
     {
+        // Play failed sound effect
+        PlaySoundEffect(failedSoundEffect);
+
         if (WarningText != null) WarningText.text = message;
         WarningPanel.SetActive(true);
     }
@@ -99,6 +116,9 @@ public class CreateAccountUI : MonoBehaviour
 
     public void ShowSuccessModal()
     {
+        // Play success sound effect
+        PlaySoundEffect(successSoundEffect);
+
         SuccessModal.SetActive(true);
     }
 
