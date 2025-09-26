@@ -33,6 +33,12 @@ public class BadgeUIManager : MonoBehaviour
         RefreshAndShowInProgress();
     }
 
+    void SetTabState(bool showInProgress)
+    {
+        inProgressButton.interactable = !showInProgress;
+        doneButton.interactable = showInProgress;
+    }
+
     void LoadBadgesFromDatabase()
     {
         allBadges = databaseManager.GetUserBadges(currentUserId);
@@ -55,12 +61,14 @@ public class BadgeUIManager : MonoBehaviour
     {
         LoadBadgesFromDatabase();
         PopulateBadgeUI(allBadges.FindAll(b => !b.IsUnlocked || (b.IsUnlocked && !b.IsClaimed)));
+        SetTabState(true); // highlight In Progress tab
     }
 
     void ShowDone()
     {
         LoadBadgesFromDatabase();
         PopulateBadgeUI(allBadges.FindAll(b => b.IsUnlocked && b.IsClaimed));
+        SetTabState(false); // highlight Done tab
     }
 
     void PopulateBadgeUI(List<Badge> badgeList)

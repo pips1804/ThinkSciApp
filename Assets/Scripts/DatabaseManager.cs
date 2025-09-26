@@ -384,24 +384,32 @@ public class DatabaseManager : MonoBehaviour
         Debug.Log("Lesson unlocked!");
     }
 
-    public int? GetRequiredCollectibleForLesson(int lessonId)
+    public List<int> GetRequiredCollectiblesForLesson(int lessonId)
     {
+        List<int> requiredItems = new List<int>();
+
         using (IDbConnection dbConn = new SqliteConnection(dbPath))
         {
             dbConn.Open();
             using (IDbCommand cmd = dbConn.CreateCommand())
             {
-                cmd.CommandText = "SELECT Item_ID FROM Items WHERE Lesson_ID = @lessonId LIMIT 1";
+                cmd.CommandText = "SELECT Item_ID FROM Items WHERE Lesson_ID = @lessonId";
                 cmd.Parameters.Add(new SqliteParameter("@lessonId", lessonId));
 
-                object result = cmd.ExecuteScalar();
-                if (result != null && result != DBNull.Value)
-                    return Convert.ToInt32(result);
-
-                return null; // No collectible required
+                using (IDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["Item_ID"] != DBNull.Value)
+                            requiredItems.Add(Convert.ToInt32(reader["Item_ID"]));
+                    }
+                }
             }
         }
+
+        return requiredItems;
     }
+
 
     public string GetItemName(int itemId)
     {

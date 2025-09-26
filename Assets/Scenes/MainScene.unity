@@ -7508,7 +7508,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &67694820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12635,7 +12635,7 @@ MonoBehaviour:
   - {fileID: 493596636}
   timerText: {fileID: 2117308246}
   scoreText: {fileID: 92773010}
-  questionTimeLimit: 45
+  questionTimeLimit: 40
   timerFillImage: {fileID: 0}
   correctButtonColor: {r: 0, g: 1, b: 0, a: 0.5882353}
   incorrectButtonColor: {r: 1, g: 0, b: 0, a: 0.5882353}
@@ -13245,7 +13245,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &115484728
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22294,7 +22294,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 1737896934}
+  panelToActivate: {fileID: 669577084}
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 817140163}
@@ -32568,7 +32568,7 @@ MonoBehaviour:
   gameOverSound: {fileID: 8300000, guid: 5328f5291367d83419be24d381d50f76, type: 3}
   racingSound: {fileID: 8300000, guid: 0d92421e96a4fa24b80e114b6c6e89e1, type: 3}
   overtakeSound: {fileID: 8300000, guid: 1f5bb9615b645e545a370a21949ef8ce, type: 3}
-  questionTimeLimit: 60
+  questionTimeLimit: 90
   questionsToWin: 10
   wrongAnswersToLose: 5
   databaseManager: {fileID: 1473477790}
@@ -35075,7 +35075,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &321254111
 RectTransform:
   m_ObjectHideFlags: 0
@@ -53452,7 +53452,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questions: []
   finishLineDistance: 10
-  questionTimeLimit: 45
+  questionTimeLimit: 40
   passPercentage: 60
   questionPanel: {fileID: 987609923}
   questionText: {fileID: 407977201}
@@ -53929,7 +53929,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &494282075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59446,7 +59446,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &535605210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83348,7 +83348,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 1737896934}
+  panelToActivate: {fileID: 669577084}
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 923522571}
@@ -85519,7 +85519,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &779014930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -86490,7 +86490,7 @@ MonoBehaviour:
   scoreText: {fileID: 367540740}
   timerText: {fileID: 628840103}
   passingScore: 10
-  questionTime: 20
+  questionTime: 40
   correct: {fileID: 8300000, guid: 04e396e4485ff314084228903b3a9979, type: 3}
   wrong: {fileID: 8300000, guid: da5d79b858b6fcd43a893b69a5b84535, type: 3}
   questions: []
@@ -86534,7 +86534,7 @@ MonoBehaviour:
   startSimulationButton: {fileID: 2124926908}
   leftForceText: {fileID: 63071944}
   rightForceText: {fileID: 2118819017}
-  simulationDuration: 30
+  simulationDuration: 45
   timerText: {fileID: 628840103}
   leftPetForceValue: 1
   rightPetForceValue: 1
@@ -90086,7 +90086,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cff9d5f35310c604c83edf23a46244b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panelToActivate: {fileID: 1737896934}
+  panelToActivate: {fileID: 669577084}
   panelsToActivate: []
   panelsToDeactivate:
   - {fileID: 1736329569}
@@ -115566,7 +115566,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1065447145
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128698,7 +128698,7 @@ MonoBehaviour:
   passText: {fileID: 1874576119}
   failText: {fileID: 1344857716}
   simulationDuration: 15
-  quizQuestionTime: 20
+  quizQuestionTime: 40
   quizManager: {fileID: 1173353538}
   passingScore: 70
   stoveKnob: {fileID: 1792709050}
@@ -129110,7 +129110,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1176019161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -150884,7 +150884,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1392020286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159460,6 +159460,8 @@ MonoBehaviour:
   unlockResultText: {fileID: 299519808}
   unlockResultHeaderText: {fileID: 1835886132}
   unlockResultCloseButton: {fileID: 231465716}
+  unlockSuccess: {fileID: 8300000, guid: 04e396e4485ff314084228903b3a9979, type: 3}
+  unlockFail: {fileID: 8300000, guid: da5d79b858b6fcd43a893b69a5b84535, type: 3}
   lessonButtons:
   - {fileID: 532495923}
   - {fileID: 833854311}
@@ -160916,7 +160918,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1491713079
 RectTransform:
   m_ObjectHideFlags: 0
@@ -162450,7 +162452,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1508444851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -190640,7 +190642,7 @@ MonoBehaviour:
   panelToActivate: {fileID: 817140163}
   panelsToActivate: []
   panelsToDeactivate:
-  - {fileID: 81180073}
+  - {fileID: 669577084}
   notificationManager: {fileID: 0}
 --- !u!114 &1773869392
 MonoBehaviour:
@@ -205614,7 +205616,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1910774002
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -44,6 +44,7 @@ public class MainSceneUI : MonoBehaviour
     private void OnDisable()
     {
         DatabaseManager.OnUserDataChanged -= UpdateUI;
+        UpdateUI();
     }
 
     public void UpdateUI()

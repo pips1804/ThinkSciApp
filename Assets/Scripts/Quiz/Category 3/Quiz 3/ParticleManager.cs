@@ -309,8 +309,6 @@ public class ParticleManager : MonoBehaviour
                 // Change color when time is running out
                 if (currentQuestionTimeLeft <= 10f)
                     quizTimerText.color = Color.red;
-                else
-                    quizTimerText.color = Color.white; // Reset color
             }
 
             currentQuestionTimeLeft -= Time.deltaTime;

@@ -17,6 +17,8 @@ public class LessonLocker : MonoBehaviour
     public Text unlockResultText;
     public Text unlockResultHeaderText;
     public Button unlockResultCloseButton;
+    public AudioClip unlockSuccess;
+    public AudioClip unlockFail;
 
 
     // Manually assign each lesson button by Lesson ID in the inspector
@@ -133,12 +135,16 @@ public class LessonLocker : MonoBehaviour
             return; // stop here, don’t show modal
         }
 
-        int? requiredItemId = dbManager.GetRequiredCollectibleForLesson(lessonId);
-        string itemName = requiredItemId.HasValue ? dbManager.GetItemName(requiredItemId.Value) : "None";
+        // 🔹 Get all required collectibles for this lesson
+        List<int> requiredItemIds = dbManager.GetRequiredCollectiblesForLesson(lessonId);
+
+        string itemNames = requiredItemIds.Count > 0
+            ? string.Join(", ", requiredItemIds.ConvertAll(id => dbManager.GetItemName(id)))
+            : "None";
 
         // Show confirmation modal only if locked
-        unlockConfirmText.text = requiredItemId.HasValue
-            ? $"Unlock Lesson {lessonId}? Requires {itemName}."
+        unlockConfirmText.text = requiredItemIds.Count > 0
+            ? $"Unlock Lesson {lessonId}? Requires {itemNames}."
             : $"Unlock Lesson {lessonId}?";
 
         unlockConfirmPanel.SetActive(true);
@@ -148,25 +154,27 @@ public class LessonLocker : MonoBehaviour
         {
             unlockConfirmPanel.SetActive(false);
 
-            bool hasCollectible = requiredItemId == null || dbManager.HasCollectible(currentUserId, requiredItemId.Value);
+            // 🔹 Check if the user owns ALL required items
+            bool hasAllCollectibles = requiredItemIds.TrueForAll(itemId =>
+                dbManager.HasCollectible(currentUserId, itemId));
 
-            if (hasCollectible)
+            if (hasAllCollectibles)
             {
                 dbManager.UnlockLessonForUser(currentUserId, lessonId); // update table
                 unlockResultHeaderText.text = $"Success!";
                 unlockResultText.text = $"Lesson {lessonId} unlocked!";
-
+                AudioManager.Instance.PlaySFX(unlockSuccess);
                 RefreshLessonLocks();
+
             }
             else
             {
                 unlockResultHeaderText.text = $"Failed!";
-                unlockResultText.text = $"Cannot unlock. You need {itemName}.";
+                unlockResultText.text = $"Cannot unlock. You need: {itemNames}.";
+                AudioManager.Instance.PlaySFX(unlockFail);
             }
 
             unlockResultPanel.SetActive(true);
         });
     }
-
-
 }

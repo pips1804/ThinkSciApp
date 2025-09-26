@@ -45,6 +45,8 @@ public class PanelSwitcher : MonoBehaviour
         {
             notificationManager.UpdateAllNotifications();
         }
+
+        // MainSceneUI.Instance.UpdateUI();
     }
 
     private void HandleOrientation(GameObject panel)

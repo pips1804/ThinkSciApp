@@ -1231,7 +1231,7 @@ public class HeatTheMetal : MonoBehaviour
         float overallPercentage = CalculateOverallPercentage();
         Debug.Log($"Game completed! Overall percentage: {overallPercentage}%");
 
-        if (overallPercentage >= PASSING_PERCENTAGE)
+        if (totalCorrectAnswers >= 10)
         {
             dbManager.AddUserItem(userID, rewardItemID);
             dbManager.MarkLessonAsCompleted(userID, 9);
@@ -1362,7 +1362,6 @@ public class HeatTheMetal : MonoBehaviour
 
             passedModal.SetActive(true);
             AudioManager.Instance.PlaySFX(passed);
-            passedModal.transform.SetAsLastSibling();
             Debug.Log("Passed modal activated");
         }
     }
@@ -1380,7 +1379,6 @@ public class HeatTheMetal : MonoBehaviour
 
             failedModal.SetActive(true);
             AudioManager.Instance.PlaySFX(failed);
-            failedModal.transform.SetAsLastSibling();
             Debug.Log("Failed modal activated");
         }
     }
