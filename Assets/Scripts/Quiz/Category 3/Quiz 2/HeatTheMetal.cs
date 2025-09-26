@@ -63,6 +63,8 @@ public class HeatTheMetal : MonoBehaviour
     [Header("Scenario 1 Elements")]
     public GameObject heatTheMetalPanel;
     public Image heatEffect;
+    public Image heatEffectLeft;   // Fill type: Horizontal, Fill Origin: Right
+    public Image heatEffectRight;  // Fill type: Horizontal, Fill Origin: Left
     public float heatingTime = 2f;
 
     [Header("Scenario 2 Elements")]
@@ -160,6 +162,7 @@ public class HeatTheMetal : MonoBehaviour
 
     void Start()
     {
+        InitializeHeatEffect();
         LoadQuestions();
         StoreOriginalButtonColors();
         StoreOriginalPositions(); // NEW: Store initial positions
@@ -174,6 +177,81 @@ public class HeatTheMetal : MonoBehaviour
             quizProgressSlider.minValue = 0;
             quizProgressSlider.maxValue = 15; // total questions (5 each scenario)
             quizProgressSlider.value = 0;
+        }
+    }
+
+    void OnEnable()
+    {
+        // Only trigger restart if the game has been played before
+        if (originalPositionsStored && totalQuestionsInGame > 0)
+        {
+            Debug.Log("GameObject reactivated - restarting from dialogue");
+            RestartFromDialogue();
+        }
+    }
+
+    void RestartFromDialogue()
+    {
+        Debug.Log("Restarting game from dialogue - full reset");
+
+        // Reset all questions
+        LoadQuestions();
+
+        // Hide all modals
+        if (passedModal != null) passedModal.SetActive(false);
+        if (failedModal != null) failedModal.SetActive(false);
+
+        // Reset progress slider
+        if (quizProgressSlider != null)
+        {
+            quizProgressSlider.minValue = 0;
+            quizProgressSlider.maxValue = 15; // total questions (5 each scenario)
+            quizProgressSlider.value = 0;
+        }
+
+        // Stop all coroutines
+        StopAllCoroutines();
+
+        // Reset draggable items to original positions
+        ResetDraggableItems();
+
+        // Reset all game state variables
+        ResetAllGameState();
+
+        // Start from the very beginning with dialogue
+        ShowIntro();
+        StartGame();
+    }
+
+    void InitializeHeatEffect()
+    {
+        // Initialize the new heat effect images
+        if (heatEffectLeft != null)
+        {
+            heatEffectLeft.type = Image.Type.Filled;
+            heatEffectLeft.fillMethod = Image.FillMethod.Horizontal;
+            heatEffectLeft.fillOrigin = 1; // Right (1) - fills from right to left
+            heatEffectLeft.fillAmount = 0f;
+
+            // Set initial color (you can adjust these values)
+            heatEffectLeft.color = new Color(1f, 0.3f, 0f, 0.8f); // Orange-red color
+        }
+
+        if (heatEffectRight != null)
+        {
+            heatEffectRight.type = Image.Type.Filled;
+            heatEffectRight.fillMethod = Image.FillMethod.Horizontal;
+            heatEffectRight.fillOrigin = 0; // Left (0) - fills from left to right
+            heatEffectRight.fillAmount = 0f;
+
+            // Set initial color (you can adjust these values)
+            heatEffectRight.color = new Color(1f, 0.3f, 0f, 0.8f); // Orange-red color
+        }
+
+        // Hide or disable the old heat effect if you're not using it
+        if (heatEffect != null)
+        {
+            heatEffect.color = new Color(heatEffect.color.r, heatEffect.color.g, heatEffect.color.b, 0);
         }
     }
 
@@ -213,6 +291,27 @@ public class HeatTheMetal : MonoBehaviour
         {
             dragHeaterScript.ResetHeater(originalHeaterPosition);
             Debug.Log($"Reset heater to position: {originalHeaterPosition}");
+        }
+    }
+
+    void ResetHeatEffect()
+    {
+        heatProgress = 0f;
+
+        if (heatEffectLeft != null)
+        {
+            heatEffectLeft.fillAmount = 0f;
+        }
+
+        if (heatEffectRight != null)
+        {
+            heatEffectRight.fillAmount = 0f;
+        }
+
+        // Reset the old heat effect too
+        if (heatEffect != null)
+        {
+            heatEffect.color = new Color(heatEffect.color.r, heatEffect.color.g, heatEffect.color.b, 0);
         }
     }
 
@@ -258,7 +357,7 @@ public class HeatTheMetal : MonoBehaviour
 
         // Reset scenario 1 state
         isHeating = false;
-        heatProgress = 0f;
+        ResetHeatEffect();
 
         // Reset scenario 2 state
         inScenario2 = false;
@@ -319,8 +418,8 @@ public class HeatTheMetal : MonoBehaviour
         if (coolAirArrows != null) coolAirArrows.SetActive(false);
         if (solarPanelPanel != null) solarPanelPanel.SetActive(false);
 
-        if (heatEffect != null)
-            heatEffect.color = new Color(heatEffect.color.r, heatEffect.color.g, heatEffect.color.b, 0);
+        // Use the new reset method
+        ResetHeatEffect();
     }
 
     void InitializeModals()
@@ -402,15 +501,15 @@ public class HeatTheMetal : MonoBehaviour
     }
 
     // NEW: OnEnable method to handle game object reactivation
-    void OnEnable()
-    {
-        // Only trigger retake if the game has been played before
-        if (originalPositionsStored && totalQuestionsInGame > 0)
-        {
-            Debug.Log("GameObject reactivated - triggering quiz retake");
-            RetakeEntireQuiz();
-        }
-    }
+    // void OnEnable()
+    // {
+    //     // Only trigger retake if the game has been played before
+    //     if (originalPositionsStored && totalQuestionsInGame > 0)
+    //     {
+    //         Debug.Log("GameObject reactivated - triggering quiz retake");
+    //         RetakeEntireQuiz();
+    //     }
+    // }
 
     IEnumerator WaitForDialogueThen(System.Action onFinish)
     {
@@ -431,12 +530,12 @@ public class HeatTheMetal : MonoBehaviour
         if (!inScenario2 && isHeating)
         {
             heatProgress += Time.deltaTime;
-            if (heatEffect != null)
-            {
-                Color c = heatEffect.color;
-                c.a = Mathf.Clamp01(heatProgress / heatingTime);
-                heatEffect.color = c;
-            }
+
+            // Calculate fill amount (0 to 1)
+            float fillAmount = Mathf.Clamp01(heatProgress / heatingTime);
+
+            // Apply the fill amount to both images
+            UpdateHeatEffect(fillAmount);
 
             if (heatProgress >= heatingTime)
             {
@@ -448,6 +547,52 @@ public class HeatTheMetal : MonoBehaviour
         if (scenario3Active && !scenario3Completed)
         {
             HandleScenario3();
+        }
+    }
+
+    void UpdateHeatEffect(float fillAmount)
+    {
+        // Update both heat effect images
+        if (heatEffectLeft != null)
+        {
+            heatEffectLeft.fillAmount = fillAmount;
+        }
+
+        if (heatEffectRight != null)
+        {
+            heatEffectRight.fillAmount = fillAmount;
+        }
+
+        // No color changes - keep it solid red
+        // The color was set in InitializeHeatEffect() and stays constant
+    }
+    void UpdateHeatColor(float intensity)
+    {
+        // Create a color that gets more intense as heating progresses
+        // Start with orange, move to red, then to bright yellow-white
+        Color heatColor;
+
+        if (intensity < 0.5f)
+        {
+            // Orange to red
+            float t = intensity * 2f; // Map 0-0.5 to 0-1
+            heatColor = Color.Lerp(new Color(1f, 0.5f, 0f, 0.8f), new Color(1f, 0f, 0f, 0.9f), t);
+        }
+        else
+        {
+            // Red to bright yellow-white
+            float t = (intensity - 0.5f) * 2f; // Map 0.5-1 to 0-1
+            heatColor = Color.Lerp(new Color(1f, 0f, 0f, 0.9f), new Color(1f, 1f, 0.8f, 1f), t);
+        }
+
+        if (heatEffectLeft != null)
+        {
+            heatEffectLeft.color = heatColor;
+        }
+
+        if (heatEffectRight != null)
+        {
+            heatEffectRight.color = heatColor;
         }
     }
 

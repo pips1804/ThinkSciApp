@@ -90,7 +90,6 @@ public class ParticleManager : MonoBehaviour
     public AudioClip passed;
     public AudioClip failed;
     public AudioClip heatingLoop;
-    private AudioSource heatingSource;
     public DatabaseManager dbManager;
     public LessonLocker lessonHandler;
     public CategoryLocker categoryHandler;
@@ -100,12 +99,83 @@ public class ParticleManager : MonoBehaviour
     void Start()
     {
         InitializeGame();
+    }
 
-        heatingSource = gameObject.AddComponent<AudioSource>();
-        heatingSource.volume = .5f;
-        heatingSource.loop = true;
-        heatingSource.playOnAwake = false;
-        heatingSource.clip = heatingLoop;
+    // ADD THIS METHOD - This will be called when the GameObject is enabled
+    void OnEnable()
+    {
+        // Reset the first time flag so intro message shows again
+        isFirstTime = true;
+
+        // If we're re-enabling, restart the entire game
+        if (initialized)
+        {
+            ResetGameCompletely();
+        }
+    }
+
+    // ADD THIS METHOD - Complete reset when re-enabling
+    void ResetGameCompletely()
+    {
+        // Stop all coroutines
+        StopAllCoroutines();
+
+        // Stop heating sound
+        StopHeatingSound();
+
+        // Hide all UI elements
+        if (passModal != null) passModal.SetActive(false);
+        if (failModal != null) failModal.SetActive(false);
+        if (quizPanel != null) quizPanel.SetActive(false);
+        if (scorePanel != null) scorePanel.SetActive(false);
+        if (potBackground != null) potBackground.SetActive(false);
+        if (controllerBackground != null) controllerBackground.SetActive(false);
+
+        // Clear existing particles
+        if (particles != null)
+        {
+            for (int i = 0; i < particles.Length; i++)
+            {
+                if (particles[i] != null)
+                    DestroyImmediate(particles[i].gameObject);
+            }
+        }
+
+        // Reset knob position
+        if (stoveKnob != null)
+        {
+            stoveKnob.ResetToDefaults();
+        }
+
+        // Reset all variables to initial state
+        particles = null;
+        particleImages = null;
+        gridPositions = null;
+        initialized = false;
+        isHot = false;
+        currentScore = 0;
+        totalQuestions = 0;
+        currentSpeed = coldSpeed;
+
+        // Reset quiz manager if it exists
+        if (quizManager != null)
+        {
+            // Add a reset method to your QuizManager if you haven't already
+            quizManager.ResetQuiz();
+        }
+
+        // Hide flames
+        if (flameImages != null)
+        {
+            foreach (var flame in flameImages)
+            {
+                var c = flame.color;
+                flame.color = new Color(c.r, c.g, c.b, 0f);
+            }
+        }
+
+        // Reinitialize the game
+        InitializeGame();
     }
 
     void InitializeGame()
@@ -131,7 +201,7 @@ public class ParticleManager : MonoBehaviour
             restartButton.onClick.AddListener(RestartGame);
         }
 
-        // Show intro message only on first time
+        // Show intro message
         if (isFirstTime)
         {
             messagePanel.SetActive(true);
@@ -147,10 +217,13 @@ public class ParticleManager : MonoBehaviour
         }
 
         // Hide flames at start
-        foreach (var flame in flameImages)
+        if (flameImages != null)
         {
-            var c = flame.color;
-            flame.color = new Color(c.r, c.g, c.b, 0f);
+            foreach (var flame in flameImages)
+            {
+                var c = flame.color;
+                flame.color = new Color(c.r, c.g, c.b, 0f);
+            }
         }
     }
 
@@ -191,6 +264,9 @@ public class ParticleManager : MonoBehaviour
             timeLeft -= Time.deltaTime;
             yield return null;
         }
+
+        // Stop heating sound when simulation ends
+        StopHeatingSound();
 
         // After duration → hide backgrounds, show dialogue
         if (simulationTimerText != null) simulationTimerText.gameObject.SetActive(false);
@@ -233,6 +309,8 @@ public class ParticleManager : MonoBehaviour
                 // Change color when time is running out
                 if (currentQuestionTimeLeft <= 10f)
                     quizTimerText.color = Color.red;
+                else
+                    quizTimerText.color = Color.white; // Reset color
             }
 
             currentQuestionTimeLeft -= Time.deltaTime;
@@ -351,8 +429,6 @@ public class ParticleManager : MonoBehaviour
         StartQuestionTimer();
     }
 
-
-
     public void OnQuizCompleted()
     {
         // Stop any running timers
@@ -396,7 +472,7 @@ public class ParticleManager : MonoBehaviour
         }
         else
         {
-            dbManager.AddCoin(userID, 100);
+            dbManager.AddCoin(userID, 50);
             ShowFailModal(scorePercentage);
             AudioManager.Instance.PlaySFX(failed);
         }
@@ -433,6 +509,9 @@ public class ParticleManager : MonoBehaviour
     {
         // Stop all coroutines
         StopAllCoroutines();
+
+        // Stop heating sound on restart
+        StopHeatingSound();
 
         // Hide modals
         passModal.SetActive(false);
@@ -575,14 +654,18 @@ public class ParticleManager : MonoBehaviour
 
     private void PlayHeatingSound()
     {
-        if (heatingSource != null && !heatingSource.isPlaying && heatingLoop != null)
-            heatingSource.Play();
+        if (heatingLoop != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayLoopingSFX(heatingLoop);
+        }
     }
 
     private void StopHeatingSound()
     {
-        if (heatingSource != null && heatingSource.isPlaying)
-            heatingSource.Stop();
+        if (heatingLoop != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopLoopingSFX(heatingLoop);
+        }
     }
 
     public void CoolDown()

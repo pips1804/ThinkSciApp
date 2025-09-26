@@ -9,6 +9,9 @@ public class AudioManager : MonoBehaviour
     public AudioSource bgmSource;
     public AudioSource sfxSource;
 
+    // Separate AudioSource for looping SFX (so it won’t conflict with one-shots)
+    private AudioSource loopingSfxSource;
+
     // List of all sliders in the scene
     public List<Slider> bgmSliders = new List<Slider>();
     public List<Slider> sfxSliders = new List<Slider>();
@@ -19,6 +22,10 @@ public class AudioManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // Create extra source for looping SFX
+            loopingSfxSource = gameObject.AddComponent<AudioSource>();
+            loopingSfxSource.loop = true;
         }
         else
         {
@@ -62,6 +69,7 @@ public class AudioManager : MonoBehaviour
     public void SetSFXVolume(float volume)
     {
         sfxSource.volume = volume;
+        loopingSfxSource.volume = volume; // Sync looping SFX volume
         PlayerPrefs.SetFloat("SFXVolume", volume);
 
         foreach (Slider s in sfxSliders)
@@ -75,10 +83,27 @@ public class AudioManager : MonoBehaviour
 
         bgmSource.volume = bgmVolume;
         sfxSource.volume = sfxVolume;
+        loopingSfxSource.volume = sfxVolume;
     }
 
     public void PlaySFX(AudioClip clip)
     {
         sfxSource.PlayOneShot(clip);
+    }
+
+    public void PlayLoopingSFX(AudioClip clip)
+    {
+        if (loopingSfxSource.clip == clip && loopingSfxSource.isPlaying) return; // already playing
+        loopingSfxSource.clip = clip;
+        loopingSfxSource.Play();
+    }
+
+    public void StopLoopingSFX(AudioClip clip)
+    {
+        if (loopingSfxSource.clip == clip && loopingSfxSource.isPlaying)
+        {
+            loopingSfxSource.Stop();
+            loopingSfxSource.clip = null;
+        }
     }
 }

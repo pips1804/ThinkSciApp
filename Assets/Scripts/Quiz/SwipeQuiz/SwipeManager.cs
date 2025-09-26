@@ -14,6 +14,10 @@ public class SwipeManager : MonoBehaviour
         public string explanationText;
     }
 
+    [Header("Dialogue System")]
+    public Dialogues dialogueSystem; // Reference to the Dialogues component
+    private bool isRetaking = false; // Flag to track if this is a retake
+
     [Header("Question Display")]
     public List<SwipeQuestion> questions;
     public Image mainBackgroundImage; // The main background image (blank)
@@ -70,15 +74,6 @@ public class SwipeManager : MonoBehaviour
     public string passingMessage;
     public string failingMessage;
 
-    // public Text passingHeader;
-    // public Text passingScore;
-    // public Text passingNote;
-
-    // public Text failingHeader;
-    // public Text failingScore;
-    // public Text failingNote;
-
-    // public Button retryButton;
     public BattleAnimationManager battleAnim;
     private bool isPlayer;
 
@@ -150,21 +145,30 @@ public class SwipeManager : MonoBehaviour
         enemyStartPos = enemyIcon.anchoredPosition;
         originalScale = timerText.transform.localScale;
 
-        questions = dbManager.GetRandomSwipeQuestions(quizId, 15);
+        // Only store sprites if we haven't stored them yet
+        if (originalEnemySprite == null && enemyImage != null)
+            originalEnemySprite = enemyImage.sprite;
+        if (originalPlayerSprite == null && playerImage != null)
+            originalPlayerSprite = playerImage.sprite;
 
-        if (progressBar != null)
-        {
-            progressBar.minValue = 0;
-            progressBar.maxValue = questions.Count;
-            progressBar.value = 0;
-        }
-
-        DisplayQuestion();
-        UpdateScoreText();
+        // Initialize quiz data but don't start yet
+        InitializeQuizData();
     }
 
     void Update()
     {
+        // Only update game logic if dialogue is finished or this is a retake
+        if ((dialogueSystem != null && !dialogueSystem.dialogueFinished && !isRetaking) || !canAnswer)
+        {
+            return;
+        }
+
+        // Check if dialogue just finished and we need to start the quiz
+        if (dialogueSystem != null && dialogueSystem.dialogueFinished && currentQuestionIndex == 0 && !isTimerRunning)
+        {
+            StartQuiz();
+        }
+
         if (isTimerRunning && !isTimeFreezeActive)
         {
             timer -= Time.deltaTime;
@@ -225,11 +229,83 @@ public class SwipeManager : MonoBehaviour
         if (originalPlayerSprite == null && playerImage != null)
             originalPlayerSprite = playerImage.sprite;
 
-        RestartQuiz();
+        // Check if this is first time or retaking
+        if (isRetaking)
+        {
+            // Skip dialogue and go straight to quiz
+            RestartQuizDirectly();
+        }
+        else
+        {
+            // First time - start with dialogue
+            StartWithDialogue();
+        }
+    }
+
+    private void InitializeQuizData()
+    {
+        questions = dbManager.GetRandomSwipeQuestions(quizId, 15);
+
+        if (progressBar != null)
+        {
+            progressBar.minValue = 0;
+            progressBar.maxValue = questions.Count;
+            progressBar.value = 0;
+        }
+
+        UpdateScoreText();
+    }
+
+    private void StartWithDialogue()
+    {
+        // Hide quiz UI elements during dialogue
+        // HideQuizUI();
+
+        // Start dialogue with id 0 (you can make this configurable)
+        if (dialogueSystem != null)
+        {
+            dialogueSystem.StartDialogue(0);
+        }
+        else
+        {
+            // Fallback: start quiz immediately if no dialogue system
+            StartQuiz();
+        }
+    }
+
+    private void StartQuiz()
+    {
+        // Show quiz UI elements
+        ShowQuizUI();
+
+        // Display first question and start timer
+        DisplayQuestion();
+    }
+
+    private void HideQuizUI()
+    {
+        if (timerContainer != null) timerContainer.SetActive(false);
+        if (scoreContainer != null) scoreContainer.SetActive(false);
+        if (questionText != null) questionText.gameObject.SetActive(false);
+        // Hide any other quiz-specific UI elements here
+    }
+
+    private void ShowQuizUI()
+    {
+        if (timerContainer != null) timerContainer.SetActive(true);
+        if (scoreContainer != null) scoreContainer.SetActive(true);
+        if (questionText != null) questionText.gameObject.SetActive(true);
+        // Show any other quiz-specific UI elements here
     }
 
     public void HandleAnswer(string swipeDirection)
     {
+        // Only allow answers if dialogue is finished (or we're retaking)
+        if (dialogueSystem != null && !dialogueSystem.dialogueFinished && !isRetaking)
+        {
+            return;
+        }
+
         int baseDamage = 10;
         isTimerRunning = false;
         var question = questions[currentQuestionIndex];
@@ -527,8 +603,6 @@ public class SwipeManager : MonoBehaviour
             // Player Passed
             dbManager.AddUserItem(userId, rewardItemID);
             dbManager.MarkLessonAsCompleted(userId, quizId);
-            // dbManager.CheckAndUnlockAllLessons(userId);
-            // lessonHandler.RefreshLessonLocks();
             dbManager.AddCoin(userId, 100);
 
             if (AudioManager.Instance != null)
@@ -577,26 +651,18 @@ public class SwipeManager : MonoBehaviour
         if (score >= 9)
         {
             goldEarned = 100;
-            // scoreMsg = $"Amazing! You aced the quiz with {score} points!";
-            // goldMsg = $"You've earned {goldEarned} gold!";
         }
         else if (score >= 7)
         {
             goldEarned = 80;
-            // scoreMsg = $"Great job! You scored {score} points.";
-            // goldMsg = $"You've earned {goldEarned} gold!";
         }
         else if (score >= 5)
         {
             goldEarned = 60;
-            // scoreMsg = $"Not bad! You got {score} points.";
-            // goldMsg = $"You�ve earned {goldEarned} gold!";
         }
         else
         {
             goldEarned = 40;
-            // scoreMsg = $"Keep trying! You scored {score} points.";
-            // goldMsg = $"You earned {goldEarned} gold!";
         }
 
         earnedGold = goldEarned;
@@ -1046,6 +1112,13 @@ public class SwipeManager : MonoBehaviour
 
     public void RestartQuiz()
     {
+        // Set as retaking for next time
+        isRetaking = true;
+        RestartQuizDirectly();
+    }
+
+    private void RestartQuizDirectly()
+    {
         questions = dbManager.GetRandomSwipeQuestions(quizId, 15);
         currentQuestionIndex = 0;
         score = 0;
@@ -1097,11 +1170,10 @@ public class SwipeManager : MonoBehaviour
         battleManager.ResetBattle();
         battleAnim.StartCoroutine(battleAnim.GraduallyRestoreColor(3));
 
-        questions = dbManager.GetRandomSwipeQuestions(quizId, 15);
-
         if (questionText != null)
             questionText.enabled = true;
 
-        DisplayQuestion();
+        // Start quiz immediately (skip dialogue for retakes)
+        StartQuiz();
     }
 }

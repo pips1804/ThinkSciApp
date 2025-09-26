@@ -37,6 +37,8 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
     [SerializeField] private Text scoreText;
     [SerializeField] private Text timerText;
     [SerializeField] private Text boxPositionText;
+    [SerializeField] private Text playerForceText;    // NEW: Display player force
+    [SerializeField] private Text enemyForceText;     // NEW: Display enemy force
     [SerializeField] private Slider progressSlider;
 
     [Header("Visual Game Elements")]
@@ -64,7 +66,9 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
 
     // Game State
     private int currentQuestionIndex = 0;
-    private int boxPosition = 0; // Positive = player side, Negative = enemy side
+    private int playerForce = 0;      // Player's accumulated force
+    private int enemyForce = 0;       // Enemy's accumulated force
+    private int boxPosition = 0;      // Visual position based on stronger force
     private int correctAnswers = 0;
     private int wrongAnswers = 0;
     private int totalQuestionsAnswered = 0; // Track total questions answered
@@ -185,7 +189,9 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
         LoadQuestionsFromDatabase();
 
         currentQuestionIndex = 0;
-        boxPosition = 0;
+        playerForce = 0;           // Reset player force
+        enemyForce = 0;            // Reset enemy force
+        boxPosition = 0;           // Reset box position
         correctAnswers = 0;
         wrongAnswers = 0;
         totalQuestionsAnswered = 0;
@@ -296,36 +302,61 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
             StartCoroutine(ShowAnswerFeedback(selectedIndex, currentQuestion.correctAnswerIndex, isCorrect));
         }
 
-        // Update game state
+        // NEW FORCE SYSTEM: Separate player and enemy forces
         if (isCorrect)
         {
             correctAnswers++;
-            boxPosition++;
+            playerForce += 1;  // +1 to player force
             AudioManager.Instance.PlaySFX(correct);
         }
         else
         {
             wrongAnswers++;
-            boxPosition--;
+            enemyForce += 2;   // +2 to enemy force (bigger penalty!)
             AudioManager.Instance.PlaySFX(wrong);
         }
+
+        // UPDATE BOX POSITION: Show whoever has stronger force
+        UpdateBoxPositionBasedOnForces();
 
         // Animate box movement
         StartCoroutine(AnimateBoxMovement());
 
-        // Check for immediate win/loss
-        if (boxPosition >= finishLineDistance)
+        // CHECK FOR IMMEDIATE WIN/LOSS - First force to reach 10 wins!
+        if (playerForce >= finishLineDistance)
         {
+            // Player force reached 10 first - INSTANT VICTORY!
             StartCoroutine(DelayedVictory());
             return;
         }
-        else if (boxPosition <= -finishLineDistance)
+        else if (enemyForce >= finishLineDistance)
         {
+            // Enemy force reached 10 first - INSTANT DEFEAT!
             StartCoroutine(DelayedDefeat());
             return;
         }
 
         UpdateUI();
+    }
+
+    private void UpdateBoxPositionBasedOnForces()
+    {
+        // Box position shows whoever has the stronger force
+        if (playerForce > enemyForce)
+        {
+            // Player has stronger force - box on player side
+            boxPosition = playerForce;
+        }
+        else if (enemyForce > playerForce)
+        {
+            // Enemy has stronger force - box on enemy side
+            boxPosition = -enemyForce;
+        }
+        else
+        {
+            // Equal forces - box at center
+            boxPosition = 0;
+        }
     }
 
     // FIXED: New method to handle timeout feedback
@@ -457,13 +488,35 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
             scoreText.text = $"{correctAnswers}";
         }
 
-        // Update box position display
+        // Update player force display
+        if (playerForceText != null)
+        {
+            playerForceText.text = $"Player Force: {playerForce}";
+        }
+
+        // Update enemy force display
+        if (enemyForceText != null)
+        {
+            enemyForceText.text = $"Enemy Force: {enemyForce}";
+        }
+
+        // Update box position display (optional - shows who's leading)
         if (boxPositionText != null)
         {
-            string positionDescription = boxPosition == 0 ? "Center" :
-                                       boxPosition > 0 ? $"Player +{boxPosition}" :
-                                       $"Enemy {boxPosition}";
-            boxPositionText.text = $"Box Position: {positionDescription}";
+            string positionDescription;
+            if (boxPosition > 0)
+            {
+                positionDescription = $"Player Leading: {playerForce} vs {enemyForce}";
+            }
+            else if (boxPosition < 0)
+            {
+                positionDescription = $"Enemy Leading: {enemyForce} vs {playerForce}";
+            }
+            else
+            {
+                positionDescription = $"Tied: {playerForce} vs {enemyForce}";
+            }
+            boxPositionText.text = positionDescription;
         }
     }
 
@@ -472,12 +525,68 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
         gameEnded = true;
         isAnswering = false;
 
-        // Calculate percentage based on questions answered vs correct answers
+        // Calculate final percentage for display purposes
         float overallPercentage = totalQuestionsAnswered > 0 ?
             (float)correctAnswers / totalQuestionsAnswered * 100f : 0f;
 
-        // Determine pass/fail based on percentage
-        if (overallPercentage >= passPercentage)
+        // Determine winner based on final box position
+        if (boxPosition > 0)
+        {
+            // Box is on player side - Player wins
+            Victory(overallPercentage);
+        }
+        else if (boxPosition < 0)
+        {
+            // Box is on enemy side - Player loses
+            Defeat(overallPercentage);
+        }
+        else
+        {
+            // Rare case: Box is exactly at center - it's a draw
+            Draw();
+        }
+    }
+
+    private IEnumerator AnimateToFinishLine(bool playerPassed, float overallPercentage)
+    {
+        // This method is no longer needed since we have immediate wins
+        // But keeping it in case you want to use it for other purposes
+
+        // Set final box position to finish line
+        int finalPosition = playerPassed ? finishLineDistance : -finishLineDistance;
+        boxPosition = finalPosition;
+
+        // Dramatic animation to finish line
+        if (boxImage != null)
+        {
+            Vector2 startPos = boxImage.anchoredPosition;
+            float targetX = CalculateBoxPosition();
+            Vector2 targetPos = new Vector2(targetX, startPos.y);
+
+            float elapsedTime = 0f;
+            float animationDuration = 1.5f; // Longer for dramatic effect
+
+            // Play dramatic movement sound
+            AudioManager.Instance.PlaySFX(movingBox);
+
+            while (elapsedTime < animationDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float progress = elapsedTime / animationDuration;
+                float curveValue = boxMoveCurve.Evaluate(progress);
+
+                boxImage.anchoredPosition = Vector2.Lerp(startPos, targetPos, curveValue);
+                yield return null;
+            }
+
+            boxImage.anchoredPosition = targetPos;
+        }
+
+        // Brief pause before showing results
+        yield return new WaitForSeconds(0.5f);
+
+        // Show victory or defeat based on pass/fail
+        if (playerPassed)
         {
             Victory(overallPercentage);
         }
@@ -608,7 +717,9 @@ public class FreeBodyDiagramQuiz : MonoBehaviour
     {
         LoadQuestionsFromDatabase();
         currentQuestionIndex = 0;
-        boxPosition = 0;
+        playerForce = 0;           // Reset player force
+        enemyForce = 0;            // Reset enemy force
+        boxPosition = 0;           // Reset box position
         correctAnswers = 0;
         wrongAnswers = 0;
         totalQuestionsAnswered = 0;

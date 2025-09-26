@@ -297,6 +297,7 @@ public class CauseAndEffectQuiz : MonoBehaviour
         // Wait before moving to next question
         StartCoroutine(MoveToNextQuestion());
     }
+
     private IEnumerator ShowBonusTimeOverlay()
     {
         // Reset text state
@@ -332,6 +333,9 @@ public class CauseAndEffectQuiz : MonoBehaviour
             yield return null;
         }
 
+        // IMPORTANT: Reset position back to original after animation
+        bonusTimeText.transform.localPosition = startPos;
+        bonusTimeText.transform.localScale = Vector3.one; // Also reset scale
         bonusTimeText.gameObject.SetActive(false);
     }
 

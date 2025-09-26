@@ -57,9 +57,74 @@ public class QuizManager : MonoBehaviour
             feedbackPanel.SetActive(false);
     }
 
+    // ADD THIS METHOD - Complete reset of quiz state
+    public void ResetQuiz()
+    {
+        // Stop any running coroutines
+        StopAllCoroutines();
+
+        // Reset quiz data
+        if (dbQuestions != null)
+            dbQuestions.Clear();
+
+        currentQuestion = 0;
+        correctAnswers = 0;
+        questionAnswered = false;
+        timeExpired = false;
+
+        // Hide and reset UI elements
+        if (quizPanel != null)
+            quizPanel.SetActive(false);
+
+        if (feedbackPanel != null)
+            feedbackPanel.SetActive(false);
+
+        // Reset all answer buttons to default state
+        if (answerButtons != null)
+        {
+            foreach (Button btn in answerButtons)
+            {
+                if (btn != null)
+                {
+                    btn.interactable = true;
+                    btn.gameObject.SetActive(true);
+                }
+            }
+        }
+
+        // Reset all answer button backgrounds to default color
+        if (answerBackgrounds != null)
+        {
+            foreach (Image bg in answerBackgrounds)
+            {
+                if (bg != null)
+                    bg.color = defaultColor;
+            }
+        }
+
+        // Clear answer texts
+        if (answerTexts != null)
+        {
+            foreach (Text text in answerTexts)
+            {
+                if (text != null)
+                    text.text = "";
+            }
+        }
+
+        // Clear question text
+        if (questionText != null)
+            questionText.text = "";
+
+        // Clear feedback text
+        if (feedbackText != null)
+            feedbackText.text = "";
+
+        Debug.Log("QuizManager: Quiz has been completely reset");
+    }
+
     public void StartQuiz()
     {
-
         var fetchedQuestions = dbManager.GetRandomUnusedQuestions(quizID, questionType, numberOfQuestions);
         dbQuestions = new List<Question>();
         foreach (var mcq in fetchedQuestions)
@@ -69,7 +134,7 @@ public class QuizManager : MonoBehaviour
             q.choices = mcq.options;
             q.correctAnswerIndex = mcq.correctIndex;
             dbQuestions.Add(q);
-        }   
+        }
 
         quizPanel.SetActive(true);
         currentQuestion = 0;

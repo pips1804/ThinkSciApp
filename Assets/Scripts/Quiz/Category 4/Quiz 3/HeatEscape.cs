@@ -19,6 +19,10 @@ public class HeatEscape : MonoBehaviour
     public List<Image> optionButtonImages;
     public Slider quizProgressSlider;
 
+    [Header("Quiz Settings")]
+    public float questionTimeLimit = 40f; // seconds per question
+    private Coroutine questionTimerCoroutine;
+
     [Header("Timer and Score")]
     public Text timerText;
     public Text scoreText;
@@ -71,10 +75,35 @@ public class HeatEscape : MonoBehaviour
 
     void OnEnable()
     {
-        if (quizCompleted)
+        if (gameObject.activeInHierarchy && Application.isPlaying)
         {
-            ResetGame();
+            RestartFromDialogue();
         }
+    }
+
+    private void RestartFromDialogue()
+    {
+        StopAllCoroutines(); // make sure nothing else is running
+        currentQuestionIndex = 0;
+        currentScore = 0;
+        quizCompleted = false;
+
+        totalCorrectAnswers = 0;
+        totalQuestionsAnswered = 0;
+
+        HousePanel.SetActive(false);
+        ButtonsPanel.SetActive(false);
+        quizPanel.SetActive(false);
+        passedModal.SetActive(false);
+        failedModal.SetActive(false);
+
+        if (timerText != null) timerText.gameObject.SetActive(false);
+        if (scoreText != null) scoreText.gameObject.SetActive(false);
+
+        insulatorImage.color = new Color(1, 1, 1, 0);
+
+        // 🔥 Restart the full flow including dialogue
+        StartCoroutine(GameFlow());
     }
 
     private void InitializeGame()
@@ -132,7 +161,7 @@ public class HeatEscape : MonoBehaviour
         if (timerText != null)
         {
             timerText.gameObject.SetActive(true);
-            timerText.text = "Timer: 30s";
+            timerText.text = "30";
         }
 
         yield return StartCoroutine(SimulationTimer());
@@ -169,6 +198,8 @@ public class HeatEscape : MonoBehaviour
         HousePanel.SetActive(false);
         ButtonsPanel.SetActive(false);
         quizPanel.SetActive(true);
+
+        if (timerText != null) timerText.gameObject.SetActive(true);
 
         if (scoreText != null)
         {
@@ -221,6 +252,37 @@ public class HeatEscape : MonoBehaviour
         }
 
         var q = dbQuestions[currentQuestionIndex];
+
+        // 🔥 Shuffle the answers but keep correct index tracked
+        // 🔥 Shuffle the answers but keep correct index tracked
+        List<(string text, int index)> temp = new List<(string, int)>();
+        for (int i = 0; i < q.choices.Length; i++) // use Length, not Count
+        {
+            temp.Add((q.choices[i], i));
+        }
+
+        // Fisher–Yates shuffle
+        for (int i = 0; i < temp.Count; i++)
+        {
+            int rand = Random.Range(i, temp.Count);
+            var t = temp[i];
+            temp[i] = temp[rand];
+            temp[rand] = t;
+        }
+
+        // Rebuild choices as array + update correct answer index
+        string[] newChoices = new string[temp.Count];
+        for (int i = 0; i < temp.Count; i++)
+        {
+            newChoices[i] = temp[i].text;
+            if (temp[i].index == q.correctAnswerIndex)
+            {
+                q.correctAnswerIndex = i; // ✅ update new correct index
+            }
+        }
+        q.choices = newChoices; // replace with shuffled array
+
+        // ✅ Now display
         questionText.text = q.questionText;
 
         foreach (Button btn in optionButtons)
@@ -241,7 +303,33 @@ public class HeatEscape : MonoBehaviour
         {
             quizProgressSlider.value = currentQuestionIndex;
         }
+
+        // 🔥 Start per-question timer
+        if (questionTimerCoroutine != null) StopCoroutine(questionTimerCoroutine);
+        questionTimerCoroutine = StartCoroutine(QuestionTimer());
     }
+
+
+    private IEnumerator QuestionTimer()
+    {
+        float timeRemaining = questionTimeLimit;
+
+        while (timeRemaining > 0)
+        {
+            if (timerText != null)
+            {
+                timerText.text = $"{Mathf.Ceil(timeRemaining)}";
+            }
+
+            timeRemaining -= Time.deltaTime;
+            yield return null;
+        }
+
+        // ⏰ Time’s up → mark as wrong answer automatically
+        OnOptionSelected(-1);
+    }
+
+
 
     private void OnOptionSelected(int selectedIndex)
     {
@@ -251,15 +339,19 @@ public class HeatEscape : MonoBehaviour
     private IEnumerator HandleAnswer(int selectedIndex)
     {
         int correctIndex = dbQuestions[currentQuestionIndex].correctAnswerIndex;
-        bool isCorrect = selectedIndex == correctIndex;
+        bool isCorrect = (selectedIndex == correctIndex);
 
-        // NEW: Track total questions answered
+        // If time ran out or no option selected, treat as wrong
+        if (selectedIndex == -1)
+        {
+            isCorrect = false;
+        }
+
         totalQuestionsAnswered++;
 
         if (isCorrect)
         {
             currentScore++;
-            // NEW: Track total correct answers
             totalCorrectAnswers++;
             UpdateScoreDisplay();
         }
@@ -291,7 +383,6 @@ public class HeatEscape : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
 
         currentQuestionIndex++;
-
         if (currentQuestionIndex < dbQuestions.Count)
         {
             ShowQuestion();
@@ -301,6 +392,7 @@ public class HeatEscape : MonoBehaviour
             EndQuiz();
         }
     }
+
 
     private void UpdateScoreDisplay()
     {
