@@ -85,7 +85,15 @@ public class BadgeUIManager : MonoBehaviour
             card.transform.Find("DescriptionText").GetComponent<Text>().text = badge.Description;
 
             var slider = card.transform.Find("ProgressBar").GetComponent<Slider>();
-            slider.value = badge.IsUnlocked ? (badge.IsClaimed ? 1f : 0.5f) : 0f;
+
+            if (badge.TargetProgress > 0)
+            {
+                slider.value = (float)badge.CurrentProgress / badge.TargetProgress;
+            }
+            else
+            {
+                slider.value = 0f;
+            }
 
             // Claimable icon logic
             Transform coinIcon = card.transform.Find("ClaimableIcon");
