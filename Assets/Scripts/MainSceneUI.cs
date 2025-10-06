@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
+using System;
+using System.Collections;
 
 public class MainSceneUI : MonoBehaviour
 {
@@ -11,6 +13,7 @@ public class MainSceneUI : MonoBehaviour
     public BadgeUIManager badgeUIManager;
     public Text playerCoinCount;
     public Text playerEnergyCount;
+    public Text energyTimerText;
     public Slider healthSlider;
     public Slider damageSlider;
     public Slider bgmSlider;
@@ -28,9 +31,11 @@ public class MainSceneUI : MonoBehaviour
     public int userID = 1;
 
     private int currentEnergy; // Track energy for checks
-
+    private DateTime lastEnergyUpdate;
+    private Coroutine energyRegenCoroutine;
     void Awake()
     {
+        dbManager.UpdateUserEnergy(userID);
         AudioManager.Instance.RegisterBgmSlider(bgmSlider);
         AudioManager.Instance.RegisterSfxSlider(sfxSlider);
     }
@@ -39,6 +44,10 @@ public class MainSceneUI : MonoBehaviour
     {
         DatabaseManager.OnUserDataChanged += UpdateUI;
         UpdateUI();
+
+        if (energyRegenCoroutine != null)
+            StopCoroutine(energyRegenCoroutine);
+        energyRegenCoroutine = StartCoroutine(EnergyTimerLoop());
     }
 
     private void OnDisable()
@@ -124,5 +133,46 @@ public class MainSceneUI : MonoBehaviour
         bool hasUnclaimed = badges.Any(b => b.IsUnlocked && !b.IsClaimed);
 
         badgesNewDot.SetActive(hasUnclaimed);
+    }
+    private IEnumerator EnergyTimerLoop()
+    {
+        while (true)
+        {
+            // Get current data from DB
+            (currentEnergy, lastEnergyUpdate) = dbManager.GetUserEnergyInfo(userID);
+
+            // Update UI energy
+            if (playerEnergyCount != null)
+                playerEnergyCount.text = $"{currentEnergy}";
+
+            // Handle countdown logic
+            if (currentEnergy >= 30)
+            {
+                if (energyTimerText != null)
+                    energyTimerText.text = "Full Energy";
+            }
+            else
+            {
+                DateTime nextRefill = lastEnergyUpdate.AddHours(1);
+                TimeSpan timeUntilNext = nextRefill - DateTime.UtcNow;
+
+                // If time passed, update immediately
+                if (timeUntilNext.TotalSeconds <= 0)
+                {
+                    dbManager.UpdateUserEnergy(userID);
+                    UpdateUI();
+                }
+                else
+                {
+                    int mins = Mathf.FloorToInt((float)timeUntilNext.TotalMinutes);
+                    int secs = Mathf.FloorToInt((float)(timeUntilNext.TotalSeconds % 60));
+
+                    if (energyTimerText != null)
+                        energyTimerText.text = $"{mins:D2}m {secs:D2}s";
+                }
+            }
+
+            yield return new WaitForSeconds(1f);
+        }
     }
 }

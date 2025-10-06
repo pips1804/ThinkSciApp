@@ -494,124 +494,127 @@ public class DatabaseManager : MonoBehaviour
         return badges;
     }
 
-private void SetBadgeProgress(Badge badge, int userId)
-{
-    using (var connection = new SqliteConnection(dbPath))
+    private void SetBadgeProgress(Badge badge, int userId)
     {
-        connection.Open();
-        using (var cmd = connection.CreateCommand())
+        using (var connection = new SqliteConnection(dbPath))
         {
-            switch (badge.BadgeID)
+            connection.Open();
+            using (var cmd = connection.CreateCommand())
             {
-                case 1: // First Step
-                    cmd.Parameters.Clear();
-                    cmd.CommandText = "SELECT COUNT(*) FROM User_Lesson_Unlocks WHERE User_ID = @uid AND Is_Completed = 1";
-                    cmd.Parameters.AddWithValue("@uid", userId);
-                    int lessonsDone = SafeExecuteInt(cmd);
-                    badge.CurrentProgress = lessonsDone;
-                    badge.TargetProgress = 1;
-                    break;
+                switch (badge.BadgeID)
+                {
+                    case 1: // First Step
+                        cmd.Parameters.Clear();
+                        cmd.CommandText = "SELECT COUNT(*) FROM User_Lesson_Unlocks WHERE User_ID = @uid AND Is_Completed = 1";
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        int lessonsDone = SafeExecuteInt(cmd);
+                        badge.CurrentProgress = lessonsDone;
+                        badge.TargetProgress = 1;
+                        break;
 
-                case 2: // Lesson Explorer
-                    cmd.Parameters.Clear();
-                    cmd.CommandText = "SELECT COUNT(*) FROM User_Lesson_Unlocks WHERE User_ID = @uid AND Is_Completed = 1";
-                    cmd.Parameters.AddWithValue("@uid", userId);
-                    lessonsDone = SafeExecuteInt(cmd);
-                    badge.CurrentProgress = Mathf.Min(lessonsDone, 5);
-                    badge.TargetProgress = 5;
-                    break;
+                    case 2: // Lesson Explorer
+                        cmd.Parameters.Clear();
+                        cmd.CommandText = "SELECT COUNT(*) FROM User_Lesson_Unlocks WHERE User_ID = @uid AND Is_Completed = 1";
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        lessonsDone = SafeExecuteInt(cmd);
+                        badge.CurrentProgress = Mathf.Min(lessonsDone, 5);
+                        badge.TargetProgress = 5;
+                        break;
 
-                case 4: // All-Rounder
-                    cmd.Parameters.Clear();
-                    cmd.CommandText = @"SELECT COUNT(DISTINCT L.Category_ID)
+                    case 4: // All-Rounder
+                        cmd.Parameters.Clear();
+                        cmd.CommandText = @"SELECT COUNT(DISTINCT L.Category_ID)
                                         FROM User_Lesson_Unlocks U
                                         JOIN Lessons_Table L ON U.Lesson_ID = L.Lesson_ID
                                         WHERE U.User_ID = @uid AND U.Is_Completed = 1";
-                    cmd.Parameters.AddWithValue("@uid", userId);
-                    int categories = SafeExecuteInt(cmd);
-                    badge.CurrentProgress = categories;
-                    badge.TargetProgress = 4;
-                    break;
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        int categories = SafeExecuteInt(cmd);
+                        badge.CurrentProgress = categories;
+                        badge.TargetProgress = 4;
+                        break;
 
-                case 5: // Full Completionist
-                    cmd.Parameters.Clear();
-                    cmd.CommandText = "SELECT COUNT(*) FROM User_Lesson_Unlocks WHERE User_ID = @uid AND Is_Completed = 1";
-                    cmd.Parameters.AddWithValue("@uid", userId);
-                    lessonsDone = SafeExecuteInt(cmd);
+                    case 5: // Full Completionist
+                        cmd.Parameters.Clear();
+                        cmd.CommandText = "SELECT COUNT(*) FROM User_Lesson_Unlocks WHERE User_ID = @uid AND Is_Completed = 1";
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        lessonsDone = SafeExecuteInt(cmd);
 
-                    cmd.Parameters.Clear();
-                    cmd.CommandText = "SELECT COUNT(*) FROM Lessons_Table";
-                    int totalLessons = SafeExecuteInt(cmd);
+                        cmd.Parameters.Clear();
+                        cmd.CommandText = "SELECT COUNT(*) FROM Lessons_Table";
+                        int totalLessons = SafeExecuteInt(cmd);
 
-                    badge.CurrentProgress = lessonsDone;
-                    badge.TargetProgress = totalLessons;
-                    break;
+                        badge.CurrentProgress = lessonsDone;
+                        badge.TargetProgress = totalLessons;
+                        break;
 
-                case 9: case 10: case 11: case 12: // Category Finishers
-                    int categoryId = badge.BadgeID - 8;
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12: // Category Finishers
+                        int categoryId = badge.BadgeID - 8;
 
-                    cmd.Parameters.Clear();
-                    cmd.CommandText = "SELECT COUNT(*) FROM Lessons_Table WHERE Category_ID = @cat";
-                    cmd.Parameters.AddWithValue("@cat", categoryId);
-                    int totalCat = SafeExecuteInt(cmd);
+                        cmd.Parameters.Clear();
+                        cmd.CommandText = "SELECT COUNT(*) FROM Lessons_Table WHERE Category_ID = @cat";
+                        cmd.Parameters.AddWithValue("@cat", categoryId);
+                        int totalCat = SafeExecuteInt(cmd);
 
-                    cmd.Parameters.Clear();
-                    cmd.CommandText = @"SELECT COUNT(*)
+                        cmd.Parameters.Clear();
+                        cmd.CommandText = @"SELECT COUNT(*)
                                         FROM User_Lesson_Unlocks U
                                         JOIN Lessons_Table L ON U.Lesson_ID = L.Lesson_ID
                                         WHERE U.User_ID = @uid AND L.Category_ID = @cat AND U.Is_Completed = 1";
-                    cmd.Parameters.AddWithValue("@uid", userId);
-                    cmd.Parameters.AddWithValue("@cat", categoryId);
-                    int doneCat = SafeExecuteInt(cmd);
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        cmd.Parameters.AddWithValue("@cat", categoryId);
+                        int doneCat = SafeExecuteInt(cmd);
 
-                    badge.CurrentProgress = doneCat;
-                    badge.TargetProgress = totalCat;
-                    break;
+                        badge.CurrentProgress = doneCat;
+                        badge.TargetProgress = totalCat;
+                        break;
 
-                case 3: // Correct Machine
-                    cmd.Parameters.Clear();
-                    cmd.CommandText = "SELECT IFNULL(SUM(Score),0) FROM User_Quiz_Scores WHERE User_ID = @uid";
-                    cmd.Parameters.AddWithValue("@uid", userId);
-                    int correct = SafeExecuteInt(cmd);
-                    badge.CurrentProgress = Mathf.Min(correct, 100);
-                    badge.TargetProgress = 100;
-                    break;
+                    case 3: // Correct Machine
+                        cmd.Parameters.Clear();
+                        cmd.CommandText = "SELECT IFNULL(SUM(Score),0) FROM User_Quiz_Scores WHERE User_ID = @uid";
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        int correct = SafeExecuteInt(cmd);
+                        badge.CurrentProgress = Mathf.Min(correct, 100);
+                        badge.TargetProgress = 100;
+                        break;
 
-                case 6: // Quiz Champion
-                    cmd.Parameters.Clear();
-                    cmd.CommandText = "SELECT MAX(Score) FROM User_Quiz_Scores WHERE User_ID = @uid";
-                    cmd.Parameters.AddWithValue("@uid", userId);
-                    int bestScore = SafeExecuteInt(cmd);
-                    badge.CurrentProgress = Mathf.Min(bestScore, 14);
-                    badge.TargetProgress = 14;
-                    break;
+                    case 6: // Quiz Champion
+                        cmd.Parameters.Clear();
+                        cmd.CommandText = "SELECT MAX(Score) FROM User_Quiz_Scores WHERE User_ID = @uid";
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        int bestScore = SafeExecuteInt(cmd);
+                        badge.CurrentProgress = Mathf.Min(bestScore, 14);
+                        badge.TargetProgress = 14;
+                        break;
 
-                case 7: // Flawless Victory
-                    cmd.Parameters.Clear();
-                    cmd.CommandText = "SELECT MAX(Score) FROM User_Quiz_Scores WHERE User_ID = @uid";
-                    cmd.Parameters.AddWithValue("@uid", userId);
-                    bestScore = SafeExecuteInt(cmd);
-                    badge.CurrentProgress = Mathf.Min(bestScore, 15);
-                    badge.TargetProgress = 15;
-                    break;
+                    case 7: // Flawless Victory
+                        cmd.Parameters.Clear();
+                        cmd.CommandText = "SELECT MAX(Score) FROM User_Quiz_Scores WHERE User_ID = @uid";
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        bestScore = SafeExecuteInt(cmd);
+                        badge.CurrentProgress = Mathf.Min(bestScore, 15);
+                        badge.TargetProgress = 15;
+                        break;
 
-                case 8: // Quiz Veteran
-                    cmd.Parameters.Clear();
-                    cmd.CommandText = "SELECT COUNT(*) FROM User_Quiz_Scores WHERE User_ID = @uid";
-                    cmd.Parameters.AddWithValue("@uid", userId);
-                    int quizzes = SafeExecuteInt(cmd);
-                    badge.CurrentProgress = Mathf.Min(quizzes, 10);
-                    badge.TargetProgress = 10;
-                    break;
+                    case 8: // Quiz Veteran
+                        cmd.Parameters.Clear();
+                        cmd.CommandText = "SELECT COUNT(*) FROM User_Quiz_Scores WHERE User_ID = @uid";
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        int quizzes = SafeExecuteInt(cmd);
+                        badge.CurrentProgress = Mathf.Min(quizzes, 10);
+                        badge.TargetProgress = 10;
+                        break;
 
-                default:
-                    badge.CurrentProgress = badge.IsUnlocked ? 1 : 0;
-                    badge.TargetProgress = 1;
-                    break;
+                    default:
+                        badge.CurrentProgress = badge.IsUnlocked ? 1 : 0;
+                        badge.TargetProgress = 1;
+                        break;
+                }
             }
         }
     }
-}
 
     public void ClaimBadge(int userId, int badgeId, int goldReward)
     {
@@ -2073,4 +2076,107 @@ private void SetBadgeProgress(Badge badge, int userId)
         return question;
     }
 
+    public void UpdateUserEnergy(int userId)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+
+            int currentEnergy = 0;
+            string lastUpdate = "";
+
+            // Get current energy and last update
+            using (var cmd = new SqliteCommand("SELECT energy, last_energy_update FROM users WHERE id = @id", conn))
+            {
+                cmd.Parameters.AddWithValue("@id", userId);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        currentEnergy = reader.GetInt32(0);
+                        lastUpdate = reader.IsDBNull(1) ? "" : reader.GetString(1);
+                    }
+                }
+            }
+
+            DateTime now = DateTime.UtcNow;
+            DateTime lastUpdateTime;
+
+            // ✅ Handle missing or invalid timestamp
+            if (string.IsNullOrEmpty(lastUpdate))
+            {
+                lastUpdateTime = now;
+                // Set it immediately so next time it works correctly
+                using (var initCmd = new SqliteCommand("UPDATE users SET last_energy_update = @now WHERE id = @id", conn))
+                {
+                    initCmd.Parameters.AddWithValue("@now", now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    initCmd.Parameters.AddWithValue("@id", userId);
+                    initCmd.ExecuteNonQuery();
+                }
+
+                Debug.Log("🆕 Initialized last_energy_update for this user.");
+                conn.Close();
+                return;
+            }
+
+            // ✅ Safe parse
+            if (!DateTime.TryParse(lastUpdate, out lastUpdateTime))
+            {
+                lastUpdateTime = now;
+            }
+
+            // Calculate hours passed
+            double hoursPassed = (now - lastUpdateTime).TotalHours;
+
+            if (hoursPassed >= 1)
+            {
+                int energyToAdd = (int)(hoursPassed * 3); // 3 energy per hour
+                int newEnergy = Mathf.Min(30, currentEnergy + energyToAdd); // cap at 30
+
+                // Update energy and last update
+                using (var updateCmd = new SqliteCommand("UPDATE users SET energy = @energy, last_energy_update = @now WHERE id = @id", conn))
+                {
+                    updateCmd.Parameters.AddWithValue("@energy", newEnergy);
+                    updateCmd.Parameters.AddWithValue("@now", now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    updateCmd.Parameters.AddWithValue("@id", userId);
+                    updateCmd.ExecuteNonQuery();
+                }
+
+                Debug.Log($"⚡ Energy updated: {currentEnergy} → {newEnergy}");
+            }
+            else
+            {
+                Debug.Log("⏱ No energy to add yet (less than 1 hour passed).");
+            }
+
+            conn.Close();
+        }
+    }
+
+    public (int energy, DateTime lastUpdate) GetUserEnergyInfo(int userId)
+    {
+        using (var conn = new SqliteConnection(dbPath))
+        {
+            conn.Open();
+            int energy = 0;
+            string lastUpdate = "";
+
+            using (var cmd = new SqliteCommand("SELECT energy, last_energy_update FROM users WHERE id = @id", conn))
+            {
+                cmd.Parameters.AddWithValue("@id", userId);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        energy = reader.GetInt32(0);
+                        lastUpdate = reader.IsDBNull(1) ? DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") : reader.GetString(1);
+                    }
+                }
+            }
+
+            DateTime parsedDate = DateTime.TryParse(lastUpdate, out var date) ? date : DateTime.UtcNow;
+            conn.Close();
+            return (energy, parsedDate);
+        }
+    }
 }
