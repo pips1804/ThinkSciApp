@@ -51,8 +51,8 @@ public class VideoController : MonoBehaviour
         originalAnchorMin = videoPanel.anchorMin;
         originalAnchorMax = videoPanel.anchorMax;
 
-        // takeQuizButton.interactable = true; // Enable quiz button at start
-        takeQuizButton.interactable = false; // Disable quiz button at start
+        takeQuizButton.interactable = true; // Enable quiz button at start
+        // takeQuizButton.interactable = false; // Disable quiz button at start
     }
 
     void Update()
@@ -122,7 +122,7 @@ public class VideoController : MonoBehaviour
     {
         centerPlayButton.gameObject.SetActive(true);
         StartCoroutine(FadeAudio(AudioManager.Instance.bgmSource, PlayerPrefs.GetFloat("BGMVolume", 0.1f), 1f));
-        takeQuizButton.interactable = true; // Enable quiz button when video ends
+        // takeQuizButton.interactable = true; // Enable quiz button when video ends
     }
     void OnVideoPrepared(VideoPlayer vp) => UpdateTimeUI();
 
