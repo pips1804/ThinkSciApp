@@ -143867,6 +143867,7 @@ MonoBehaviour:
   confirmYesButton: {fileID: 1106995027}
   confirmNoButton: {fileID: 1624142726}
   useFoodSound: {fileID: 8300000, guid: 95c25f528488c1c4aa76d6d2d73ca2fd, type: 3}
+  mainSceneUI: {fileID: 1473477791}
 --- !u!1 &1323078016
 GameObject:
   m_ObjectHideFlags: 0
@@ -144674,6 +144675,10 @@ MonoBehaviour:
   sfxSource: {fileID: 286454660}
   bgmSliders: []
   sfxSliders: []
+  bgmIcon: {fileID: 569047657}
+  fullVolumeIcon: {fileID: 21300000, guid: a92bc696301a0a34ea24a10255c07973, type: 3}
+  halfVolumeIcon: {fileID: 21300000, guid: 06921a50dc133ba42ae25f1a0feb3e24, type: 3}
+  muteIcon: {fileID: 21300000, guid: db9ab0532ca68e745bc9bd8260b1c595, type: 3}
 --- !u!4 &1330221254
 Transform:
   m_ObjectHideFlags: 0
