@@ -776,15 +776,31 @@ public class DatabaseManager : MonoBehaviour
         {
             conn.Open();
 
+            int currentEnergy = 0;
+            using (IDbCommand getCmd = conn.CreateCommand())
+            {
+                getCmd.CommandText = "SELECT energy FROM users WHERE id = @userId";
+                var param = getCmd.CreateParameter();
+                param.ParameterName = "@userId";
+                param.Value = userId;
+                getCmd.Parameters.Add(param);
+
+                var result = getCmd.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                    currentEnergy = System.Convert.ToInt32(result);
+            }
+
+            int newEnergy = Mathf.Min(currentEnergy + energyToAdd, 30);
+
             using (IDbCommand cmd = conn.CreateCommand())
             {
                 cmd.CommandText = @"UPDATE users
-                                SET energy = energy + @energyToAdd
+                                SET energy = @newEnergy
                                 WHERE id = @userId";
 
                 var param1 = cmd.CreateParameter();
-                param1.ParameterName = "@energyToAdd";
-                param1.Value = energyToAdd;
+                param1.ParameterName = "@newEnergy";
+                param1.Value = newEnergy;
                 cmd.Parameters.Add(param1);
 
                 var param2 = cmd.CreateParameter();
@@ -795,6 +811,7 @@ public class DatabaseManager : MonoBehaviour
                 cmd.ExecuteNonQuery();
             }
         }
+
         OnUserDataChanged?.Invoke();
     }
 

@@ -16,6 +16,11 @@ public class AudioManager : MonoBehaviour
     public List<Slider> bgmSliders = new List<Slider>();
     public List<Slider> sfxSliders = new List<Slider>();
 
+    public Image bgmIcon;
+    public Sprite fullVolumeIcon;
+    public Sprite halfVolumeIcon;
+    public Sprite muteIcon;
+
     private void Awake()
     {
         if (Instance == null)
@@ -64,6 +69,8 @@ public class AudioManager : MonoBehaviour
 
         foreach (Slider s in bgmSliders)
             if (s.value != volume) s.value = volume;
+
+        UpdateBgmIcon(volume);
     }
 
     public void SetSFXVolume(float volume)
@@ -84,6 +91,8 @@ public class AudioManager : MonoBehaviour
         bgmSource.volume = bgmVolume;
         sfxSource.volume = sfxVolume;
         loopingSfxSource.volume = sfxVolume;
+
+        UpdateBgmIcon(bgmVolume);
     }
 
     public void PlaySFX(AudioClip clip)
@@ -105,5 +114,17 @@ public class AudioManager : MonoBehaviour
             loopingSfxSource.Stop();
             loopingSfxSource.clip = null;
         }
+    }
+
+    private void UpdateBgmIcon(float volume)
+    {
+        if (bgmIcon == null) return;
+
+        if (volume <= 0.01f)
+            bgmIcon.sprite = muteIcon;
+        else if (volume < 0.5f)
+            bgmIcon.sprite = halfVolumeIcon;
+        else
+            bgmIcon.sprite = fullVolumeIcon;
     }
 }

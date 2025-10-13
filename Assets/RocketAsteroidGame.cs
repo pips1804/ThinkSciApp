@@ -3044,6 +3044,9 @@ public class RocketAsteroidGame : MonoBehaviour
     {
         Debug.Log("Cleaning up game...");
 
+        // CRITICAL: Ensure time scale is reset during cleanup
+        Time.timeScale = 1f;
+
         // Stop all coroutines to prevent MissingReferenceExceptions
         StopAllCoroutines();
 
@@ -3091,10 +3094,9 @@ public class RocketAsteroidGame : MonoBehaviour
             questionPanel.SetActive(false);
         }
 
-        Time.timeScale = 1f;
-
-        Debug.Log("Game cleanup complete.");
+        Debug.Log($"Game cleanup complete - Time.timeScale is now: {Time.timeScale}");
     }
+
     public void RestartGame()
     {
         score = 0;
@@ -3138,9 +3140,78 @@ public class RocketAsteroidGame : MonoBehaviour
 
     public void ReturnToMenu()
     {
+        Debug.Log("=== RETURNING TO MENU ===");
+
+        // CRITICAL: Reset time scale FIRST
         Time.timeScale = 1f;
+
+        // Reset all game states
+        isGameActive = false;
         isGamePaused = false;
-        Debug.Log("Returning to menu...");
+        isQuestionActive = false;
+        isWaitingForQuestionAnswer = false;
+        isProcessingQuestion = false;
+
+        // Stop all running coroutines
+        StopAllCoroutines();
+
+        // Clean up game objects
+        CleanupGame();
+
+        // Hide all UI panels
+        if (gameUI != null) gameUI.SetActive(false);
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (victoryPanel != null) victoryPanel.SetActive(false);
+        if (questionPanel != null) questionPanel.SetActive(false);
+        if (settingsModal != null) settingsModal.SetActive(false);
+        if (pauseOverlay != null) pauseOverlay.SetActive(false);
+
+        Debug.Log($"ReturnToMenu complete - Time.timeScale is now: {Time.timeScale}");
+    }
+
+    void OnDisable()
+    {
+        Debug.Log("=== GAME OBJECT DISABLED - RESETTING TIME SCALE ===");
+
+        // CRITICAL: Always reset time scale when leaving the game
+        Time.timeScale = 1f;
+
+        // Stop all coroutines to prevent issues
+        StopAllCoroutines();
+
+        // Reset game states
+        isGameActive = false;
+        isGamePaused = false;
+        isQuestionActive = false;
+        isWaitingForQuestionAnswer = false;
+        isProcessingQuestion = false;
+
+        // Clean up if needed
+        if (activeObjects != null)
+        {
+            for (int i = activeObjects.Count - 1; i >= 0; i--)
+            {
+                if (activeObjects[i] != null)
+                {
+                    Destroy(activeObjects[i]);
+                }
+            }
+            activeObjects.Clear();
+        }
+
+        if (activeBullets != null)
+        {
+            for (int i = activeBullets.Count - 1; i >= 0; i--)
+            {
+                if (activeBullets[i] != null)
+                {
+                    Destroy(activeBullets[i]);
+                }
+            }
+            activeBullets.Clear();
+        }
+
+        Debug.Log($"OnDisable complete - Time.timeScale is now: {Time.timeScale}");
     }
 
     public void OpenModal()
