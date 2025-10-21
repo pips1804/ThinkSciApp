@@ -1158,117 +1158,148 @@ public class DatabaseManager : MonoBehaviour
     }
 
     public List<MultipleChoice.MultipleChoiceQuestions> GetRandomUnusedQuestions(int quizId, string questionType = null, int limit = 15)
+{
+    List<MultipleChoice.MultipleChoiceQuestions> questionList = new List<MultipleChoice.MultipleChoiceQuestions>();
+
+    using (var connection = new SqliteConnection(dbPath))
     {
-        List<MultipleChoice.MultipleChoiceQuestions> questionList = new List<MultipleChoice.MultipleChoiceQuestions>();
+        connection.Open();
 
-        using (var connection = new SqliteConnection(dbPath))
+        int currentSet = 1;
+        bool foundAvailableSet = false;
+
+        // Step 1: Find the lowest-numbered set that still has unused questions
+        using (var findSetCmd = connection.CreateCommand())
         {
-            connection.Open();
+            findSetCmd.CommandText = @"
+                SELECT DISTINCT ""Set"" 
+                FROM Questions 
+                WHERE Quiz_ID = @quizId
+                ORDER BY ""Set"" ASC";
+            findSetCmd.Parameters.AddWithValue("@quizId", quizId);
 
-            // Step 1: Count unused with optional type filter
-            int unusedCount = 0;
-            using (var checkCmd = connection.CreateCommand())
+            using (var reader = findSetCmd.ExecuteReader())
             {
-                checkCmd.CommandText = @"SELECT COUNT(*)
-                                     FROM Questions
-                                     WHERE Quiz_ID = @quizId AND Is_Used = 0"
-                                         + (questionType != null ? " AND Question_Type = @qType" : "");
-                checkCmd.Parameters.AddWithValue("@quizId", quizId);
-                if (questionType != null)
-                    checkCmd.Parameters.AddWithValue("@qType", questionType);
-
-                unusedCount = Convert.ToInt32(checkCmd.ExecuteScalar());
-            }
-
-            // Step 2: Reset if not enough unused
-            if (unusedCount < limit)
-            {
-                using (var resetCmd = connection.CreateCommand())
+                while (reader.Read())
                 {
-                    resetCmd.CommandText = @"UPDATE Questions
-                                         SET Is_Used = 0
-                                         WHERE Quiz_ID = @quizId"
-                                             + (questionType != null ? " AND Question_Type = @qType" : "");
-                    resetCmd.Parameters.AddWithValue("@quizId", quizId);
-                    if (questionType != null)
-                        resetCmd.Parameters.AddWithValue("@qType", questionType);
+                    int setNumber = reader.GetInt32(0);
 
-                    resetCmd.ExecuteNonQuery();
-                }
-            }
-
-            // Step 3: Select random unused with optional type filter
-            using (var cmd = connection.CreateCommand())
-            {
-                cmd.CommandText = @"SELECT Question_ID, Question_Text
-                                FROM Questions
-                                WHERE Quiz_ID = @quizId AND Is_Used = 0"
-                                    + (questionType != null ? " AND Question_Type = @qType" : "") +
-                                    " ORDER BY RANDOM() LIMIT @limit";
-                cmd.Parameters.AddWithValue("@quizId", quizId);
-                cmd.Parameters.AddWithValue("@limit", limit);
-                if (questionType != null)
-                    cmd.Parameters.AddWithValue("@qType", questionType);
-
-                List<int> selectedIds = new List<int>();
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
+                    using (var checkCmd = connection.CreateCommand())
                     {
-                        int questionId = reader.GetInt32(0);
-                        string questionText = reader.GetString(1);
-                        selectedIds.Add(questionId);
+                        checkCmd.CommandText = @"SELECT COUNT(*) 
+                            FROM Questions 
+                            WHERE Quiz_ID = @quizId AND ""Set"" = @setNum AND Is_Used = 0"
+                            + (questionType != null ? " AND Question_Type = @qType" : "");
+                        checkCmd.Parameters.AddWithValue("@quizId", quizId);
+                        checkCmd.Parameters.AddWithValue("@setNum", setNumber);
+                        if (questionType != null)
+                            checkCmd.Parameters.AddWithValue("@qType", questionType);
 
-                        var q = new MultipleChoice.MultipleChoiceQuestions();
-                        q.question = questionText;
-
-                        // Fetch options
-                        using (var optCmd = connection.CreateCommand())
+                        int unusedCount = Convert.ToInt32(checkCmd.ExecuteScalar());
+                        if (unusedCount > 0)
                         {
-                            optCmd.CommandText = "SELECT Option_Text, Is_Correct, Explanation FROM MCQ_Options WHERE Question_ID = @qid";
-                            optCmd.Parameters.AddWithValue("@qid", questionId);
-
-                            using (var optReader = optCmd.ExecuteReader())
-                            {
-                                List<string> options = new List<string>();
-                                while (optReader.Read())
-                                {
-                                    string optionText = optReader.GetString(0);
-                                    int isCorrect = optReader.GetInt32(1);
-                                    string explanation = optReader.GetString(2);
-
-                                    options.Add(optionText);
-
-                                    if (isCorrect == 1)
-                                    {
-                                        q.correctIndex = options.Count - 1;
-                                        q.explanationText = explanation;
-                                    }
-                                }
-                                q.options = options.ToArray();
-                            }
+                            currentSet = setNumber;
+                            foundAvailableSet = true;
+                            break;
                         }
-
-                        questionList.Add(q);
-                    }
-                }
-
-                // Step 4: Mark selected as used
-                foreach (int qid in selectedIds)
-                {
-                    using (var updateCmd = connection.CreateCommand())
-                    {
-                        updateCmd.CommandText = "UPDATE Questions SET Is_Used = 1 WHERE Question_ID = @qid";
-                        updateCmd.Parameters.AddWithValue("@qid", qid);
-                        updateCmd.ExecuteNonQuery();
                     }
                 }
             }
         }
 
-        return questionList;
+        // Step 2: If all sets are used, reset all
+        if (!foundAvailableSet)
+        {
+            using (var resetCmd = connection.CreateCommand())
+            {
+                resetCmd.CommandText = @"UPDATE Questions
+                                         SET Is_Used = 0
+                                         WHERE Quiz_ID = @quizId"
+                                         + (questionType != null ? " AND Question_Type = @qType" : "");
+                resetCmd.Parameters.AddWithValue("@quizId", quizId);
+                if (questionType != null)
+                    resetCmd.Parameters.AddWithValue("@qType", questionType);
+                resetCmd.ExecuteNonQuery();
+            }
+
+            // After reset, start again from Set 1
+            currentSet = 1;
+        }
+
+        // Step 3: Select random unused questions from current set
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = @"SELECT Question_ID, Question_Text
+                                FROM Questions
+                                WHERE Quiz_ID = @quizId AND Is_Used = 0 AND ""Set"" = @setNum"
+                                + (questionType != null ? " AND Question_Type = @qType" : "") +
+                                " ORDER BY RANDOM() LIMIT @limit";
+            cmd.Parameters.AddWithValue("@quizId", quizId);
+            cmd.Parameters.AddWithValue("@setNum", currentSet);
+            cmd.Parameters.AddWithValue("@limit", limit);
+            if (questionType != null)
+                cmd.Parameters.AddWithValue("@qType", questionType);
+
+            List<int> selectedIds = new List<int>();
+
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    int questionId = reader.GetInt32(0);
+                    string questionText = reader.GetString(1);
+                    selectedIds.Add(questionId);
+
+                    var q = new MultipleChoice.MultipleChoiceQuestions();
+                    q.question = questionText;
+
+                    // Fetch options
+                    using (var optCmd = connection.CreateCommand())
+                    {
+                        optCmd.CommandText = "SELECT Option_Text, Is_Correct, Explanation FROM MCQ_Options WHERE Question_ID = @qid";
+                        optCmd.Parameters.AddWithValue("@qid", questionId);
+
+                        using (var optReader = optCmd.ExecuteReader())
+                        {
+                            List<string> options = new List<string>();
+                            while (optReader.Read())
+                            {
+                                string optionText = optReader.GetString(0);
+                                int isCorrect = optReader.GetInt32(1);
+                                string explanation = optReader.GetString(2);
+
+                                options.Add(optionText);
+
+                                if (isCorrect == 1)
+                                {
+                                    q.correctIndex = options.Count - 1;
+                                    q.explanationText = explanation;
+                                }
+                            }
+                            q.options = options.ToArray();
+                        }
+                    }
+
+                    questionList.Add(q);
+                }
+            }
+
+            // Step 4: Mark selected as used
+            foreach (int qid in selectedIds)
+            {
+                using (var updateCmd = connection.CreateCommand())
+                {
+                    updateCmd.CommandText = "UPDATE Questions SET Is_Used = 1 WHERE Question_ID = @qid";
+                    updateCmd.Parameters.AddWithValue("@qid", qid);
+                    updateCmd.ExecuteNonQuery();
+                }
+            }
+        }
     }
+
+    return questionList;
+}
+
 
     public MultipleChoice.MultipleChoiceQuestions GetRandomUnusedQuestion(int quizId)
     {
