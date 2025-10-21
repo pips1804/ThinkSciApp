@@ -18,6 +18,7 @@ public class BadgeUIManager : MonoBehaviour
 
     public MainSceneUI mainmenu;
     public AudioClip coin;
+    public GameObject noBadgesText;
 
 
     void Start()
@@ -119,6 +120,9 @@ public class BadgeUIManager : MonoBehaviour
             cardButton.interactable = true;
         }
 
+        if (noBadgesText != null)
+            noBadgesText.SetActive(badgeList.Count == 0);
+        
         Debug.Log("Badge Count: " + badgeList.Count);
     }
 

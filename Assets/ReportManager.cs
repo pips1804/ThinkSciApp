@@ -21,6 +21,7 @@ public class ReportManager : MonoBehaviour
     // Toggle flags
     private bool scoreAscending = true;
     private bool dateAscending = true;
+    public GameObject noScoresText;
 
     void Start()
     {
@@ -98,6 +99,9 @@ public class ReportManager : MonoBehaviour
                 dbManager.MarkScoreAsSeen(record);
             }
         }
+
+        if (noScoresText != null)
+            noScoresText.SetActive(records.Count == 0);
     }
 
 
