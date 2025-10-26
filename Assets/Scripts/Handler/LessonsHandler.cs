@@ -77,6 +77,10 @@ public class LessonLocker : MonoBehaviour
         if (lockIcon != null)
             lockIcon.gameObject.SetActive(true);
 
+        Transform itemIcon = button.transform.Find("ItemIcon");
+        if (itemIcon != null)
+            itemIcon.gameObject.SetActive(true);
+
         // 🔹 Disable PanelSwitcher so it won’t swap panels
         PanelSwitcher ps = button.GetComponent<PanelSwitcher>();
         if (ps != null)
@@ -103,6 +107,10 @@ public class LessonLocker : MonoBehaviour
         Transform lockIcon = button.transform.Find("LockIcon");
         if (lockIcon != null)
             lockIcon.gameObject.SetActive(false);
+
+        Transform itemIcon = button.transform.Find("ItemIcon");
+        if (itemIcon != null)
+            itemIcon.gameObject.SetActive(false);
 
         // Enable PanelSwitcher
         PanelSwitcher ps = button.GetComponent<PanelSwitcher>();
