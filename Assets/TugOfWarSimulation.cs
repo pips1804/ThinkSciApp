@@ -32,6 +32,7 @@ public class TugOfWarSimulation : MonoBehaviour
     public Button removeLeftPetButton;
     public Button removeRightPetButton;
     public Button startSimulationButton;
+    public Button skipButton; // NEW: Skip button
     public Text leftForceText;
     public Text rightForceText;
 
@@ -64,6 +65,11 @@ public class TugOfWarSimulation : MonoBehaviour
         removeLeftPetButton.onClick.AddListener(() => RemovePet(true));
         removeRightPetButton.onClick.AddListener(() => RemovePet(false));
         startSimulationButton.onClick.AddListener(StartTugOfWar);
+        skipButton.onClick.AddListener(SkipSimulation); // NEW: Add skip button listener
+
+        // NEW: Initially hide skip button
+        if (skipButton != null)
+            skipButton.gameObject.SetActive(false);
 
         UpdateUI();
     }
@@ -145,22 +151,6 @@ public class TugOfWarSimulation : MonoBehaviour
         }
     }
 
-    // private void StartTugOfWar()
-    // {
-    //     if (leftPets.Count == 0 || rightPets.Count == 0)
-    //     {
-    //         Debug.Log("Both sides need at least one pet!");
-    //         return;
-    //     }
-
-    //     simulationRunning = true;
-    //     addLeftPetButton.interactable = false;
-    //     addRightPetButton.interactable = false;
-    //     startSimulationButton.interactable = false;
-
-    //     StartCoroutine(SimulateTugOfWar());
-    // }
-
     private void StartTugOfWar()
     {
         if (!timerRunning) return; // only allow if inside freeplay
@@ -239,6 +229,11 @@ public class TugOfWarSimulation : MonoBehaviour
         ResetSimulation(); // clear everything
         timeRemaining = simulationDuration;
         timerRunning = true;
+
+        // NEW: Show skip button when freeplay starts
+        if (skipButton != null)
+            skipButton.gameObject.SetActive(true);
+
         StartCoroutine(TimerCountdown());
     }
 
@@ -258,10 +253,31 @@ public class TugOfWarSimulation : MonoBehaviour
         EndFreeplayPhase();
     }
 
+    // NEW: Skip button functionality
+    private void SkipSimulation()
+    {
+        if (!timerRunning) return; // Only allow skip during freeplay
+
+        // Stop timer
+        timerRunning = false;
+        StopAllCoroutines();
+
+        // Hide skip button
+        if (skipButton != null)
+            skipButton.gameObject.SetActive(false);
+
+        // End freeplay and move to quiz
+        EndFreeplayPhase();
+    }
+
     private void EndFreeplayPhase()
     {
         // Stop any running simulations
         StopAllCoroutines();
+
+        // NEW: Hide skip button
+        if (skipButton != null)
+            skipButton.gameObject.SetActive(false);
 
         // Reset rope and pets
         ResetSimulation();
