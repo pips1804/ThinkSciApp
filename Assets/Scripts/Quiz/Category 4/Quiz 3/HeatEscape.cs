@@ -67,6 +67,11 @@ public class HeatEscape : MonoBehaviour
     public LessonLocker lessonHandler;
     public int userID;
     public int rewardItemID;
+    [Header("Skip Panel")]
+    public GameObject skipPanel;   
+    public Button skipButton;          
+    public Button skipConfirmButton;     
+    public Button skipCloseButton;       
 
     void Start()
     {
@@ -123,6 +128,16 @@ public class HeatEscape : MonoBehaviour
         totalCorrectAnswers = 0;
         totalQuestionsAnswered = 0;
 
+        if (skipButton != null)
+        {
+            skipButton.onClick.RemoveAllListeners();
+            skipButton.onClick.AddListener(OnSkipButtonClicked);
+            skipButton.gameObject.SetActive(false); // hidden until simulation
+        }
+
+        if (skipPanel != null)
+            skipPanel.SetActive(false);
+
         StartCoroutine(GameFlow());
     }
 
@@ -158,6 +173,9 @@ public class HeatEscape : MonoBehaviour
         HousePanel.SetActive(true);
         ButtonsPanel.SetActive(true);
 
+        if (skipButton != null)
+            skipButton.gameObject.SetActive(true);
+
         if (timerText != null)
         {
             timerText.gameObject.SetActive(true);
@@ -167,6 +185,9 @@ public class HeatEscape : MonoBehaviour
         yield return StartCoroutine(SimulationTimer());
 
         if (timerText != null) timerText.gameObject.SetActive(false);
+
+        if (skipButton != null)
+            skipButton.gameObject.SetActive(false);
 
         dialogues.StartDialogue(1);
         yield return new WaitUntil(() => dialogues.dialogueFinished);
@@ -548,6 +569,46 @@ public class HeatEscape : MonoBehaviour
     public string GetCurrentPerformanceMessage()
     {
         return GetPerformanceMessage();
+    }
+    // Called when Skip button is clicked
+    void OnSkipButtonClicked()
+    {
+        if (skipPanel != null)
+            skipPanel.SetActive(true);
+
+        if (skipConfirmButton != null)
+        {
+            skipConfirmButton.onClick.RemoveAllListeners();
+            skipConfirmButton.onClick.AddListener(OnSkipConfirmed);
+        }
+
+        if (skipCloseButton != null)
+        {
+            skipCloseButton.onClick.RemoveAllListeners();
+            skipCloseButton.onClick.AddListener(() =>
+            {
+                if (skipPanel != null)
+                    skipPanel.SetActive(false);
+            });
+        }
+    }
+    
+    // Called when Confirm is clicked
+    void OnSkipConfirmed()
+    {
+        if (skipPanel != null)
+            skipPanel.SetActive(false);
+
+        StopAllCoroutines(); // Stop simulation timer or other running coroutines
+
+        // Hide simulation UI
+        if (timerText != null) timerText.gameObject.SetActive(false);
+        if (skipButton != null) skipButton.gameObject.SetActive(false);
+        if (HousePanel != null) HousePanel.SetActive(false);
+        if (ButtonsPanel != null) ButtonsPanel.SetActive(false);
+
+        // Proceed directly to quiz
+        StartQuiz();
     }
 
     #region Material Buttons

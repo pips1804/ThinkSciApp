@@ -96,6 +96,12 @@ public class ParticleManager : MonoBehaviour
     public int userID;
     public int rewardItemID;
 
+    [Header("Skip Panel")]
+    public GameObject skipPanel;
+    public Button skipButton;
+    public Button skipConfirmButton;
+    public Button skipCloseButton;
+
     void Start()
     {
         InitializeGame();
@@ -216,6 +222,17 @@ public class ParticleManager : MonoBehaviour
             OnMessageConfirmed();
         }
 
+        if (skipButton != null)
+        {
+            skipButton.onClick.RemoveAllListeners();
+            skipButton.onClick.AddListener(OnSkipButtonClicked);
+            skipButton.gameObject.SetActive(false); // Hidden until simulation starts
+        }
+
+        // Hide skip confirmation panel
+        if (skipPanel != null)
+            skipPanel.SetActive(false);
+
         // Hide flames at start
         if (flameImages != null)
         {
@@ -248,6 +265,9 @@ public class ParticleManager : MonoBehaviour
 
         // ⏳ Start simulation timer
         simulationTimerRoutine = StartCoroutine(SimulationTimer());
+
+        if (skipButton != null)
+            skipButton.gameObject.SetActive(true);
     }
 
     IEnumerator SimulationTimer()
@@ -274,6 +294,10 @@ public class ParticleManager : MonoBehaviour
         controllerBackground.SetActive(false);
 
         messagePanel.SetActive(true);
+
+        if (skipButton != null)
+            skipButton.gameObject.SetActive(false);
+
         messageText.text = "Experiment done! Let's check your understanding";
 
         messageButton.onClick.RemoveAllListeners();
@@ -768,5 +792,59 @@ public class ParticleManager : MonoBehaviour
             }
             yield return null;
         }
+    }
+
+    // Called when Skip button is clicked
+    void OnSkipButtonClicked()
+    {
+        if (skipPanel != null)
+            skipPanel.SetActive(true);
+
+        if (skipConfirmButton != null)
+        {
+            skipConfirmButton.onClick.RemoveAllListeners();
+            skipConfirmButton.onClick.AddListener(OnSkipConfirmed);
+        }
+
+        if (skipCloseButton != null)
+        {
+            skipCloseButton.onClick.RemoveAllListeners();
+            skipCloseButton.onClick.AddListener(() =>
+            {
+                if (skipPanel != null)
+                    skipPanel.SetActive(false);
+            });
+        }
+    }// Called when Confirm in skip panel is pressed
+    void OnSkipConfirmed()
+    {
+        if (skipPanel != null)
+            skipPanel.SetActive(false);
+
+        // Stop all coroutines related to simulation
+        if (simulationTimerRoutine != null)
+        {
+            StopCoroutine(simulationTimerRoutine);
+            simulationTimerRoutine = null;
+        }
+
+        StopHeatingSound();
+
+        // Hide all simulation visuals
+        if (simulationTimerText != null) simulationTimerText.gameObject.SetActive(false);
+        if (potBackground != null) potBackground.SetActive(false);
+        if (controllerBackground != null) controllerBackground.SetActive(false);
+        if (skipButton != null) skipButton.gameObject.SetActive(false);
+
+        // Immediately start quiz
+        messagePanel.SetActive(true);
+        messageText.text = "You skipped the experiment. Let’s test your understanding!";
+
+        messageButton.onClick.RemoveAllListeners();
+        messageButton.onClick.AddListener(() =>
+        {
+            messagePanel.SetActive(false);
+            StartQuizMode();
+        });
     }
 }
